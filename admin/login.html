@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Admin Login</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+<style>
+body{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+font-family:Arial;
+background:#f5f5f5;
+}
+
+.box{
+background:white;
+padding:20px;
+border-radius:10px;
+width:300px;
+}
+
+input{
+width:100%;
+padding:10px;
+margin:8px 0;
+}
+
+button{
+width:100%;
+padding:10px;
+background:#222;
+color:white;
+border:none;
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+
+<h2>Admin Login</h2>
+
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+</div>
+
+<script>
+function login(){
+
+const email =
+document.getElementById("email").value;
+
+const password =
+document.getElementById("password").value;
+
+if(
+email==="admin@gmail.com" &&
+password==="admin123"
+){
+localStorage.setItem("adminLoggedIn","true");
+window.location.href="index.html";
+}
+else{
+alert("Invalid Login");
+}
+}
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+</body>
+</html>

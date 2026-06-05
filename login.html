@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .box {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      max-width: 320px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #4285F4;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>🔐 Login</h2>
+
+  <button onclick="googleLogin()">
+    🔵 Sign in with Google
+  </button>
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getAuth,
+  signInWithPopup,
+  GoogleAuthProvider
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const provider = new GoogleAuthProvider();
+
+// GOOGLE LOGIN
+window.googleLogin = async function () {
+
+  try {
+
+    const result =
+      await signInWithPopup(auth, provider);
+
+    const user = result.user;
+
+    localStorage.setItem(
+      "user",
+      JSON.stringify({
+        uid: user.uid,
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL
+      })
+    );
+
+    const userRef =
+      doc(db, "users", user.uid);
+
+    const userSnap =
+      await getDoc(userRef);
+
+    if (userSnap.exists()) {
+
+  const data = userSnap.data();
+
+if(data.policyAccepted === true){
+
+  if(data.phone && data.address){
+    window.location.href = "home.html";
+  }else{
+    window.location.href = "details.html";
+  }
+
+}else{
+  window.location.href = "accept.html";
+}
+
+} else {
+
+  await setDoc(userRef,{
+    name:user.displayName,
+    email:user.email,
+    photo:user.photoURL,
+    createdAt:new Date()
+  });
+
+  window.location.href = "accept.html";
+}
+  } catch (err) {
+
+    console.log(err);
+    alert(err.message);
+
+  }
+
+};
+
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+</body>
+</html>

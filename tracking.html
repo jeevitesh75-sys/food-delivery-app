@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Order Tracking</title>
+
+<link rel="stylesheet" href="css/style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+<style>
+.order-item{
+  background:white;
+  margin:10px;
+  padding:12px;
+  border-radius:10px;
+  cursor:pointer;
+}
+.active-order{
+  border:2px solid green;
+}
+.step { display:flex; margin:10px 0; }
+.circle {
+  width:14px; height:14px;
+  border-radius:50%;
+  margin-right:10px;
+  background:gray;
+}
+.active { background:green; }
+#map{
+  height:200px;
+  border-radius:10px;
+  margin-top:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">🚚 Your Orders</div>
+
+<div id="orderList"></div>
+<div id="orderBox"></div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  query,
+  where,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+// 🔥 Firebase
+const app = initializeApp({
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+});
+
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+
+onAuthStateChanged(auth, (user) => {
+
+  if(!user){
+    location.href = "login.html";
+    return;
+  }
+
+  let orderListDiv = document.getElementById("orderList");
+  let orderBox = document.getElementById("orderBox");
+
+  const q = query(
+    collection(db, "orders"),
+    where("userId", "==", user.uid)
+  );
+
+  onSnapshot(q, (snapshot)=>{
+    // existing code
+    orderListDiv.innerHTML = "";
+  orderBox.innerHTML = "";
+
+  let activeOrders = 0;
+
+  snapshot.docs.forEach((docSnap, index)=>{
+
+    let data = docSnap.data();
+
+    if(data.status === "Delivered"){
+      return;
+    }
+
+    activeOrders++;
+
+    let div = document.createElement("div");
+    div.className = "order-item";
+
+    div.innerHTML = `
+      <b>Order #${index+1}</b><br>
+      ₹${data.total}<br>
+      ${data.status}
+    `;
+
+    div.onclick = ()=> showOrder(data, div);
+
+    orderListDiv.appendChild(div);
+
+    if(activeOrders === 1){
+      showOrder(data, div);
+    }
+
+  });
+
+  if(activeOrders === 0){
+    orderListDiv.innerHTML =
+    "<h3 style='text-align:center'>No active orders ✅</h3>";
+
+    orderBox.innerHTML = "";
+  }
+  });
+
+  function showOrder(order, element){
+    // existing code
+    document.querySelectorAll(".order-item").forEach(el=>{
+    el.classList.remove("active-order");
+  });
+  element.classList.add("active-order");
+
+  let steps = [
+  "Pending",
+  "Preparing",
+  "Ready",
+  "Out for Delivery",
+  "Delivered"
+];
+  let currentIndex = steps.indexOf(order.status);
+
+  let stepsHTML = steps.map((step,i)=>`
+    <div class="step">
+      <div class="circle ${i<=currentIndex?'active':''}"></div>
+      ${step}
+    </div>
+  `).join("");
+
+  let itemsHTML = order.items.map(i=>`${i.name} × ${i.qty}`).join("<br>");
+
+  orderBox.innerHTML = `
+    <div class="card">
+      <h3>Status: ${order.status}</h3>
+      ${stepsHTML}
+      <h4>${itemsHTML}</h4>
+      <h4>Total: ₹${order.total}</h4>
+      ${order.deliveryBoyName ? `
+<hr>
+
+<h4>🚴 Delivery Partner</h4>
+
+<p>
+<b>Name:</b>
+${order.deliveryBoyName}
+</p>
+
+<p>
+<b>Phone:</b>
+${order.deliveryBoyPhone || "-"}
+</p>
+
+<a href="tel:${order.deliveryBoyPhone || ''}">
+<button style="
+background:green;
+color:white;
+border:none;
+padding:10px;
+border-radius:8px;
+cursor:pointer;">
+📞 Call Delivery Boy
+</button>
+</a>
+
+` : `
+<p>Waiting for delivery partner...</p>
+`}
+      <div id="map"></div>
+    </div>
+  `;
+// MAP
+setTimeout(()=>{
+
+let mapDiv = document.getElementById("map");
+if(!mapDiv) return;
+
+mapDiv.innerHTML = "";
+
+let map = L.map("map").setView(
+[
+  order.customerLat || order.restaurantLat,
+  order.customerLng || order.restaurantLng
+],
+15
+);
+
+L.tileLayer(
+"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+{
+  attribution:"© OpenStreetMap"
+}
+).addTo(map);
+
+// Customer
+if(order.customerLat && order.customerLng){
+  L.marker([
+    order.customerLat,
+    order.customerLng
+  ])
+  .addTo(map)
+  .bindPopup("🏠 Customer");
+}
+
+// Restaurant
+if(order.restaurantLat && order.restaurantLng){
+  L.marker([
+    order.restaurantLat,
+    order.restaurantLng
+  ])
+  .addTo(map)
+  .bindPopup("🍔 Restaurant");
+}
+
+if(order.deliveryBoyId){
+
+  let riderMarker = null;
+
+  onSnapshot(
+    doc(db,"deliveryPartners",order.deliveryBoyId),
+    (snap)=>{
+
+      let rider = snap.data();
+
+      if(!rider || !rider.liveLat || !rider.liveLng){
+        return;
+      }
+
+      if(riderMarker){
+
+        riderMarker.setLatLng([
+          rider.liveLat,
+          rider.liveLng
+        ]);
+
+      }else{
+
+        riderMarker = L.marker([
+          rider.liveLat,
+          rider.liveLng
+        ])
+        .addTo(map)
+        .bindPopup("🛵 Delivery Partner");
+
+      }
+
+    }
+  );
+}
+
+},300);
+  }
+
+});
+
+
+
+
+</script>
+
+<div class="bottom-nav">
+  <a href="home.html"><div class="nav-item">🏠<br>Home</div></a>
+  
+  <a href="cart.html"><div class="nav-item">🛒<br>Cart</div></a>
+  <a href="profile.html"><div class="nav-item">👤<br>Profile</div></a>
+</div>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cart</title>
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+<style>
+
+body{
+  background:#f5f5f5;
+  margin:0;
+  padding-bottom:140px; /* 🔥 space for summary + nav + checkout */
+}
+
+/* HEADER */
+.header{
+  background:#ffcc00;
+  padding:15px;
+  font-weight:bold;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+/* CART CARD */
+.cart-card {
+  display: flex;
+  justify-content: space-between;
+  background: white;
+  margin: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.food-left {
+  display: flex;
+  gap: 10px;
+}
+
+.food-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.food-name {
+  font-weight: bold;
+}
+
+.food-price {
+  color: gray;
+  font-size: 14px;
+}
+
+.quantity-box {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.quantity-box button {
+  background: #ffcc00;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+/* SUMMARY (above nav) */
+.summary {
+  position: fixed;
+  bottom: 60px; /* 🔥 above nav */
+  width: 100%;
+  background: white;
+  padding: 12px;
+  border-top: 1px solid #ddd;
+  z-index: 999;
+}
+
+/* CHECKOUT BUTTON (above nav) */
+.checkout-btn {
+  position: fixed;
+  bottom: 110px; /* 🔥 above summary */
+  width: 100%;
+  background: green;
+  color: white;
+  text-align: center;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  z-index: 999;
+}
+
+/* EMPTY UI */
+.empty-cart{
+  text-align:center;
+  margin-top:60px;
+}
+
+/* CART BADGE */
+#cart-count{
+  background:red;
+  color:white;
+  padding:2px 6px;
+  border-radius:10px;
+  font-size:12px;
+  display:none;
+}
+
+/* 🔥 FIXED BOTTOM NAV */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid #ccc;
+  z-index: 1000;
+}
+
+/* DESKTOP */
+@media(min-width:768px){
+  .cart-container{
+    max-width:600px;
+    margin:auto;
+  }
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+<a href="restaurant.html">←</a> 🛒 Your Cart
+</div>
+
+<div class="cart-container" id="cart"></div>
+
+<!-- SUMMARY -->
+<div class="summary" id="summaryBox">
+<div class="summary-row">
+<span>Item Total</span>
+<span id="subtotal">₹0</span>
+</div>
+
+<div class="summary-row">
+<span>Delivery Fee</span>
+<span id="deliveryFee">₹30</span>
+</div>
+
+<div class="summary-row">
+<span>Platform Fee</span>
+<span id="platformFee">₹0</span>
+</div>
+
+<div class="summary-row total">
+<span>Total</span>
+<span id="total">₹0</span>
+</div>
+</div>
+
+<!-- CHECKOUT -->
+<div class="checkout-btn" id="checkoutBtn" onclick="goCheckout()">
+Proceed To Checkout →
+</div>
+
+<!-- NAV -->
+<div class="bottom-nav">
+<a href="home.html"><div class="nav-item">🏠<br>Home</div></a>
+
+
+<a href="cart.html">
+<div class="nav-item active">
+🛒<br>Cart <span id="cart-count"></span>
+</div>
+</a>
+
+<a href="profile.html"><div class="nav-item">👤<br>Profile</div></a>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getFirestore,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+};
+
+initializeApp(firebaseConfig);
+const db = getFirestore();
+const auth = getAuth();
+onAuthStateChanged(auth, async(user) => {
+
+  if(!user){
+    location.href = "login.html";
+    return;
+  }
+
+  // ALL EXISTING CODE HERE
+let platformFee = 3;
+let deliveryFee = 30;
+
+const settingsSnap =
+await getDoc(
+  doc(db,"settings","appConfig")
+);
+
+if(settingsSnap.exists()){
+
+  const s = settingsSnap.data();
+
+  platformFee =
+  s.platformFee || 3;
+
+  const distance =
+Number(
+localStorage.getItem(
+"restaurantDistance"
+)) || 0;
+
+if(distance <= 3){
+  deliveryFee = s.fee0to3 || 30;
+}
+else if(distance <= 7){
+  deliveryFee = s.fee3to7 || 50;
+}
+else if(distance <= 10){
+  deliveryFee = s.fee7to10 || 70;
+}
+else{
+  deliveryFee = s.fee10plus || 100;
+}
+}
+
+// USER CHECK
+let user = JSON.parse(localStorage.getItem("user"));
+if (!user) window.location.href = "login.html";
+
+// CART DATA
+let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+let container = document.getElementById("cart");
+
+// BADGE
+function updateCartCount(){
+  let count = cartItems.reduce((sum, item) => sum + item.qty, 0);
+  let badge = document.getElementById("cart-count");
+
+  if(count > 0){
+    badge.innerText = count;
+    badge.style.display = "inline-block";
+  } else {
+    badge.style.display = "none";
+  }
+}
+function getDeliveryFee(distance){
+
+  if(distance <= 3) return 30;
+  if(distance <= 6) return 50;
+
+  return 70;
+}
+// RENDER
+function renderCart() {
+
+  container.innerHTML = "";
+  let subtotal = 0;
+
+  if(cartItems.length === 0){
+    container.innerHTML = `
+      <div class="empty-cart">
+        <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" width="120">
+        <h3>Cart is empty</h3>
+        <p>Add some delicious food 😋</p>
+      </div>
+    `;
+
+    summaryBox.style.display = "none";
+    checkoutBtn.style.display = "none";
+    updateCartCount();
+    return;
+  }
+
+  summaryBox.style.display = "block";
+  checkoutBtn.style.display = "block";
+
+  cartItems.forEach((item, index) => {
+
+    subtotal += item.price * item.qty;
+
+    let div = document.createElement("div");
+    div.className = "cart-card";
+
+    div.innerHTML = `
+      <div class="food-left">
+        <img class="food-image" src="${item.image}">
+        <div>
+          <div class="food-name">${item.name}</div>
+          <div class="food-price">₹${item.price}</div>
+
+          <div class="quantity-box">
+            <button onclick="decrease(${index})">-</button>
+            <span>${item.qty}</span>
+            <button onclick="increase(${index})">+</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+
+  let fee = deliveryFee;
+document.getElementById("deliveryFee").innerText =
+"₹" + deliveryFee;
+document.getElementById("platformFee").innerText =
+"₹" + platformFee;
+
+subtotalEl.innerText = "₹" + subtotal;
+
+totalEl.innerText =
+"₹" + (subtotal + fee + platformFee);
+
+  updateCartCount();
+}
+
+// INCREASE
+window.increase = function(index){
+  cartItems[index].qty++;
+  localStorage.setItem("cart", JSON.stringify(cartItems));
+  renderCart();
+};
+
+// DECREASE
+window.decrease = function(index){
+  if(cartItems[index].qty > 1){
+    cartItems[index].qty--;
+  } else {
+    cartItems.splice(index,1);
+  }
+  localStorage.setItem("cart", JSON.stringify(cartItems));
+  renderCart();
+};
+
+// CHECKOUT
+window.goCheckout = function(){
+
+  if(cartItems.length === 0){
+    alert("Cart empty ❌");
+    return;
+  }
+
+  let restaurantId = cartItems[0].restaurantId;
+
+  let mixed = cartItems.some(
+    i => i.restaurantId !== restaurantId
+  );
+
+  if(mixed){
+    alert("Only one restaurant allowed ❌");
+    return;
+  }
+
+  let subtotal =
+  cartItems.reduce(
+    (sum,item)=>
+    sum + (item.price * item.qty),
+    0
+  );
+
+  localStorage.setItem(
+    "checkoutData",
+    JSON.stringify({
+      items: cartItems,
+      restaurantId,
+      subtotal,
+      deliveryFee,
+    platformFee,
+total: subtotal + deliveryFee + platformFee
+    })
+  );
+
+  window.location.href="checkout.html";
+};
+
+// refs
+let subtotalEl = document.getElementById("subtotal");
+let totalEl = document.getElementById("total");
+let summaryBox = document.getElementById("summaryBox");
+let checkoutBtn = document.getElementById("checkoutBtn");
+
+// INIT
+renderCart();
+  
+
+});
+
+
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+</body>
+</html>

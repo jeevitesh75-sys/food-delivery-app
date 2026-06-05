@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Profile</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+<style>
+body {
+  font-family: Arial;
+  background:#f5f5f5;
+  margin:0;
+  padding-bottom:80px;
+}
+
+.header {
+  background:#ff4d4d;
+  color:white;
+  padding:15px;
+  text-align:center;
+  font-size:18px;
+  position:relative;
+}
+
+.back-btn {
+  position:absolute;
+  left:10px;
+  top:15px;
+  cursor:pointer;
+}
+
+.logout-btn {
+  position:absolute;
+  right:10px;
+  top:15px;
+  cursor:pointer;
+}
+
+.container {
+  max-width:600px;
+  margin:auto;
+  padding:10px;
+}
+
+.card {
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  margin-top:15px;
+}
+
+.profile-img {
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  display:block;
+  margin:10px auto;
+  object-fit:cover;
+}
+
+.text {
+  margin:8px 0;
+}
+
+button {
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  margin-top:10px;
+  font-size:16px;
+  cursor:pointer;
+}
+
+.green { background:#28a745; color:white; }
+.gray { background:#ccc; }
+
+input {
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+  <span class="back-btn" onclick="goBack()">⬅</span>
+  Profile
+  <span class="logout-btn" onclick="logout()">Logout</span>
+</div>
+
+<div class="container">
+
+<!-- VIEW -->
+<div class="card" id="viewBox">
+
+<img id="viewImg" class="profile-img">
+
+<div class="text"><b>Owner:</b> <span id="vOwner"></span></div>
+<div class="text"><b>Restaurant:</b> <span id="vName"></span></div>
+<div class="text"><b>Address:</b> <span id="vAddress"></span></div>
+<div class="text"><b>Phone:</b> <span id="vPhone"></span></div>
+
+<button class="green" onclick="openEdit()">Edit Profile</button>
+
+</div>
+
+<!-- STATUS -->
+<div class="card">
+<div class="text"><b>Status:</b> <span id="vStatus"></span></div>
+
+<label>
+  <input type="checkbox" id="isOpenToggle" onchange="updateStatus()">
+  Open / Close
+</label>
+</div>
+
+<!-- EDIT -->
+<div class="card" id="editBox" style="display:none;">
+
+<img id="preview" class="profile-img">
+
+<input id="owner" placeholder="Owner Name">
+<input id="name" placeholder="Restaurant Name">
+<input id="address" placeholder="Address">
+<input id="phone" placeholder="Phone">
+
+<!-- ✅ FILE PICKER -->
+<input type="file" id="fileInput" accept="image/*">
+
+<button class="green" onclick="saveProfile()">Save</button>
+<button class="gray" onclick="closeEdit()">Cancel</button>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, setDoc, updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+  getStorage, ref, uploadBytes, getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+// FIREBASE
+const app = initializeApp({
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300",
+  storageBucket: "food-delivery-app-97300.appspot.com"
+});
+
+const db = getFirestore(app);
+const storage = getStorage(app);
+const auth = getAuth(app);
+// USER
+onAuthStateChanged(auth, (user) => {
+
+if(!user){
+  location.href = "login.html";
+  return;
+}
+
+let id = user.uid;
+
+// LOAD DATA
+async function load(){
+
+  let snap = await getDoc(doc(db,"restaurants",id));
+  if(!snap.exists()) return;
+
+  let d = snap.data();
+
+  vOwner.innerText = d.owner || "-";
+  vName.innerText = d.name || "-";
+  vAddress.innerText = d.address || "-";
+  vPhone.innerText = d.phone || "-";
+  vStatus.innerText = d.isOpen ? "Open" : "Closed";
+
+  viewImg.src = d.image || "https://via.placeholder.com/100";
+
+  isOpenToggle.checked = d.isOpen ?? true;
+
+  owner.value = d.owner || "";
+  name.value = d.name || "";
+  address.value = d.address || "";
+  phone.value = d.phone || "";
+
+  preview.src = d.image || "https://via.placeholder.com/100";
+}
+
+load();
+
+// EDIT
+window.openEdit = ()=>{
+  viewBox.style.display="none";
+  editBox.style.display="block";
+};
+
+window.closeEdit = ()=>{
+  editBox.style.display="none";
+  viewBox.style.display="block";
+};
+
+// FILE PREVIEW
+fileInput.addEventListener("change", ()=>{
+  let file = fileInput.files[0];
+  if(file){
+    preview.src = URL.createObjectURL(file);
+  }
+});
+
+// SAVE PROFILE
+window.saveProfile = async ()=>{
+
+  let imageUrl = "";
+
+  let file = fileInput.files[0];
+
+  // ✅ Upload image if selected
+  if(file){
+    let storageRef = ref(storage, "restaurants/" + id);
+    await uploadBytes(storageRef, file);
+    imageUrl = await getDownloadURL(storageRef);
+  }
+
+  await setDoc(doc(db,"restaurants",id),{
+    owner: owner.value,
+    name: name.value,
+    address: address.value,
+    phone: phone.value,
+    ...(imageUrl && {image: imageUrl}),
+    updatedAt: new Date()
+  },{merge:true});
+
+  alert("Saved ✅");
+  load();
+  closeEdit();
+};
+
+// STATUS
+window.updateStatus = async ()=>{
+  let status = isOpenToggle.checked;
+
+  await updateDoc(doc(db,"restaurants",id),{
+    isOpen: status
+  });
+
+  vStatus.innerText = status ? "Open" : "Closed";
+};
+
+// NAVIGATION
+window.goBack = ()=>{
+  window.location.href = "Dashboard.html";
+};
+
+window.logout = async ()=>{
+  await signOut(auth);
+  localStorage.clear();
+  location.href = "login.html";
+};
+});
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+  <script>
+if(localStorage.getItem("adminLoggedIn")!=="true"){
+window.location.href="login.html";
+}
+</script>
+<meta charset="UTF-8">
+<title>Customers</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="css/admin.css">
+
+<style>
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+}
+
+th,td{
+padding:10px;
+border:1px solid #ddd;
+font-size:14px;
+}
+
+th{
+background:#f2f2f2;
+}
+
+.table-box{
+padding:10px;
+overflow:auto;
+}
+</style>
+
+</head>
+<body>
+<div class="sidebar">
+
+<h2>Admin</h2>
+
+<a href="index.html">🏠 Dashboard</a>
+<a href="orders.html">📦 Orders</a>
+<a href="customers.html">👥 Customers</a>
+<a href="deliveryboys.html">🚴 Delivery Boys</a>
+<a href="restaurants.html">🏪 Restaurants</a>
+<a href="earnings.html">💰 Earnings</a>
+<a href="settings.html">⚙ Settings</a>
+<a href="#" onclick="
+localStorage.removeItem('adminLoggedIn');
+window.location.href='login.html';
+">
+🚪 Logout
+</a>
+</div>
+
+<div class="main">
+
+<!-- existing page content here -->
+
+
+<div class="header">
+👥 Customers
+</div>
+
+<div class="stats">
+
+<div class="card">
+<h3>Total Customers</h3>
+<h1 id="totalCustomers">0</h1>
+</div>
+
+<div class="card">
+<h3>New Users Today</h3>
+<h1 id="todayCustomers">0</h1>
+</div>
+
+</div>
+
+<div class="card" style="margin:10px;">
+<h3>📈 Customer Growth</h3>
+<div id="growthData">
+Loading...
+</div>
+</div>
+
+<div class="table-box">
+
+<table>
+
+<thead>
+<tr>
+<th>Name</th>
+<th>Phone</th>
+<th>Email</th>
+<th>Address</th>
+</tr>
+</thead>
+
+<tbody id="customerTable">
+</tbody>
+
+</table>
+
+</div>
+
+<script type="module" src="js/customers.js"></script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+</body>
+</html>

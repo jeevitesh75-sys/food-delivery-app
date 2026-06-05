@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Accept Policies</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+<style>
+body{
+font-family:Arial;
+padding:20px;
+text-align:center;
+}
+button{
+padding:12px 20px;
+background:green;
+color:white;
+border:none;
+border-radius:8px;
+}
+a{
+display:block;
+margin:10px;
+}
+</style>
+</head>
+<body>
+
+<h2>Welcome 👋</h2>
+
+<p>Please read and accept before continuing.</p>
+
+<a href="privacy.html">Privacy Policy</a>
+<a href="terms.html">Terms & Conditions</a>
+<a href="refund.html">Refund & Cancellation Policy</a>
+
+<br>
+
+<button onclick="acceptPolicies()">
+Accept & Continue
+</button>
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getFirestore,
+  doc,
+  updateDoc
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain:"food-delivery-app-97300.firebaseapp.com",
+  projectId:"food-delivery-app-97300"
+});
+
+const db = getFirestore(app);
+
+window.acceptPolicies = async function(){
+
+  const user =
+  JSON.parse(localStorage.getItem("user"));
+
+  await updateDoc(
+    doc(db,"users",user.uid),
+    {
+      policyAccepted:true
+    }
+  );
+
+  window.location.href = "details.html";
+};
+
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Restaurant Login</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+<style>
+body{
+  font-family:Arial;
+  text-align:center;
+  margin-top:100px;
+}
+
+button{
+  padding:12px 20px;
+  background:#ff4d4d;
+  color:white;
+  border:none;
+  border-radius:5px;
+  font-size:16px;
+  cursor:pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>🏪 Restaurant Login</h2>
+
+<button onclick="googleLogin()">
+Login with Google
+</button>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+  getFirestore,
+  doc,
+  getDoc
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300",
+  storageBucket: "food-delivery-app-97300.firebasestorage.app",
+  messagingSenderId: "12744604798",
+  appId: "1:12744604798:web:4417d6d7f97b9b7218ec2f"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const provider = new GoogleAuthProvider();
+
+window.googleLogin = async function(){
+
+  try{
+
+    const result =
+      await signInWithPopup(auth, provider);
+
+    const user = result.user;
+
+    localStorage.setItem(
+      "restaurantUser",
+      JSON.stringify({
+        uid:user.uid,
+        displayName:user.displayName,
+        email:user.email,
+        photoURL:user.photoURL
+      })
+    );
+
+    const ref =
+      doc(db,"restaurants",user.uid);
+
+    const snap =
+      await getDoc(ref);
+
+    if(snap.exists()){
+
+      window.location.href =
+        "Dashboard.html";
+
+    }else{
+
+      window.location.href =
+        "details.html";
+
+    }
+
+  }catch(err){
+
+    console.log(err);
+    alert(err.message);
+
+  }
+
+};
+
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+</body>
+</html>
