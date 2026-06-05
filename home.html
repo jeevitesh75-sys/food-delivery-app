@@ -99,9 +99,7 @@ onAuthStateChanged(auth, async(user) => {
     location.href = "login.html";
     return;
   }
-const userDoc = await getDoc(
-  doc(db, "users", user.uid)
-);
+
   // ALL YOUR FIRESTORE CODE GOES HERE
 const settingsSnap =
 await getDoc(
