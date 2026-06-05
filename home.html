@@ -99,7 +99,9 @@ onAuthStateChanged(auth, async(user) => {
     location.href = "login.html";
     return;
   }
-
+const userDoc = await getDoc(
+  doc(db, "users", user.uid)
+);
   // ALL YOUR FIRESTORE CODE GOES HERE
 const settingsSnap =
 await getDoc(
@@ -111,10 +113,6 @@ if(settingsSnap.exists()){
   settingsSnap.data().foodMarkup || 0;
 }
 // LOGIN
-let user = JSON.parse(localStorage.getItem("user"));
-if(!user){
-  window.location.href="login.html";
-}
 
 let container = document.getElementById("restaurantList");
 
