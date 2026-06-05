@@ -128,12 +128,13 @@ else{
   s.platformFee || 3;
 }
 // ✅ USER
-let user = JSON.parse(localStorage.getItem("user"));
-if (!user) window.location.href = "login.html";
+
 
 // ✅ LOAD USER DETAILS
 async function loadUser() {
-  const snap = await getDoc(doc(db, "users", user.uid));
+  const snap = await getDoc(
+  doc(db, "users", auth.currentUser.uid)
+);
 
   if (snap.exists()) {
     let data = snap.data();
