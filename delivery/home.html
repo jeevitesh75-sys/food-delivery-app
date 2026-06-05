@@ -190,7 +190,8 @@ onAuthStateChanged(auth, async (user)=>{
 
   const profileRef =
   doc(db,"deliveryPartners",user.uid);
-
+const profileSnap =
+await getDoc(profileRef);
   
 
   if(!profileSnap.exists()){
@@ -198,7 +199,7 @@ onAuthStateChanged(auth, async (user)=>{
     return;
   }
 
-  const profile = profileSnap.data();
+  
 
   // Put all your remaining code here
   navigator.geolocation.watchPosition(
@@ -477,9 +478,7 @@ window.acceptOrder = async(id)=>{
 
   const snap = await getDoc(orderRef);
 
-  if(!snap.exists()){
-    return;
-  }
+  if(!snap.exists()) return;
 
   const order = snap.data();
 
@@ -488,17 +487,20 @@ window.acceptOrder = async(id)=>{
     return;
   }
 
+  const freshProfile =
+  await getDoc(profileRef);
+
+  const rider =
+  freshProfile.data();
+
   await updateDoc(
     orderRef,
     {
       deliveryBoyId:user.uid,
-      deliveryBoyName:profile.name,
-      deliveryBoyPhone:profile.phone,
-      const freshProfile = await getDoc(profileRef);
-const rider = freshProfile.data();
-
-deliveryBoyLat: rider.liveLat || null,
-deliveryBoyLng: rider.liveLng || null,
+      deliveryBoyName:rider.name || "",
+      deliveryBoyPhone:rider.phone || "",
+      deliveryBoyLat:rider.liveLat || null,
+      deliveryBoyLng:rider.liveLng || null,
       status:"Out for Delivery"
     }
   );
