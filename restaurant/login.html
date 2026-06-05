@@ -40,7 +40,7 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
   GoogleAuthProvider,
-  signInWithRedirect
+  signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
@@ -69,7 +69,7 @@ window.googleLogin = async function(){
 
   try{
 
-    
+    const result=
       await signInWithPopup(auth, provider);
 
     const user = result.user;
