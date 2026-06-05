@@ -1,5 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
+import {
+getAuth,
+onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
 getFirestore,
 collection,
@@ -18,7 +22,7 @@ projectId:"food-delivery-app-97300"
 });
 
 const db = getFirestore(app);
-
+const auth = getAuth(app);
 let restaurantsData = [];
 
 const table =
@@ -38,6 +42,13 @@ document.getElementById("todayEarnings");
 
 const lifetimeEarnings =
 document.getElementById("lifetimeEarnings");
+
+onAuthStateChanged(auth,(user)=>{
+
+if(!user){
+location.href="login.html";
+return;
+}
 
 onSnapshot(
 collection(db,"restaurants"),
@@ -209,3 +220,5 @@ todayEarn:0
 alert("Today's earnings reset successfully");
 
 };
+
+});

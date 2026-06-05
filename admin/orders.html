@@ -3,10 +3,41 @@
 <head>
   <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ff4d4d">
-  <script>
-if(localStorage.getItem("adminLoggedIn")!=="true"){
-window.location.href="login.html";
+  <script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
 }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain:"food-delivery-app-97300.firebaseapp.com",
+  projectId:"food-delivery-app-97300"
+});
+
+const auth = getAuth(app);
+
+onAuthStateChanged(auth,(user)=>{
+
+  if(!user){
+    location.href="login.html";
+  }
+
+});
+
+window.logout = async()=>{
+
+  await signOut(auth);
+  location.href="login.html";
+
+};
+
 </script>
 <meta charset="UTF-8">
 <title>Orders</title>
@@ -27,10 +58,7 @@ window.location.href="login.html";
 <a href="restaurants.html">🏪 Restaurants</a>
 <a href="earnings.html">💰 Earnings</a>
 <a href="settings.html">⚙ Settings</a>
-<a href="#" onclick="
-localStorage.removeItem('adminLoggedIn');
-window.location.href='login.html';
-">
+<a href="#" onclick="logout()">
 🚪 Logout
 </a>
 </div>

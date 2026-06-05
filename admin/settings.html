@@ -55,11 +55,7 @@ h3{
 
 </style>
 </head>
-<script>
-if(localStorage.getItem("adminLoggedIn")!=="true"){
-window.location.href="login.html";
-}
-</script>
+
 <body>
   <div class="sidebar">
 
@@ -72,10 +68,7 @@ window.location.href="login.html";
 <a href="restaurants.html">🏪 Restaurants</a>
 <a href="earnings.html">💰 Earnings</a>
 <a href="settings.html">⚙ Settings</a>
-<a href="#" onclick="
-localStorage.removeItem('adminLoggedIn');
-window.location.href='login.html';
-">
+<a href="#" id="logoutBtn">
 🚪 Logout
 </a>
 </div>
@@ -140,7 +133,11 @@ getDoc,
 setDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+import {
+getAuth,
+onAuthStateChanged,
+signOut
+}
 const app = initializeApp({
 apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
 authDomain:"food-delivery-app-97300.firebaseapp.com",
@@ -148,7 +145,7 @@ projectId:"food-delivery-app-97300"
 });
 
 const db = getFirestore(app);
-
+const auth = getAuth(app);
 const settingsRef =
 doc(db,"settings","appConfig");
 
@@ -227,8 +224,24 @@ window.saveSettings = async()=>{
 
   alert("Settings Saved ✅");
 };
+document.getElementById("logoutBtn")
+.onclick = async()=>{
 
-loadSettings();
+  await signOut(auth);
+
+  location.href = "login.html";
+
+};
+onAuthStateChanged(auth,(user)=>{
+
+  if(!user){
+    location.href = "login.html";
+    return;
+  }
+
+  loadSettings();
+
+});
 
 </script>
 <script>

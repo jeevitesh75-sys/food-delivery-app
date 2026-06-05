@@ -3,11 +3,7 @@
 <head>
   <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ff4d4d">
-  <script>
-if(localStorage.getItem("adminLoggedIn")!=="true"){
-window.location.href="login.html";
-}
-</script>
+
 <meta charset="UTF-8">
 <title>Restaurants</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,10 +22,7 @@ window.location.href="login.html";
 <a href="restaurants.html">🏪 Restaurants</a>
 <a href="earnings.html">💰 Earnings</a>
 <a href="settings.html">⚙ Settings</a>
-<a href="#" onclick="
-localStorage.removeItem('adminLoggedIn');
-window.location.href='login.html';
-">
+<a href="#" id="logoutBtn">
 🚪 Logout
 </a>
 </div>
@@ -104,7 +97,44 @@ Reset Today's Earnings
 </table>
 
 </div>
+<script type="module">
 
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getAuth,
+onAuthStateChanged,
+signOut
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300",
+  storageBucket: "food-delivery-app-97300.firebasestorage.app",
+  messagingSenderId: "12744604798",
+  appId: "1:12744604798:web:4417d6d7f97b9b7218ec2f"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+onAuthStateChanged(auth,(user)=>{
+  if(!user){
+    location.href="login.html";
+  }
+});
+
+document.getElementById("logoutBtn")
+.addEventListener("click", async()=>{
+
+  await signOut(auth);
+
+  location.href="login.html";
+});
+</script>
 <script type="module" src="js/restaurants.js"></script>
 <script>
 if ("serviceWorker" in navigator) {

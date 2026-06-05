@@ -10,6 +10,11 @@ import {
   updateDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 const firebaseConfig = {
   apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
   authDomain: "food-delivery-app-97300.firebaseapp.com",
@@ -21,7 +26,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
+const auth = getAuth(app);
 
 
 
@@ -107,4 +112,13 @@ document.getElementById("resetBtn")
   loadDeliveryBoys();
 });
 
-loadDeliveryBoys();
+onAuthStateChanged(auth,(user)=>{
+
+  if(!user){
+    location.href = "login.html";
+    return;
+  }
+
+  loadDeliveryBoys();
+
+});

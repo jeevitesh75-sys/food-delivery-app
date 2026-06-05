@@ -8,6 +8,12 @@ getDocs
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import {
+getAuth,
+onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 const app = initializeApp({
 apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
 authDomain:"food-delivery-app-97300.firebaseapp.com",
@@ -15,7 +21,7 @@ projectId:"food-delivery-app-97300"
 });
 
 const db = getFirestore(app);
-
+const auth = getAuth(app);
 async function loadCustomers(){
 
 const snap =
@@ -102,4 +108,13 @@ document.getElementById("growthData")
 
 }
 
-loadCustomers();
+onAuthStateChanged(auth, (user) => {
+
+  if(!user){
+    window.location.href = "login.html";
+    return;
+  }
+
+  loadCustomers();
+
+});
