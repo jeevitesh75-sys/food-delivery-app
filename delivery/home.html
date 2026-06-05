@@ -191,8 +191,7 @@ onAuthStateChanged(auth, async (user)=>{
   const profileRef =
   doc(db,"deliveryPartners",user.uid);
 
-  const profileSnap =
-  await getDoc(profileRef);
+  
 
   if(!profileSnap.exists()){
     location.href = "details.html";
@@ -495,8 +494,11 @@ window.acceptOrder = async(id)=>{
       deliveryBoyId:user.uid,
       deliveryBoyName:profile.name,
       deliveryBoyPhone:profile.phone,
-      deliveryBoyLat:profile.liveLat || null,
-      deliveryBoyLng:profile.liveLng || null,
+      const freshProfile = await getDoc(profileRef);
+const rider = freshProfile.data();
+
+deliveryBoyLat: rider.liveLat || null,
+deliveryBoyLng: rider.liveLng || null,
       status:"Out for Delivery"
     }
   );
