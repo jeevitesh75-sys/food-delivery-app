@@ -100,7 +100,7 @@ onAuthStateChanged(auth, async (user) => {
   );
 
   if (snap.exists()) {
-    location.href = "dashboard.html";
+    location.href = "home.html";
   } else {
     location.href = "details.html";
   }
@@ -134,7 +134,7 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
 );
 
 if (snap.exists()) {
-  window.location.href = "dashboard.html";
+  window.location.href = "home.html";
 } else {
   window.location.href = "details.html";
 }
