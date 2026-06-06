@@ -55,6 +55,8 @@ onAuthStateChanged(auth,(user)=>{
     return;
   }
 
-  loadData();
+  loadData().catch(err=>{
+  alert(err.message);
+});
 
 });

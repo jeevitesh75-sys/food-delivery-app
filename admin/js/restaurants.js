@@ -53,8 +53,18 @@ onAuthStateChanged(auth,(user)=>{
   }
 
   onSnapshot(
-    collection(db,"restaurants"),
-    (snapshot)=>{
+  collection(db,"restaurants"),
+  (snapshot)=>{
+
+    console.log("Restaurants found:", snapshot.size);
+
+  },
+  (error)=>{
+
+    alert("Firestore Error: " + error.message);
+
+  }
+);
 
       console.log("Restaurants found:", snapshot.size);
 
