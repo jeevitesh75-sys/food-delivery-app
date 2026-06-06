@@ -1,4 +1,3 @@
-alert("index.js loaded");
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -14,7 +13,7 @@ import {
   onAuthStateChanged
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
+alert("index.js loaded");
 const app = initializeApp({
   apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
   authDomain:"food-delivery-app-97300.firebaseapp.com",

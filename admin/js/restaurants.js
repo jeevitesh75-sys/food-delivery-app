@@ -1,4 +1,3 @@
-alert("restaurants.js loaded");
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
@@ -14,7 +13,7 @@ import {
   deleteDoc,
   getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+alert("restaurants.js loaded");
 const app = initializeApp({
   apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
   authDomain:"food-delivery-app-97300.firebaseapp.com",
@@ -24,8 +23,7 @@ alert(app.options.projectId);
 const db = getFirestore(app);
 const auth = getAuth(app);
 alert("Firebase initialized");
-const snap = await getDocs(collection(db,"restaurants"));
-alert("Restaurant docs: " + snap.size);
+
 let restaurantsData = [];
 
 const table = document.getElementById("restaurantTable");
