@@ -69,10 +69,16 @@ window.googleLogin = async function(){
 
   try{
 
-    const result=
+    alert("Google login clicked");
+
+    const result =
       await signInWithPopup(auth, provider);
 
+    alert("Login success");
+
     const user = result.user;
+
+    
 
     localStorage.setItem(
       "restaurantUser",
@@ -112,10 +118,6 @@ window.googleLogin = async function(){
 };
 
 </script>
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js");
-}
-</script>
+
 </body>
 </html>
