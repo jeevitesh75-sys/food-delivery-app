@@ -31,7 +31,7 @@ margin:10px;
 <p>Please read and accept before continuing.</p>
 
 <a href="privacy.html">Privacy Policy</a>
-<a href="terms.html">Terms & Conditions</a>
+<a href="Terms.html">Terms & Conditions</a>
 <a href="refund.html">Refund & Cancellation Policy</a>
 
 <br>
@@ -51,6 +51,11 @@ import {
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import {
+  getAuth
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 const app = initializeApp({
   apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
   authDomain:"food-delivery-app-97300.firebaseapp.com",
@@ -58,19 +63,11 @@ const app = initializeApp({
 });
 
 const db = getFirestore(app);
-
-window.acceptPolicies = async function(){
-
-  import {
-  getAuth
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
 const auth = getAuth(app);
 
-window.acceptPolicies = async function(){
+window.acceptPolicies = async () => {
 
-  try{
+  try {
 
     const user = auth.currentUser;
 
@@ -87,24 +84,15 @@ window.acceptPolicies = async function(){
       }
     );
 
+    alert("Policies accepted");
     location.href = "details.html";
 
-  }catch(err){
+  } catch(err) {
 
     alert(err.message);
 
   }
 
-};
-
-  await updateDoc(
-    doc(db,"users",user.uid),
-    {
-      policyAccepted:true
-    }
-  );
-
-  window.location.href = "details.html";
 };
 
 </script>
