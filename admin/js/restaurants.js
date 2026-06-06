@@ -23,6 +23,7 @@ const app = initializeApp({
 
 const db = getFirestore(app);
 const auth = getAuth(app);
+alert("Firebase initialized");
 const snap = await getDocs(collection(db,"restaurants"));
 alert("Restaurant docs: " + snap.size);
 let restaurantsData = [];
@@ -121,7 +122,7 @@ document.getElementById("resetTodayBtn")
 
   alert("Today's earnings reset successfully");
 };
-
+alert("Before Auth");
 onAuthStateChanged(auth,(user)=>{
 
   alert("Auth fired");
