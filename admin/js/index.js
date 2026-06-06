@@ -13,52 +13,64 @@ import {
   onAuthStateChanged
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-alert("index.js loaded");
-const app = initializeApp({
-  apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-  authDomain:"food-delivery-app-97300.firebaseapp.com",
-  projectId:"food-delivery-app-97300"
-});
-alert(app.options.projectId);
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300",
+  storageBucket: "food-delivery-app-97300.firebasestorage.app",
+  messagingSenderId: "12744604798",
+  appId: "1:12744604798:web:4417d6d7f97b9b7218ec2f"
+};
+
+const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-console.log("index.js loaded");
+
 async function loadData(){
 
-try{
+  try{
 
-  const orders = await getDocs(collection(db,"orders"));
-  document.getElementById("totalOrders").innerText = orders.size;
+    const ordersSnap =
+    await getDocs(collection(db,"orders"));
 
-  const users = await getDocs(collection(db,"users"));
-  document.getElementById("totalCustomers").innerText = users.size;
+    document.getElementById("totalOrders").innerText =
+    ordersSnap.size;
 
-  const restaurants = await getDocs(collection(db,"restaurants"));
-  document.getElementById("totalRestaurants").innerText = restaurants.size;
+    const usersSnap =
+    await getDocs(collection(db,"users"));
 
-  const delivery = await getDocs(collection(db,"deliveryPartners"));
-  document.getElementById("totalDelivery").innerText = delivery.size;
+    document.getElementById("totalCustomers").innerText =
+    usersSnap.size;
 
-}catch(err){
+    const restaurantsSnap =
+    await getDocs(collection(db,"restaurants"));
 
-  alert(err.message);
+    document.getElementById("totalRestaurants").innerText =
+    restaurantsSnap.size;
+
+    const deliverySnap =
+    await getDocs(collection(db,"deliveryPartners"));
+
+    document.getElementById("totalDelivery").innerText =
+    deliverySnap.size;
+
+  }catch(err){
+
+    alert("Dashboard Error: " + err.message);
+    console.log(err);
+
+  }
 
 }
-const restaurants = await getDocs(collection(db,"restaurants"));
-alert("Restaurants count: " + restaurants.size);
-document.getElementById("totalRestaurants").innerText = restaurants.size;
 
-}
-
-onAuthStateChanged(auth,(user)=>{
+onAuthStateChanged(auth, async(user)=>{
 
   if(!user){
     location.href = "login.html";
     return;
   }
 
-  loadData().catch(err=>{
-  alert(err.message);
-});
+  await loadData();
 
 });
