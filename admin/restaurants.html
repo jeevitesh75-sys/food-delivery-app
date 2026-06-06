@@ -135,7 +135,49 @@ document.getElementById("logoutBtn")
   location.href="login.html";
 });
 </script>
-<script type="module" src="js/restaurants.js"></script>
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain:"food-delivery-app-97300.firebaseapp.com",
+  projectId:"food-delivery-app-97300",
+  storageBucket:"food-delivery-app-97300.firebasestorage.app",
+  messagingSenderId:"12744604798",
+  appId:"1:12744604798:web:4417d6d7f97b9b7218ec2f"
+});
+
+const auth = getAuth(app);
+
+document.getElementById("logoutBtn")
+.addEventListener("click", async()=>{
+
+  await signOut(auth);
+  location.href = "login.html";
+
+});
+
+onAuthStateChanged(auth,(user)=>{
+
+  if(!user){
+    location.href = "login.html";
+    return;
+  }
+
+  import("./js/restaurants.js");
+
+});
+
+</script>
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js");
