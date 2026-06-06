@@ -89,18 +89,33 @@ const app = initializeApp({
 });
 
 const db = getFirestore(app);
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const user = JSON.parse(localStorage.getItem("deliveryUser"));
+const auth = getAuth(app);
 
-if(!user){
-  location.href="login.html";
-}
+let user = null;
 
-const existing = await getDoc(doc(db,"deliveryPartners",user.uid));
+onAuthStateChanged(auth, async(currentUser)=>{
 
-if(existing.exists()){
-  location.href="home.html";
-}
+  if(!currentUser){
+    location.href = "login.html";
+    return;
+  }
+
+  user = currentUser;
+
+  const existing = await getDoc(
+    doc(db,"deliveryPartners",user.uid)
+  );
+
+  if(existing.exists()){
+    location.href = "home.html";
+  }
+
+});
 
 window.saveDetails = async ()=>{
 

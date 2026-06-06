@@ -91,9 +91,11 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // AUTO LOGIN CHECK
+let loginInProgress = false;
+
 onAuthStateChanged(auth, async (user) => {
 
-  if (!user) return;
+  if (!user || loginInProgress) return;
 
   const snap = await getDoc(
     doc(db, "deliveryPartners", user.uid)
@@ -103,6 +105,47 @@ onAuthStateChanged(auth, async (user) => {
     location.href = "home.html";
   } else {
     location.href = "details.html";
+  }
+
+});
+
+document.getElementById("loginBtn").addEventListener("click", async () => {
+
+  try {
+
+    loginInProgress = true;
+
+    const provider = new GoogleAuthProvider();
+
+    const result =
+      await signInWithPopup(auth, provider);
+
+    const user = result.user;
+
+    localStorage.setItem(
+      "deliveryUser",
+      JSON.stringify({
+        uid:user.uid,
+        name:user.displayName,
+        email:user.email,
+        photo:user.photoURL
+      })
+    );
+
+    const snap = await getDoc(
+      doc(db,"deliveryPartners",user.uid)
+    );
+
+    if(snap.exists()){
+      location.href = "home.html";
+    }else{
+      location.href = "details.html";
+    }
+
+  } catch(err) {
+
+    alert(err.message);
+
   }
 
 });
