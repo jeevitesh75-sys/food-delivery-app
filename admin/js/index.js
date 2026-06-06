@@ -20,7 +20,7 @@ const app = initializeApp({
   authDomain:"food-delivery-app-97300.firebaseapp.com",
   projectId:"food-delivery-app-97300"
 });
-
+alert(app.options.projectId);
 const db = getFirestore(app);
 const auth = getAuth(app);
 console.log("index.js loaded");
