@@ -23,57 +23,40 @@ const app = initializeApp({
 const db = getFirestore(app);
 const auth = getAuth(app);
 console.log("index.js loaded");
-onAuthStateChanged(auth, async(user)=>{
+async function loadData(){
 
-  console.log("User:", user);
+  const orders =
+  await getDocs(collection(db,"orders"));
+
+  document.getElementById("totalOrders").innerText =
+  orders.size;
+
+  const users =
+  await getDocs(collection(db,"users"));
+
+  document.getElementById("totalCustomers").innerText =
+  users.size;
+
+  const restaurants =
+  await getDocs(collection(db,"restaurants"));
+
+  document.getElementById("totalRestaurants").innerText =
+  restaurants.size;
+
+  const delivery =
+  await getDocs(collection(db,"deliveryPartners"));
+
+  document.getElementById("totalDelivery").innerText =
+  delivery.size;
+}
+
+onAuthStateChanged(auth,(user)=>{
 
   if(!user){
     location.href = "login.html";
     return;
   }
 
-  try{
-    loadData();
-  }
-  catch(err){
-    console.error(err);
-  }
+  loadData();
 
 });
-async function loadData(){
-
-  try{
-
-    const orders =
-    await getDocs(collection(db,"orders"));
-    console.log("orders", orders.size);
-
-    const users =
-    await getDocs(collection(db,"users"));
-    console.log("users", users.size);
-
-    const restaurants =
-    await getDocs(collection(db,"restaurants"));
-    console.log("restaurants", restaurants.size);
-
-    const delivery =
-    await getDocs(collection(db,"deliveryPartners"));
-    console.log("delivery", delivery.size);
-
-    document.getElementById("totalOrders").innerText =
-    orders.size;
-
-    document.getElementById("totalCustomers").innerText =
-    users.size;
-
-    document.getElementById("totalRestaurants").innerText =
-    restaurants.size;
-
-    document.getElementById("totalDelivery").innerText =
-    delivery.size;
-
-  }catch(err){
-    console.error("Firestore Error:", err);
-  }
-
-}

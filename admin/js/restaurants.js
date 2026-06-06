@@ -46,61 +46,57 @@ document.getElementById("lifetimeEarnings");
 
 onAuthStateChanged(auth,(user)=>{
 
-console.log("Auth User:", user);
+  if(!user){
+    location.href="login.html";
+    return;
+  }
 
-if(!user){
-location.href="login.html";
-return;
-}
+  onSnapshot(
+    collection(db,"restaurants"),
+    (snapshot)=>{
 
-console.log("Starting restaurant listener");
+      console.log("Restaurants found:", snapshot.size);
 
-onSnapshot(
-collection(db,"restaurants"),
-(snapshot)=>{
+      restaurantsData = [];
 
-console.log("Restaurants found:", snapshot.size);
+      let total = 0;
+      let open = 0;
+      let closed = 0;
+      let todayEarn = 0;
+      let lifetimeEarn = 0;
 
-restaurantsData = [];
+      for(const d of snapshot.docs){
 
-let total = 0;
-let open = 0;
-let closed = 0;
-let todayEarn = 0;
-let lifetimeEarn = 0;
+        const r = {
+          id:d.id,
+          ...d.data()
+        };
 
-for(const d of snapshot.docs){
+        restaurantsData.push(r);
 
-const r = {
-id:d.id,
-...d.data()
-};
+        total++;
 
-restaurantsData.push(r);
+        if(r.isOpen){
+          open++;
+        }else{
+          closed++;
+        }
 
-total++;
+        todayEarn += Number(r.todayEarn || 0);
+        lifetimeEarn += Number(r.totalEarn || 0);
+      }
 
-if(r.isOpen){
-open++;
-}else{
-closed++;
-}
+      totalRestaurants.innerText = total;
+      openRestaurants.innerText = open;
+      closedRestaurants.innerText = closed;
 
-todayEarn += Number(r.todayEarn || 0);
-lifetimeEarn += Number(r.totalEarn || 0);
-}
+      todayEarnings.innerText = "₹" + todayEarn;
+      lifetimeEarnings.innerText = "₹" + lifetimeEarn;
 
-totalRestaurants.innerText = total;
-openRestaurants.innerText = open;
-closedRestaurants.innerText = closed;
+      render(restaurantsData);
 
-todayEarnings.innerText =
-"₹" + todayEarn;
-
-lifetimeEarnings.innerText =
-"₹" + lifetimeEarn;
-
-render(restaurantsData);
+    }
+  );
 
 });
 
@@ -228,4 +224,3 @@ alert("Today's earnings reset successfully");
 
 };
 
-});
