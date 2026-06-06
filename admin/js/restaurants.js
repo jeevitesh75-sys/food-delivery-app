@@ -124,55 +124,24 @@ document.getElementById("resetTodayBtn")
 
 onAuthStateChanged(auth,(user)=>{
 
+  alert("Auth fired");
+
   if(!user){
-    location.href = "login.html";
+    alert("No user logged in");
+    location.href="login.html";
     return;
   }
+
+  alert("User logged in");
 
   onSnapshot(
     collection(db,"restaurants"),
     (snapshot)=>{
-
-      restaurantsData = [];
-
-      let total = 0;
-      let open = 0;
-      let closed = 0;
-      let todayEarn = 0;
-      let lifetimeEarn = 0;
-
-      snapshot.forEach((d)=>{
-
-        const r = {
-          id:d.id,
-          ...d.data()
-        };
-
-        restaurantsData.push(r);
-
-        total++;
-
-        if(r.isOpen){
-          open++;
-        }else{
-          closed++;
-        }
-
-        todayEarn += Number(r.todayEarn || 0);
-        lifetimeEarn += Number(r.totalEarn || 0);
-      });
-
-      totalRestaurants.innerText = total;
-      openRestaurants.innerText = open;
-      closedRestaurants.innerText = closed;
-      todayEarnings.innerText = "₹" + todayEarn;
-      lifetimeEarnings.innerText = "₹" + lifetimeEarn;
-
-      render(restaurantsData);
-
+      alert("Restaurants found: " + snapshot.size);
     },
     (error)=>{
-      alert(error.message);
+      alert("Firestore error: " + error.message);
     }
   );
+
 });
