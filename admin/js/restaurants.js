@@ -21,6 +21,12 @@ const app = initializeApp({
 });
 alert(app.options.projectId);
 const db = getFirestore(app);
+try{
+  const snap = await getDocs(collection(db,"restaurants"));
+  alert("Restaurant count = " + snap.size);
+}catch(err){
+  alert("Firestore Error = " + err.message);
+}
 const auth = getAuth(app);
 alert("Firebase initialized");
 
