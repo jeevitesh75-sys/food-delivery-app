@@ -61,8 +61,41 @@ const db = getFirestore(app);
 
 window.acceptPolicies = async function(){
 
-  const user =
-  JSON.parse(localStorage.getItem("user"));
+  import {
+  getAuth
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const auth = getAuth(app);
+
+window.acceptPolicies = async function(){
+
+  try{
+
+    const user = auth.currentUser;
+
+    if(!user){
+      alert("Please login again");
+      location.href = "login.html";
+      return;
+    }
+
+    await updateDoc(
+      doc(db,"users",user.uid),
+      {
+        policyAccepted:true
+      }
+    );
+
+    location.href = "details.html";
+
+  }catch(err){
+
+    alert(err.message);
+
+  }
+
+};
 
   await updateDoc(
     doc(db,"users",user.uid),
