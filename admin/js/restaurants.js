@@ -23,6 +23,7 @@ projectId:"food-delivery-app-97300"
 
 const db = getFirestore(app);
 const auth = getAuth(app);
+console.log("restaurants.js loaded");
 let restaurantsData = [];
 
 const table =
@@ -45,14 +46,20 @@ document.getElementById("lifetimeEarnings");
 
 onAuthStateChanged(auth,(user)=>{
 
+console.log("Auth User:", user);
+
 if(!user){
 location.href="login.html";
 return;
 }
 
+console.log("Starting restaurant listener");
+
 onSnapshot(
 collection(db,"restaurants"),
-async(snapshot)=>{
+(snapshot)=>{
+
+console.log("Restaurants found:", snapshot.size);
 
 restaurantsData = [];
 
