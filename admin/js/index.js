@@ -45,6 +45,9 @@ try{
   alert(err.message);
 
 }
+const restaurants = await getDocs(collection(db,"restaurants"));
+alert("Restaurants count: " + restaurants.size);
+document.getElementById("totalRestaurants").innerText = restaurants.size;
 
 }
 

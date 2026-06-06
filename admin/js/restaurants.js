@@ -23,7 +23,8 @@ const app = initializeApp({
 
 const db = getFirestore(app);
 const auth = getAuth(app);
-
+const snap = await getDocs(collection(db,"restaurants"));
+alert("Restaurant docs: " + snap.size);
 let restaurantsData = [];
 
 const table = document.getElementById("restaurantTable");
