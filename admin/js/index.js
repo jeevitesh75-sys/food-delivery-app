@@ -1,3 +1,4 @@
+alert("index.js loaded");
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -25,29 +26,26 @@ const auth = getAuth(app);
 console.log("index.js loaded");
 async function loadData(){
 
-  const orders =
-  await getDocs(collection(db,"orders"));
+try{
 
-  document.getElementById("totalOrders").innerText =
-  orders.size;
+  const orders = await getDocs(collection(db,"orders"));
+  document.getElementById("totalOrders").innerText = orders.size;
 
-  const users =
-  await getDocs(collection(db,"users"));
+  const users = await getDocs(collection(db,"users"));
+  document.getElementById("totalCustomers").innerText = users.size;
 
-  document.getElementById("totalCustomers").innerText =
-  users.size;
+  const restaurants = await getDocs(collection(db,"restaurants"));
+  document.getElementById("totalRestaurants").innerText = restaurants.size;
 
-  const restaurants =
-  await getDocs(collection(db,"restaurants"));
+  const delivery = await getDocs(collection(db,"deliveryPartners"));
+  document.getElementById("totalDelivery").innerText = delivery.size;
 
-  document.getElementById("totalRestaurants").innerText =
-  restaurants.size;
+}catch(err){
 
-  const delivery =
-  await getDocs(collection(db,"deliveryPartners"));
+  alert(err.message);
 
-  document.getElementById("totalDelivery").innerText =
-  delivery.size;
+}
+
 }
 
 onAuthStateChanged(auth,(user)=>{
