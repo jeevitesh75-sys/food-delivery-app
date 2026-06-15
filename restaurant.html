@@ -125,11 +125,6 @@ display:none;
 width:90%;
 margin:20px auto;
 padding:12px;
-border:none;
-border-radius:10px;
-background:#ffcc00;
-font-size:16px;
-display:block;
 ">
 Load More
 </button>
@@ -264,6 +259,7 @@ window.changeQty = function(
 };
 
 // LOAD MENU
+// LOAD MENU
 async function loadMenu(){
 
 const q = query(
@@ -281,12 +277,7 @@ let html = "";
 snapshot.forEach((docSnap)=>{
 
 const food = docSnap.data();
-alert(
-"restaurantId = " +
-restaurantId +
-"\nfoods = " +
-snapshot.size
-);
+
 if(food.enabled === false){
 return;
 }
@@ -307,7 +298,7 @@ html += `
 <img
 class="food-image"
 loading="lazy"
-src="${food.image || 'https://via.placeholder.com/100'}"
+src="${food.image || "https://via.placeholder.com/100"}"
 >
 
 <div class="food-info">
@@ -324,41 +315,6 @@ ${food.name}
 
 <button onclick="
 changeQty(
-  const q = query(
-    collection(db,"menu"),
-    where("restaurantId","==",restaurantId)
-  );
-
-  const snapshot = await getDocs(q);
-
-  let cart = getCart();
-
-  container.innerHTML="";
-
-  snapshot.forEach(doc=>{
-    let food = doc.data();
-    let finalPrice =
-Number(food.price || 0) +
-Number(foodMarkup || 0);
-    // Hide disabled foods
-if(food.enabled === false){
-  return;
-}
-
-    let item = cart.find(i=>i.name===food.name);
-    let qty = item ? item.qty : 0;
-
-    container.innerHTML += `
-      <div class="food-card">
-        <img class="food-image" src="${food.image || 'https://via.placeholder.com/100'}">
-
-        <div class="food-info">
-          <div class="food-name">${food.name}</div>
-          <div class="food-price">₹${finalPrice}</div>
-
-        <div class="qty-box">
-
-<button onclick="changeQty(
 '${food.name}',
 ${food.price},
 ${finalPrice},
@@ -371,11 +327,6 @@ ${finalPrice},
 
 <button onclick="
 changeQty(
-)">-</button>
-
-<span>${qty}</span>
-
-<button onclick="changeQty(
 '${food.name}',
 ${food.price},
 ${finalPrice},
@@ -396,35 +347,25 @@ ${finalPrice},
 container.innerHTML = html;
 
 document.getElementById("loadMore").style.display =
-snapshot.size < MENU_LIMIT
-? "none"
-: "block";
+snapshot.size >= MENU_LIMIT
+? "block"
+: "none";
 
 updateCartCount();
 
 }
+
 document
 .getElementById("loadMore")
-.onclick=async()=>{
+.onclick = async()=>{
 
 MENU_LIMIT += 20;
 
 await loadMenu();
 
 };
-)">+</button>
 
-</div>
-          </div>
-        </div>
-      </div>
-    `;
-  });
-
-  updateCartCount();
-}
-
-loadMenu();// ALL EXISTING CODE HERE
+loadMenu();
 
 });
 
