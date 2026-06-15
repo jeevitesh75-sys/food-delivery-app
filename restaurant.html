@@ -281,7 +281,12 @@ let html = "";
 snapshot.forEach((docSnap)=>{
 
 const food = docSnap.data();
-
+alert(
+"restaurantId = " +
+restaurantId +
+"\nfoods = " +
+snapshot.size
+);
 if(food.enabled === false){
 return;
 }
