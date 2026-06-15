@@ -117,11 +117,19 @@ body {
 <div class="header">🍴 Menu</div>
 
 <div id="menuContainer"></div>
+
+<button
 id="loadMore"
 style="
+display:none;
 width:90%;
-margin:20px;
+margin:20px auto;
 padding:12px;
+border:none;
+border-radius:10px;
+background:#ffcc00;
+font-size:16px;
+display:block;
 ">
 Load More
 </button>
@@ -270,9 +278,9 @@ let cart = getCart();
 
 let html = "";
 
-snapshot.forEach(doc=>{
+snapshot.forEach((docSnap)=>{
 
-const food = doc.data();
+const food = docSnap.data();
 
 if(food.enabled === false){
 return;
