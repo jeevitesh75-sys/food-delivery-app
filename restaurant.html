@@ -382,6 +382,11 @@ ${finalPrice},
 
 container.innerHTML = html;
 
+document.getElementById("loadMore").style.display =
+snapshot.size < MENU_LIMIT
+? "none"
+: "block";
+
 updateCartCount();
 
 }
@@ -389,7 +394,7 @@ document
 .getElementById("loadMore")
 .onclick=async()=>{
 
-MENU_LIMIT += 30;
+MENU_LIMIT += 20;
 
 await loadMenu();
 
