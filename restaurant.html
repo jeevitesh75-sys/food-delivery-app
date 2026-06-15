@@ -117,7 +117,6 @@ body {
 <div class="header">🍴 Menu</div>
 
 <div id="menuContainer"></div>
-<button
 id="loadMore"
 style="
 width:90%;
@@ -126,6 +125,7 @@ padding:12px;
 ">
 Load More
 </button>
+
 <!-- CART BUTTON -->
 <a href="cart.html">
   <div class="cart-bar">🛒 View Cart</div>
@@ -171,6 +171,7 @@ const app = initializeApp({
 const db = getFirestore(app);
 const auth = getAuth(app);
 let MENU_LIMIT = 30;
+
 onAuthStateChanged(auth, async(user) => {
 
   if(!user){
@@ -310,6 +311,41 @@ ${food.name}
 
 <button onclick="
 changeQty(
+  const q = query(
+    collection(db,"menu"),
+    where("restaurantId","==",restaurantId)
+  );
+
+  const snapshot = await getDocs(q);
+
+  let cart = getCart();
+
+  container.innerHTML="";
+
+  snapshot.forEach(doc=>{
+    let food = doc.data();
+    let finalPrice =
+Number(food.price || 0) +
+Number(foodMarkup || 0);
+    // Hide disabled foods
+if(food.enabled === false){
+  return;
+}
+
+    let item = cart.find(i=>i.name===food.name);
+    let qty = item ? item.qty : 0;
+
+    container.innerHTML += `
+      <div class="food-card">
+        <img class="food-image" src="${food.image || 'https://via.placeholder.com/100'}">
+
+        <div class="food-info">
+          <div class="food-name">${food.name}</div>
+          <div class="food-price">₹${finalPrice}</div>
+
+        <div class="qty-box">
+
+<button onclick="changeQty(
 '${food.name}',
 ${food.price},
 ${finalPrice},
@@ -322,6 +358,11 @@ ${finalPrice},
 
 <button onclick="
 changeQty(
+)">-</button>
+
+<span>${qty}</span>
+
+<button onclick="changeQty(
 '${food.name}',
 ${food.price},
 ${finalPrice},
@@ -353,6 +394,18 @@ MENU_LIMIT += 30;
 await loadMenu();
 
 };
+)">+</button>
+
+</div>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  updateCartCount();
+}
+
 loadMenu();// ALL EXISTING CODE HERE
 
 });
