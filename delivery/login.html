@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Delivery Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#ff4d4d;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.card{
+  width:90%;
+  max-width:400px;
+  background:#fff;
+  padding:30px;
+  border-radius:20px;
+  text-align:center;
+}
+
+.logo{
+  font-size:60px;
+  margin-bottom:10px;
+}
+
+.google-btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  background:#4285F4;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <div class="logo">🛵</div>
+
+  <h2>Delivery Partner</h2>
+
+  <p>Sign in with Google to continue</p>
+
+  <button id="loginBtn" class="google-btn">
+    Continue with Google
+  </button>
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// AUTO LOGIN CHECK
+let loginInProgress = false;
+
+onAuthStateChanged(auth, async (user) => {
+
+  if (!user || loginInProgress) return;
+
+  const snap = await getDoc(
+    doc(db, "deliveryPartners", user.uid)
+  );
+
+  if (snap.exists()) {
+    location.href = "home.html";
+  } else {
+    location.href = "details.html";
+  }
+
+});
+
+document.getElementById("loginBtn").addEventListener("click", async () => {
+
+  try {
+
+    loginInProgress = true;
+
+    const provider = new GoogleAuthProvider();
+
+    const result =
+      await signInWithPopup(auth, provider);
+
+    const user = result.user;
+
+    localStorage.setItem(
+      "deliveryUser",
+      JSON.stringify({
+        uid:user.uid,
+        name:user.displayName,
+        email:user.email,
+        photo:user.photoURL
+      })
+    );
+
+    const snap = await getDoc(
+      doc(db,"deliveryPartners",user.uid)
+    );
+
+    if(snap.exists()){
+      location.href = "home.html";
+    }else{
+      location.href = "details.html";
+    }
+
+  } catch(err) {
+
+    alert(err.message);
+
+  }
+
+});
+
+// LOGIN BUTTON
+document.getElementById("loginBtn").addEventListener("click", async () => {
+
+  try {
+
+    const provider = new GoogleAuthProvider();
+
+    const result =
+      await signInWithPopup(auth, provider);
+
+    const user = result.user;
+
+    localStorage.setItem(
+      "deliveryUser",
+      JSON.stringify({
+        uid: user.uid,
+        name: user.displayName,
+        email: user.email,
+        photo: user.photoURL
+      })
+    );
+
+    const snap = await getDoc(
+  doc(db, "deliveryPartners", user.uid)
+);
+
+if (snap.exists()) {
+  window.location.href = "home.html";
+} else {
+  window.location.href = "details.html";
+}
+
+  } catch(err) {
+
+    console.log(err);
+    alert(err.message);
+
+  }
+
+});
+
+
+
+
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+</body>
+</html>
