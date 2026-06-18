@@ -179,7 +179,7 @@ Powered by Eluru Foods
 
 </div>
 
-<script type="module">
+< type="module">
 
 import {
 initializeApp
@@ -323,19 +323,113 @@ location.href=
 location.href=
 "details.html";
 
+<script type="module">
+
+import {
+initializeApp
 }
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
+import {
+getFirestore,
+doc,
+getDoc
 }
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-)
+import {
+getAuth,
+GoogleAuthProvider,
+signInWithRedirect,
+onAuthStateChanged
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-.catch(
+const firebaseConfig = {
+apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+authDomain:"food-delivery-app-97300.firebaseapp.com",
+projectId:"food-delivery-app-97300"
+};
 
-(err)=>{
+const app =
+initializeApp(firebaseConfig);
 
-alert(
-err.message
+const auth =
+getAuth(app);
+
+const db =
+getFirestore(app);
+
+const provider =
+new GoogleAuthProvider();
+
+document
+.getElementById("loginBtn")
+.onclick =
+async()=>{
+
+try{
+
+await signInWithRedirect(
+auth,
+provider
 );
+
+}catch(err){
+
+alert(err.message);
+
+}
+
+};
+
+onAuthStateChanged(
+auth,
+
+async(user)=>{
+
+if(!user)
+return;
+
+localStorage.setItem(
+"deliveryUser",
+
+JSON.stringify({
+
+uid:user.uid,
+name:user.displayName,
+email:user.email,
+photo:user.photoURL
+
+})
+
+);
+
+const snap =
+await getDoc(
+doc(
+db,
+"deliveryPartners",
+user.uid
+)
+);
+
+if(
+snap.exists()
+){
+
+location.href =
+"home.html";
+
+}else{
+
+location.href =
+"details.html";
+
+}
 
 }
 
