@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html>
+
 <head>
+
 <meta charset="UTF-8">
+
 <title>Delivery Login</title>
 
-<meta name="viewport"
+<meta
+name="viewport"
 content="width=device-width, initial-scale=1">
 
-<link rel="manifest"
+<link
+rel="manifest"
 href="/manifest.json">
 
-<meta name="theme-color"
+<meta
+name="theme-color"
 content="#ff4d4d">
 
 <style>
@@ -32,8 +38,6 @@ justify-content:center;
 
 align-items:center;
 
-padding:20px;
-
 background:
 linear-gradient(
 180deg,
@@ -41,11 +45,14 @@ linear-gradient(
 #ff884d
 );
 
+padding:20px;
+
 }
 
 .card{
 
 width:100%;
+
 max-width:380px;
 
 background:white;
@@ -65,6 +72,7 @@ rgba(0,0,0,.15);
 .logo{
 
 width:100px;
+
 height:100px;
 
 margin:auto;
@@ -91,8 +99,6 @@ font-size:28px;
 
 font-weight:bold;
 
-color:#222;
-
 }
 
 .sub{
@@ -117,15 +123,15 @@ border:none;
 
 border-radius:14px;
 
+background:#4285F4;
+
+color:white;
+
 font-size:16px;
 
 font-weight:bold;
 
 cursor:pointer;
-
-background:#4285F4;
-
-color:white;
 
 }
 
@@ -158,7 +164,6 @@ Delivery Partner
 <div class="sub">
 
 Sign in and start<br>
-
 delivering orders
 
 </div>
@@ -179,7 +184,7 @@ Powered by Eluru Foods
 
 </div>
 
-< type="module">
+<script type="module">
 
 import {
 initializeApp
@@ -188,22 +193,17 @@ from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-
 getFirestore,
 doc,
 getDoc
-
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
-
 getAuth,
 GoogleAuthProvider,
-signInWithRedirect,
-getRedirectResult
-
+signInWithPopup
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -230,9 +230,6 @@ getAuth(app);
 const db=
 getFirestore(app);
 
-const provider=
-new GoogleAuthProvider();
-
 document
 .getElementById(
 "loginBtn"
@@ -246,34 +243,14 @@ async()=>{
 
 try{
 
-await signInWithRedirect(
+const provider=
+new GoogleAuthProvider();
+
+const result=
+await signInWithPopup(
 auth,
 provider
 );
-
-}
-catch(err){
-
-alert(
-err.message
-);
-
-}
-
-}
-
-);
-
-getRedirectResult(
-auth
-)
-
-.then(
-
-async(result)=>{
-
-if(!result)
-return;
 
 const user=
 result.user;
@@ -284,17 +261,10 @@ localStorage.setItem(
 
 JSON.stringify({
 
-uid:
-user.uid,
-
-name:
-user.displayName,
-
-email:
-user.email,
-
-photo:
-user.photoURL
+uid:user.uid,
+name:user.displayName,
+email:user.email,
+photo:user.photoURL
 
 })
 
@@ -323,111 +293,16 @@ location.href=
 location.href=
 "details.html";
 
-<script type="module">
-
-import {
-initializeApp
 }
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-import {
-getFirestore,
-doc,
-getDoc
 }
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+catch(err){
 
-import {
-getAuth,
-GoogleAuthProvider,
-signInWithRedirect,
-onAuthStateChanged
-}
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+console.log(err);
 
-const firebaseConfig = {
-apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-authDomain:"food-delivery-app-97300.firebaseapp.com",
-projectId:"food-delivery-app-97300"
-};
-
-const app =
-initializeApp(firebaseConfig);
-
-const auth =
-getAuth(app);
-
-const db =
-getFirestore(app);
-
-const provider =
-new GoogleAuthProvider();
-
-document
-.getElementById("loginBtn")
-.onclick =
-async()=>{
-
-try{
-
-await signInWithRedirect(
-auth,
-provider
+alert(
+err.message
 );
-
-}catch(err){
-
-alert(err.message);
-
-}
-
-};
-
-onAuthStateChanged(
-auth,
-
-async(user)=>{
-
-if(!user)
-return;
-
-localStorage.setItem(
-"deliveryUser",
-
-JSON.stringify({
-
-uid:user.uid,
-name:user.displayName,
-email:user.email,
-photo:user.photoURL
-
-})
-
-);
-
-const snap =
-await getDoc(
-doc(
-db,
-"deliveryPartners",
-user.uid
-)
-);
-
-if(
-snap.exists()
-){
-
-location.href =
-"home.html";
-
-}else{
-
-location.href =
-"details.html";
 
 }
 
@@ -455,4 +330,5 @@ navigator
 </script>
 
 </body>
+
 </html>
