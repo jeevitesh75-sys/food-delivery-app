@@ -2,20 +2,20 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family: Arial, sans-serif;
+  font-family:Arial,sans-serif;
 }
 
-body{
-  background:#f8f8f8;
-  padding-bottom:100px;
-}
-
-/* THEME */
 :root{
   --gold:#d4af37;
   --white:#fff;
   --text:#333;
-  --shadow:0 4px 12px rgba(0,0,0,0.08);
+  --shadow:0 4px 12px rgba(0,0,0,.08);
+}
+
+body{
+  background:#f8f8f8;
+  color:var(--text);
+  padding-bottom:100px;
 }
 
 /* HEADER */
@@ -42,8 +42,17 @@ body{
   box-shadow:var(--shadow);
 }
 
-/* RESTAURANT CARD */
-.card{
+/* RESTAURANTS */
+.restaurants{
+  padding:10px;
+}
+
+/* IMPORTANT:
+changed .card → .restaurant-card
+so login pages won't break
+*/
+
+.restaurant-card{
   background:white;
   margin:15px;
   border-radius:15px;
@@ -52,7 +61,7 @@ body{
   cursor:pointer;
 }
 
-.card img{
+.restaurant-card img{
   width:100%;
   height:180px;
   object-fit:cover;
@@ -68,24 +77,31 @@ body{
 }
 
 .distance{
-  font-size:13px;
   color:gray;
+  font-size:13px;
 }
 
-/* FOOD CARD */
+/* FOOD */
 .food-card{
   display:flex;
   justify-content:space-between;
+  align-items:center;
+
   background:white;
+
   margin:10px;
+
   padding:12px;
+
   border-radius:12px;
+
   box-shadow:var(--shadow);
 }
 
 .food-image{
   width:90px;
   height:90px;
+  object-fit:cover;
   border-radius:12px;
 }
 
@@ -100,35 +116,61 @@ body{
 
 .add-btn{
   margin-top:8px;
+
   padding:8px 12px;
+
   background:var(--gold);
+
   color:white;
+
   border:none;
+
   border-radius:8px;
 }
 
-/* CART BUTTON */
+/* CART */
 .cart-bar{
   position:fixed;
+
   bottom:0;
+
   width:100%;
+
   background:var(--gold);
+
   color:white;
+
   text-align:center;
+
   padding:15px;
+
   font-weight:bold;
+
+  z-index:999;
 }
 
-/* BOTTOM NAV */
+/* NAV */
+
 .bottom-nav{
+
   position:fixed;
+
   bottom:60px;
+
   width:100%;
+
   background:white;
+
   display:flex;
+
   justify-content:space-around;
+
   padding:10px 0;
-  box-shadow:0 -2px 10px rgba(0,0,0,0.1);
+
+  box-shadow:0 -2px 10px rgba(0,0,0,.1);
+
+  z-index:1000;
+
 }
 
 .nav-item{
@@ -139,46 +181,61 @@ body{
 .active{
   color:var(--gold);
 }
-/* =========================
-   RESPONSIVE DESIGN
-========================= */
 
-/* Mobile (default already good) */
+/* LOGIN PAGES PROTECTION */
 
-/* Tablet */
-@media (min-width: 600px){
-  .restaurants {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-  }
-
-  .food-card {
-    flex-direction: row;
-  }
+.login-card,
+.restaurant-login-card{
+  all:unset;
 }
 
-/* Laptop */
-@media (min-width: 900px){
+/* TABLET */
 
-  body{
-    max-width: 900px;
-    margin: auto;
-    background: #eee;
-  }
+@media(min-width:600px){
 
-  .header{
-    border-radius: 0 0 20px 20px;
-  }
+.restaurants{
 
-  .restaurants {
-    grid-template-columns: repeat(3, 1fr);
-  }
+display:grid;
 
-  .bottom-nav{
-    max-width: 900px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
+grid-template-columns:
+repeat(2,1fr);
+
+gap:15px;
+
+}
+
+}
+
+/* LAPTOP */
+
+@media(min-width:900px){
+
+body{
+
+max-width:900px;
+
+margin:auto;
+
+background:#eee;
+
+}
+
+.restaurants{
+
+grid-template-columns:
+repeat(3,1fr);
+
+}
+
+.bottom-nav{
+
+max-width:900px;
+
+left:50%;
+
+transform:
+translateX(-50%);
+
+}
 
 }
