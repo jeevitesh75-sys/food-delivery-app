@@ -3,202 +3,362 @@
 <head>
 <meta charset="UTF-8">
 <title>Delivery Login</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff4d4d">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1">
+
+<link rel="manifest"
+href="/manifest.json">
+
+<meta name="theme-color"
+content="#ff4d4d">
+
 <style>
+
 *{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial,sans-serif;
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
 }
 
 body{
-  background:#ff4d4d;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
+
+min-height:100vh;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+padding:20px;
+
+background:
+linear-gradient(
+180deg,
+#ff4d4d,
+#ff884d
+);
+
 }
 
 .card{
-  width:90%;
-  max-width:400px;
-  background:#fff;
-  padding:30px;
-  border-radius:20px;
-  text-align:center;
+
+width:100%;
+max-width:380px;
+
+background:white;
+
+padding:35px;
+
+border-radius:24px;
+
+text-align:center;
+
+box-shadow:
+0 20px 50px
+rgba(0,0,0,.15);
+
 }
 
 .logo{
-  font-size:60px;
-  margin-bottom:10px;
+
+width:100px;
+height:100px;
+
+margin:auto;
+
+border-radius:50%;
+
+background:#fff3ec;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:48px;
+
+margin-bottom:20px;
+
+}
+
+.title{
+
+font-size:28px;
+
+font-weight:bold;
+
+color:#222;
+
+}
+
+.sub{
+
+margin-top:10px;
+
+color:#777;
+
+line-height:24px;
+
 }
 
 .google-btn{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:10px;
-  background:#4285F4;
-  color:white;
-  font-size:16px;
-  cursor:pointer;
+
+margin-top:30px;
+
+width:100%;
+
+padding:15px;
+
+border:none;
+
+border-radius:14px;
+
+font-size:16px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+background:#4285F4;
+
+color:white;
+
 }
+
+.footer{
+
+margin-top:18px;
+
+font-size:12px;
+
+color:#999;
+
+}
+
 </style>
+
 </head>
 
 <body>
 
 <div class="card">
-  <div class="logo">🛵</div>
 
-  <h2>Delivery Partner</h2>
+<div class="logo">
+🛵
+</div>
 
-  <p>Sign in with Google to continue</p>
+<div class="title">
+Delivery Partner
+</div>
 
-  <button id="loginBtn" class="google-btn">
-    Continue with Google
-  </button>
+<div class="sub">
+
+Sign in and start<br>
+
+delivering orders
+
+</div>
+
+<button
+id="loginBtn"
+class="google-btn">
+
+🔵 Continue with Google
+
+</button>
+
+<div class="footer">
+
+Powered by Eluru Foods
+
+</div>
+
 </div>
 
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore,
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  onAuthStateChanged
+initializeApp
 }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-  authDomain: "food-delivery-app-97300.firebaseapp.com",
-  projectId: "food-delivery-app-97300"
+import {
+
+getFirestore,
+doc,
+getDoc
+
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+
+getAuth,
+GoogleAuthProvider,
+signInWithRedirect,
+getRedirectResult
+
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig={
+
+apiKey:
+"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+
+authDomain:
+"food-delivery-app-97300.firebaseapp.com",
+
+projectId:
+"food-delivery-app-97300"
+
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+const app=
+initializeApp(firebaseConfig);
 
-// AUTO LOGIN CHECK
-let loginInProgress = false;
+const auth=
+getAuth(app);
 
-onAuthStateChanged(auth, async (user) => {
+const db=
+getFirestore(app);
 
-  if (!user || loginInProgress) return;
+const provider=
+new GoogleAuthProvider();
 
-  const snap = await getDoc(
-    doc(db, "deliveryPartners", user.uid)
-  );
+document
+.getElementById(
+"loginBtn"
+)
 
-  if (snap.exists()) {
-    location.href = "home.html";
-  } else {
-    location.href = "details.html";
-  }
+.addEventListener(
 
-});
+"click",
 
-document.getElementById("loginBtn").addEventListener("click", async () => {
+async()=>{
 
-  try {
+try{
 
-    loginInProgress = true;
-
-    const provider = new GoogleAuthProvider();
-
-    const result =
-      await signInWithPopup(auth, provider);
-
-    const user = result.user;
-
-    localStorage.setItem(
-      "deliveryUser",
-      JSON.stringify({
-        uid:user.uid,
-        name:user.displayName,
-        email:user.email,
-        photo:user.photoURL
-      })
-    );
-
-    const snap = await getDoc(
-      doc(db,"deliveryPartners",user.uid)
-    );
-
-    if(snap.exists()){
-      location.href = "home.html";
-    }else{
-      location.href = "details.html";
-    }
-
-  } catch(err) {
-
-    alert(err.message);
-
-  }
-
-});
-
-// LOGIN BUTTON
-document.getElementById("loginBtn").addEventListener("click", async () => {
-
-  try {
-
-    const provider = new GoogleAuthProvider();
-
-    const result =
-      await signInWithPopup(auth, provider);
-
-    const user = result.user;
-
-    localStorage.setItem(
-      "deliveryUser",
-      JSON.stringify({
-        uid: user.uid,
-        name: user.displayName,
-        email: user.email,
-        photo: user.photoURL
-      })
-    );
-
-    const snap = await getDoc(
-  doc(db, "deliveryPartners", user.uid)
+await signInWithRedirect(
+auth,
+provider
 );
 
-if (snap.exists()) {
-  window.location.href = "home.html";
-} else {
-  window.location.href = "details.html";
+}
+catch(err){
+
+alert(
+err.message
+);
+
 }
 
-  } catch(err) {
+}
 
-    console.log(err);
-    alert(err.message);
+);
 
-  }
+getRedirectResult(
+auth
+)
 
-});
+.then(
 
+async(result)=>{
 
+if(!result)
+return;
 
+const user=
+result.user;
+
+localStorage.setItem(
+
+"deliveryUser",
+
+JSON.stringify({
+
+uid:
+user.uid,
+
+name:
+user.displayName,
+
+email:
+user.email,
+
+photo:
+user.photoURL
+
+})
+
+);
+
+const snap=
+await getDoc(
+
+doc(
+db,
+"deliveryPartners",
+user.uid
+)
+
+);
+
+if(
+snap.exists()
+){
+
+location.href=
+"home.html";
+
+}else{
+
+location.href=
+"details.html";
+
+}
+
+}
+
+)
+
+.catch(
+
+(err)=>{
+
+alert(
+err.message
+);
+
+}
+
+);
 
 </script>
+
 <script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js");
+
+if(
+"serviceWorker"
+in navigator
+){
+
+navigator
+.serviceWorker
+.register(
+"/sw.js"
+);
+
 }
+
 </script>
+
 </body>
 </html>
