@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Restaurant Login</title>
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1">
+
+<link
+rel="manifest"
+href="/manifest.json">
+
+<meta
+name="theme-color"
+content="#ff4d4d">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+
+min-height:100vh;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+padding:20px;
+
+background:
+linear-gradient(
+180deg,
+#ff4d4d,
+#ff884d
+);
+
+}
+
+.card{
+
+width:100%;
+
+max-width:380px;
+
+background:white;
+
+padding:35px;
+
+border-radius:24px;
+
+text-align:center;
+
+box-shadow:
+0 20px 50px
+rgba(0,0,0,.15);
+
+}
+
+.icon{
+
+width:100px;
+
+height:100px;
+
+margin:auto;
+
+border-radius:50%;
+
+background:#fff4e8;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:48px;
+
+margin-bottom:20px;
+
+}
+
+.title{
+
+font-size:28px;
+
+font-weight:bold;
+
+color:#222;
+
+}
+
+.sub{
+
+margin-top:10px;
+
+color:#777;
+
+line-height:24px;
+
+}
+
+.login-btn{
+
+margin-top:30px;
+
+width:100%;
+
+padding:15px;
+
+border:none;
+
+border-radius:14px;
+
+font-size:16px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+background:#ff4d4d;
+
+color:white;
+
+transition:.2s;
+
+}
+
+.login-btn:hover{
+
+transform:scale(1.02);
+
+}
+
+.google{
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+gap:10px;
+
+}
+
+.footer{
+
+margin-top:18px;
+
+font-size:12px;
+
+color:#999;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="icon">
+🏪
+</div>
+
+<div class="title">
+Restaurant Partner
+</div>
+
+<div class="sub">
+
+Login and manage<br>
+
+orders • menu • business
+
+</div>
+
+<button
+class="login-btn"
+onclick="googleLogin()">
+
+<div class="google">
+
+🔵 Continue with Google
+
+</div>
+
+</button>
+
+<div class="footer">
+
+Powered by Eluru Foods
+
+</div>
+
+</div>
+
+<script type="module">
+
+import {
+initializeApp
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+
+getAuth,
+
+GoogleAuthProvider,
+
+signInWithPopup
+
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+
+getFirestore,
+
+doc,
+
+getDoc
+
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig={
+
+apiKey:
+"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+
+authDomain:
+"food-delivery-app-97300.firebaseapp.com",
+
+projectId:
+"food-delivery-app-97300",
+
+storageBucket:
+"food-delivery-app-97300.firebasestorage.app",
+
+messagingSenderId:
+"12744604798",
+
+appId:
+"1:12744604798:web:4417d6d7f97b9b7218ec2f"
+
+};
+
+const app =
+initializeApp(
+firebaseConfig
+);
+
+const auth =
+getAuth(app);
+
+const db =
+getFirestore(app);
+
+const provider =
+new GoogleAuthProvider();
+
+window.googleLogin =
+async function(){
+
+try{
+
+const result =
+await signInWithPopup(
+auth,
+provider
+);
+
+const user =
+result.user;
+
+localStorage.setItem(
+
+"restaurantUser",
+
+JSON.stringify({
+
+uid:
+user.uid,
+
+displayName:
+user.displayName,
+
+email:
+user.email,
+
+photoURL:
+user.photoURL
+
+})
+
+);
+
+const ref =
+doc(
+db,
+"restaurants",
+user.uid
+);
+
+const snap =
+await getDoc(
+ref
+);
+
+if(
+snap.exists()
+){
+
+location.href =
+"Dashboard.html";
+
+}
+else{
+
+location.href =
+"details.html";
+
+}
+
+}
+catch(err){
+
+console.log(
+err
+);
+
+alert(
+err.message
+);
+
+}
+
+};
+
+</script>
+
+<script>
+
+if(
+"serviceWorker"
+in navigator
+){
+
+navigator
+.serviceWorker
+.register(
+"/sw.js"
+);
+
+}
+
+</script>
+
+</body>
+
+</html>

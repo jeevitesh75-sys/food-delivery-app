@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout</title>
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+<style>
+.checkout-box { padding: 15px; }
+.summary { margin-top: 20px; }
+.place-btn {
+  background: green;
+  color: white;
+  padding: 12px;
+  text-align: center;
+  margin-top: 20px;
+  border-radius: 5px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+<a href="cart.html">
+<div class="back-btn">←</div>
+</a>
+Checkout
+</div>
+
+<div class="checkout-box">
+
+<h3>📍 Delivery Address</h3>
+<p id="userAddress">Loading...</p>
+
+<h3>💳 Payment Method</h3>
+
+<label>
+<input type="radio" name="payment" value="COD" checked>
+ Cash on Delivery
+</label>
+<br>
+<label>
+<input type="radio" name="payment" value="UPI">
+ UPI
+</label>
+
+<div class="summary">
+<h3>🧾 Order Summary</h3>
+<p>Total: ₹<span id="total">0</span></p>
+</div>
+
+<div class="place-btn" onclick="placeOrder()">
+Place Order ✅
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { 
+  getFirestore, 
+  doc, 
+  getDoc, 
+  collection, 
+  addDoc,
+  serverTimestamp   // ✅ IMPORTANT
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+// 🔥 Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+onAuthStateChanged(auth, async(user) => {
+
+  if(!user){
+    location.href = "login.html";
+    return;
+  }
+
+  // ALL YOUR EXISTING CODE HERE
+let deliveryFee = 30;
+let platformFee = 3;
+
+const settingsSnap =
+await getDoc(
+  doc(db,"settings","appConfig")
+);
+
+if(settingsSnap.exists()){
+
+  const s = settingsSnap.data();
+
+  const distance =
+Number(
+localStorage.getItem(
+"restaurantDistance"
+)) || 0;
+
+if(distance <= 3){
+  deliveryFee = s.fee0to3 || 30;
+}
+else if(distance <= 7){
+  deliveryFee = s.fee3to7 || 50;
+}
+else if(distance <= 10){
+  deliveryFee = s.fee7to10 || 70;
+}
+else{
+  deliveryFee = s.fee10plus || 100;
+}
+
+  platformFee =
+  s.platformFee || 3;
+}
+// ✅ USER
+
+
+// ✅ LOAD USER DETAILS
+async function loadUser() {
+  const snap = await getDoc(
+  doc(db, "users", auth.currentUser.uid)
+);
+
+  if (snap.exists()) {
+    let data = snap.data();
+
+    document.getElementById("userAddress").innerText =
+      data.name + " | " + data.phone + "\n" + data.address;
+
+  } else {
+    window.location.href = "details.html";
+  }
+}
+
+// ✅ CART
+let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+if(cartItems.length === 0){
+  document.getElementById("total").innerText = "0";
+}
+// Restaurant amount
+let subtotal = cartItems.reduce(
+(sum,item)=>
+sum + ((item.restaurantPrice || item.price) * item.qty),
+0
+);
+
+// Customer amount (includes markup)
+let customerSubtotal = cartItems.reduce(
+(sum,item)=>
+sum + (item.price * item.qty),
+0
+);
+
+let total =
+customerSubtotal +
+deliveryFee +
+platformFee;
+
+document.getElementById("total").innerText = total;
+// 🔥 GET RESTAURANT ID
+let restaurantId = cartItems.length > 0 ? cartItems[0].restaurantId : null;
+
+// ✅ PLACE ORDER
+window.placeOrder = async function () {
+
+  if (cartItems.length === 0) {
+    alert("Cart empty ❌");
+    return;
+  }
+
+  if (!restaurantId) {
+    alert("Restaurant missing ❌");
+    return;
+  }
+
+  let payment = document.querySelector('input[name="payment"]:checked').value;
+
+ try {
+
+  const userSnap =
+await getDoc(doc(db,"users",user.uid));
+
+let userData = {};
+
+if(userSnap.exists()){
+  userData = userSnap.data();
+}
+
+// ✅ ADD THIS HERE
+if(!userData.address){
+  alert("Please select a delivery address");
+  return;
+}
+const restaurantSnap =
+await getDoc(
+  doc(db,"restaurants",restaurantId)
+);
+
+let restaurantData = {};
+
+if(restaurantSnap.exists()){
+  restaurantData =
+  restaurantSnap.data();
+}
+const restaurantToken =
+restaurantData.fcmToken || "";
+  await addDoc(collection(db,"orders"),{
+    customerLat:userData.lat || null,
+customerLng:userData.lng || null,
+
+    userId:user.uid,
+
+    customerName:userData.name || "",
+    customerPhone:userData.phone || "",
+    customerAddress:userData.address || "",
+
+    restaurantId:restaurantId,
+    restaurantName:
+restaurantData.name || "",
+restaurantToken:
+restaurantData.fcmToken || "",
+
+restaurantPhone:
+restaurantData.phone || "",
+
+restaurantAddress:
+restaurantData.address || "",
+
+restaurantLat:
+restaurantData.lat || null,
+
+restaurantLng:
+restaurantData.lng || null,
+
+    items:cartItems,
+
+    subtotal: subtotal,
+customerSubtotal: customerSubtotal,
+
+deliveryFee: deliveryFee,
+platformFee: platformFee,
+
+total: total,
+    payment:payment,
+
+    status:"Pending",
+
+    deliveryBoyId:"",
+    deliveryBoyName:"",
+    deliveryBoyPhone:"",
+
+    createdAt:serverTimestamp()
+
+  });
+
+  localStorage.removeItem("cart");
+
+  alert("Order placed ✅");
+
+  window.location.href="tracking.html";
+
+}
+catch(err){
+
+  alert(err.message);
+  console.log(err);
+
+}
+
+}; // ← close placeOrder function
+
+// INIT
+loadUser();
+  
+
+});
+
+
+</script>
+
+<div class="bottom-nav">
+  <a href="home.html"><div class="nav-item">🏠<br>Home</div></a>
+  
+  <a href="cart.html"><div class="nav-item">🛒<br>Cart</div></a>
+  <a href="profile.html"><div class="nav-item">👤<br>Profile</div></a>
+</div>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+</body>
+</html>

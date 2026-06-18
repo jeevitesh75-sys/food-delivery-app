@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Terms & Privacy</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+<style>
+body{
+font-family:Arial;
+padding:20px;
+}
+button{
+padding:12px;
+width:100%;
+background:green;
+color:white;
+border:none;
+margin-top:15px;
+}
+</style>
+</head>
+<body>
+
+<h2>Welcome</h2>
+
+<p>
+Please read and accept:
+</p>
+
+<p>
+<a href="privacy.html" target="_blank">
+Privacy Policy
+</a>
+</p>
+
+<p>
+<a href="terms.html" target="_blank">
+Terms & Conditions
+</a>
+</p>
+
+<p>
+<a href="refund.html" target="_blank">
+Refund Policy
+</a>
+</p>
+
+<label>
+<input type="checkbox" id="agree">
+I accept all policies
+</label>
+
+<button onclick="continueApp()">
+Continue
+</button>
+
+<script>
+function continueApp(){
+
+if(!document.getElementById("agree").checked){
+alert("Please accept policies");
+return;
+}
+
+localStorage.setItem(
+"policyAccepted",
+"true"
+);
+
+window.location.href="home.html";
+}
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+</body>
+</html>
