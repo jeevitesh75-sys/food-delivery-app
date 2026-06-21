@@ -303,12 +303,16 @@ Notification.permission==="default"
 await Notification.requestPermission();
 }
 
-const sw =
+let token="";
+
+try{
+
+const sw=
 await navigator.serviceWorker.register(
 "/delivery/firebase-messaging-sw.js"
 );
 
-const token =
+token=
 await getToken(
 messaging,
 {
@@ -318,10 +322,6 @@ serviceWorkerRegistration:sw
 }
 );
 
-console.log("FCM:",token);
-alert(
-token || "TOKEN FAILED"
-);
 if(token){
 
 await setDoc(
@@ -337,6 +337,14 @@ fcmToken:token
 merge:true
 }
 );
+
+}
+
+}catch(e){
+
+console.log(e);
+
+}
 
 }
 localStorage.setItem(
