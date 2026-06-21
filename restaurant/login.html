@@ -288,11 +288,17 @@ user.uid
 
 if(snap.exists()){
 
+if(
+Notification.permission==="default"
+){
+await Notification.requestPermission();
+}
+
 window.location.replace(
 "Dashboard.html"
 );
 
-}else{
+  }else{
 
 window.location.replace(
 "details.html"
@@ -316,6 +322,11 @@ provider
 
 const user =
 result.user;
+  if(
+Notification.permission==="default"
+){
+await Notification.requestPermission();
+}
 await Notification.requestPermission();
 
 const token =
