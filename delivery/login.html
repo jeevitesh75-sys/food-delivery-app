@@ -252,43 +252,18 @@ e
 
 }
 
+// DO NOT AUTO REDIRECT
 onAuthStateChanged(
 auth,
-async(user)=>{
+(user)=>{
 
 if(!user){
-
-document.body.style.display=
-"flex";
-
+document.body.style.display="flex";
 return;
-
 }
 
-const snap=
-await getDoc(
-doc(
-db,
-"deliveryPartners",
-user.uid
-)
-);
-
-if(
-snap.exists()
-&&
-snap.data()?.name
-){
-
-location.href=
-"home.html";
-
-}else{
-
-location.href=
-"details.html";
-
-}
+// user already logged in
+document.body.style.display="flex";
 
 }
 );
@@ -412,22 +387,30 @@ db,
 user.uid
 )
 );
+  // wait until FCM saved
+
+setTimeout(async()=>{
+
+const snap=
+await getDoc(
+doc(
+db,
+"deliveryPartners",
+user.uid
+)
+);
 
 if(
 snap.exists()
 &&
 snap.data()?.name
 ){
-
-location.href=
-"home.html";
-
+location.href="home.html";
 }else{
-
-location.href=
-"details.html";
-
+location.href="details.html";
 }
+
+},1500);
 
 }catch(err){
 
