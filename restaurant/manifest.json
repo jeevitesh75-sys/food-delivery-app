@@ -1,11 +1,11 @@
 {
 "name":"Eluru Foods Restaurant",
 "short_name":"Restaurant",
-"start_url":"/restaurant/login.html",
+"start_url":"./login.html",
+"scope":"./",
 "display":"standalone",
-"background_color":"#ffffff",
 "theme_color":"#ff4d4d",
-
+"background_color":"#ffffff",
 "icons":[
 {
 "src":"./icons/restaurant-192.png",
