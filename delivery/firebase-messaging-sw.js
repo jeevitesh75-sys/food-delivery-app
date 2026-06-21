@@ -18,7 +18,7 @@ projectId:
 "food-delivery-app-97300",
 
 storageBucket:
-"food-delivery-app-97300.firebasestorage.app",
+"food-delivery-app-97300.appspot.com",
 
 messagingSenderId:
 "12744604798",
@@ -35,12 +35,12 @@ messaging.onBackgroundMessage(
 (payload)=>{
 
 self.registration.showNotification(
-payload.notification.title,
+payload.notification?.title || "New Order",
 {
 body:
-payload.notification.body,
+payload.notification?.body || "",
 icon:
-"/icons/delivery-192.png"
+"/delivery/icons/icon-192.png"
 }
 );
 
