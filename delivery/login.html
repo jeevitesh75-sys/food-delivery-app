@@ -214,7 +214,16 @@ authDomain:
 "food-delivery-app-97300.firebaseapp.com",
 
 projectId:
-"food-delivery-app-97300"
+"food-delivery-app-97300",
+
+storageBucket:
+"food-delivery-app-97300.firebasestorage.app",
+
+messagingSenderId:
+"12744604798",
+
+appId:
+"1:12744604798:web:4417d6d7f97b9b7218ec2f"
 
 };
 
@@ -286,47 +295,41 @@ auth,
 provider
 );
 
-const user=
-result.user;
+const user = result.user;
 
-if(
-Notification.permission===
-"default"
-){
+// ask notification
+try{
 
+if(Notification.permission!=="granted"){
 await Notification.requestPermission();
-
 }
 
 if(
-messaging
-&&
-Notification.permission===
-"granted"
+messaging &&
+Notification.permission==="granted"
 ){
 
-try{
-
-const sw=
+const sw =
 await navigator.serviceWorker.register(
 "/delivery/firebase-messaging-sw.js"
 );
 
-const token=
+const token =
 await getToken(
 messaging,
 {
 vapidKey:
 "BPsWJDECHCc-VL9rGtkOSIizHTDdEQ4fDaWn14J-_wbHSNbzCmE5gK-Z4Rbq_qGC-VddcIEpp5yk8TuoQkiEVvM",
-
-serviceWorkerRegistration:
-sw
+serviceWorkerRegistration:sw
 }
 );
 
-console.log(
-"FCM:",
+alert(
 token
+?
+"FCM SAVED"
+:
+"FCM EMPTY"
 );
 
 if(token){
@@ -338,8 +341,7 @@ db,
 user.uid
 ),
 {
-fcmToken:
-token
+fcmToken:token
 },
 {
 merge:true
@@ -348,49 +350,28 @@ merge:true
 
 }
 
+}
+
 }catch(e){
 
-console.log(
-"TOKEN FAILED",
-e
+alert(
+"FCM ERROR\n"+
+e.message
 );
-
-}
 
 }
 
 localStorage.setItem(
 "deliveryUser",
-
 JSON.stringify({
-
-uid:
-user.uid,
-
-name:
-user.displayName,
-
-email:
-user.email,
-
-photo:
-user.photoURL
-
+uid:user.uid,
+name:user.displayName,
+email:user.email,
+photo:user.photoURL
 })
 );
 
-const snap=
-await getDoc(
-doc(
-db,
-"deliveryPartners",
-user.uid
-)
-);
-  // wait until FCM saved
-
-setTimeout(async()=>{
-
+// redirect
 const snap=
 await getDoc(
 doc(
@@ -405,12 +386,17 @@ snap.exists()
 &&
 snap.data()?.name
 ){
-location.href="home.html";
-}else{
-location.href="details.html";
-}
 
-},1500);
+location.href=
+"home.html";
+
+}else{
+
+location.href=
+"details.html";
+
+  }
+
 
 }catch(err){
 
