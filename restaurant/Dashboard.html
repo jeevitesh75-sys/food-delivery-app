@@ -164,6 +164,7 @@ background:#eee;
     onkeyup="filterFoods()">
 
 <div id="foodList" class="food-scroll"></div>
+  <div id="foodList"></div>
 </div>
 
 <!-- ORDERS -->
@@ -360,6 +361,23 @@ Delete
 </button>
 
 </div>
+        <button
+        class="${f.enabled ? 'orange':'green'}"
+        onclick="toggleFood('${f.id}',${f.enabled})">
+
+        ${f.enabled ? 'Disable':'Enable'}
+
+        </button>
+
+        <button
+        class="red"
+        onclick="deleteFood('${f.id}')">
+
+        Delete
+
+        </button>
+
+      </div>
 
     </div>
     `;
@@ -477,6 +495,7 @@ closeEdit();
 alert("Food Updated");
 
 };
+
 window.filterFoods = ()=>{
 
   let text =
@@ -697,5 +716,6 @@ Cancel
 </div>
 
 </div>
+
 </body>
 </html>
