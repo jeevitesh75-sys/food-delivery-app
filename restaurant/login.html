@@ -227,120 +227,128 @@ setDoc
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  
+
 import {
 getMessaging,
 getToken
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
-const firebaseConfig = {
 
-apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-authDomain:"food-delivery-app-97300.firebaseapp.com",
-projectId:"food-delivery-app-97300",
-storageBucket:"food-delivery-app-97300.firebasestorage.app",
-messagingSenderId:"12744604798",
-appId:"1:12744604798:web:4417d6d7f97b9b7218ec2f"
+const firebaseConfig={
+
+apiKey:
+"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+
+authDomain:
+"food-delivery-app-97300.firebaseapp.com",
+
+projectId:
+"food-delivery-app-97300",
+
+storageBucket:
+"food-delivery-app-97300.firebasestorage.app",
+
+messagingSenderId:
+"12744604798",
+
+appId:
+"1:12744604798:web:4417d6d7f97b9b7218ec2f"
 
 };
 
-const app =
+const app=
 initializeApp(firebaseConfig);
 
-const auth =
+const auth=
 getAuth(app);
+
+const db=
+getFirestore(app);
 
 await setPersistence(
 auth,
 browserLocalPersistence
 );
 
-const db =
-getFirestore(app);
+let messaging=null;
 
-const messaging =
+try{
+
+messaging=
 getMessaging(app);
 
-const provider =
-new GoogleAuthProvider();
+}catch(e){
+
+console.log(e);
+
+}
+
+// NO AUTO REDIRECT
 onAuthStateChanged(
 auth,
-async(user)=>{
-
-if(!user){
-
-document.body.style.display =
+()=>{
+document.body.style.display=
 "flex";
-
-return;
-
 }
-
-const snap =
-await getDoc(
-doc(
-db,
-"restaurants",
-user.uid
-)
 );
 
-if(snap.exists()){
-
-if(
-Notification.permission==="default"
-){
-await Notification.requestPermission();
-}
-
-window.location.replace(
-"Dashboard.html"
-);
-
-  }else{
-
-window.location.replace(
-"details.html"
-);
-
-}
-
-});
-
-
-window.googleLogin =
+window.googleLogin=
 async()=>{
 
 try{
 
-const result =
+const provider=
+new GoogleAuthProvider();
+
+const result=
 await signInWithPopup(
 auth,
 provider
 );
 
-const user =
+const user=
 result.user;
-  if(
-Notification.permission==="default"
+
+let token="";
+
+try{
+
+if(
+Notification.permission!=="granted"
 ){
-await Notification.requestPermission();
-}
+
 await Notification.requestPermission();
 
-const token =
+}
+
+if(
+messaging &&
+Notification.permission==="granted"
+){
+
+const sw=
+await navigator.serviceWorker.register(
+"/restaurant/firebase-messaging-sw.js"
+);
+
+token=
 await getToken(
 messaging,
 {
 vapidKey:
 "BPsWJDECHCc-VL9rGtkOSIizHTDdEQ4fDaWn14J-_wbHSNbzCmE5gK-Z4Rbq_qGC-VddcIEpp5yk8TuoQkiEVvM",
 serviceWorkerRegistration:
-await navigator.serviceWorker.register(
-"/restaurant/firebase-messaging-sw.js"
-)
+sw
 }
 );
+
+console.log(
+"TOKEN=",
+token
+);
+
+if(token){
 
 await setDoc(
 doc(
@@ -349,13 +357,28 @@ db,
 user.uid
 ),
 {
-fcmToken:token
+fcmToken:
+token
 },
 {
 merge:true
 }
 );
-const snap =
+
+}
+
+}
+
+}catch(e){
+
+alert(
+"FCM ERROR\n"+
+e.message
+);
+
+}
+
+const snap=
 await getDoc(
 doc(
 db,
@@ -364,24 +387,37 @@ user.uid
 )
 );
 
-if(snap.exists()){
-location.href =
+if(
+snap.exists()
+&&
+snap.data()?.name
+){
+
+location.href=
 "Dashboard.html";
+
 }else{
-location.href =
+
+location.href=
 "details.html";
-}
 
 }
-catch(err){
 
-alert(err.message);
+}catch(err){
+
+alert(
+err.message
+);
 
 }
 
 };
 
+document.body.style.display=
+"flex";
+
 </script>
+
 <script>
 if ("serviceWorker" in navigator) {
 navigator.serviceWorker.register(
