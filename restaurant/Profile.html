@@ -278,7 +278,14 @@ window.logout = async ()=>{
 </script>
 <script>
 if("serviceWorker" in navigator){
-navigator.serviceWorker.register("./sw.js");
+window.addEventListener("load",()=>{
+navigator.serviceWorker.register(
+"/restaurant/sw.js",
+{
+scope:"/restaurant/"
+}
+);
+});
 }
 </script>
 
