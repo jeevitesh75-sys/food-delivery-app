@@ -198,7 +198,8 @@ from
 import {
 getFirestore,
 doc,
-getDoc
+getDoc,
+setDoc
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -213,7 +214,12 @@ onAuthStateChanged
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
+import {
+getMessaging,
+getToken
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 const firebaseConfig={
 
 apiKey:
@@ -239,7 +245,7 @@ browserLocalPersistence
 );
 onAuthStateChanged(
 auth,
-(user)=>{
+async(user)=>{
 
 if(!user){
 
@@ -250,6 +256,12 @@ return;
 
 }
 
+if(
+Notification.permission==="default"
+){
+await Notification.requestPermission();
+}
+
 window.location.replace(
 "home.html"
 );
@@ -257,6 +269,9 @@ window.location.replace(
 });
 const db=
 getFirestore(app);
+
+const messaging=
+getMessaging(app);
 
 document
 .getElementById(
@@ -282,7 +297,39 @@ provider
 
 const user=
 result.user;
+if(
+Notification.permission==="default"
+){
+await Notification.requestPermission();
+}
 
+const token=
+await getToken(
+messaging,
+{
+vapidKey:
+"BPsWJDECHCc-VL9rGtkOSIizHTDdEQ4fDaWn14J-_wbHSNbzCmE5gK-Z4Rbq_qGC-VddcIEpp5yk8TuoQkiEVvM",
+
+serviceWorkerRegistration:
+await navigator.serviceWorker.register(
+"/delivery/firebase-messaging-sw.js"
+)
+}
+);
+
+await setDoc(
+doc(
+db,
+"deliveryPartners",
+user.uid
+),
+{
+fcmToken:token
+},
+{
+merge:true
+}
+);
 localStorage.setItem(
 
 "deliveryUser",
