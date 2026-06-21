@@ -278,7 +278,38 @@ app
 
 const provider=
 new GoogleAuthProvider();
+import {
+onAuthStateChanged
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+onAuthStateChanged(
+auth,
+async(user)=>{
+
+if(!user) return;
+
+const snap =
+await getDoc(
+doc(
+db,
+"restaurants",
+user.uid
+)
+);
+
+if(
+snap.exists()
+){
+location.href =
+"Dashboard.html";
+}else{
+location.href =
+"details.html";
+}
+
+});
 window.googleLogin=
 async()=>{
 
