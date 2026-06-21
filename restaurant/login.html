@@ -198,7 +198,6 @@ Powered by Eluru Foods
 </div>
 
 </div>
-
 <script type="module">
 
 import {
@@ -208,81 +207,51 @@ from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-
 getAuth,
-
 GoogleAuthProvider,
-
-signInWithPopup
-
+signInWithPopup,
+setPersistence,
+browserLocalPersistence,
+onAuthStateChanged
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
-
 getFirestore,
-
 doc,
-
 getDoc
-
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig={
+const firebaseConfig = {
 
-apiKey:
-"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-
-authDomain:
-"food-delivery-app-97300.firebaseapp.com",
-
-projectId:
-"food-delivery-app-97300",
-
-storageBucket:
-"food-delivery-app-97300.firebasestorage.app",
-
-messagingSenderId:
-"12744604798",
-
-appId:
-"1:12744604798:web:4417d6d7f97b9b7218ec2f"
+apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+authDomain:"food-delivery-app-97300.firebaseapp.com",
+projectId:"food-delivery-app-97300",
+storageBucket:"food-delivery-app-97300.firebasestorage.app",
+messagingSenderId:"12744604798",
+appId:"1:12744604798:web:4417d6d7f97b9b7218ec2f"
 
 };
 
-const app=
-initializeApp(
-firebaseConfig
-);
+const app =
+initializeApp(firebaseConfig);
 
-const auth=
-getAuth(
-app
-);
-import {
-setPersistence,
-browserLocalPersistence
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+const auth =
+getAuth(app);
 
 await setPersistence(
 auth,
 browserLocalPersistence
 );
-const db=
-getFirestore(
-app
-);
 
-const provider=
+const db =
+getFirestore(app);
+
+const provider =
 new GoogleAuthProvider();
-import {
-onAuthStateChanged
-}
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 onAuthStateChanged(
 auth,
@@ -299,30 +268,27 @@ user.uid
 )
 );
 
-if(
-snap.exists()
-){
-location.href =
-"Dashboard.html";
+if(snap.exists()){
+location.replace("Dashboard.html");
 }else{
-location.href =
-"details.html";
+location.replace("details.html");
 }
 
 });
-  import {
-onAuthStateChanged
-}
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-onAuthStateChanged(
+window.googleLogin =
+async()=>{
+
+try{
+
+const result =
+await signInWithPopup(
 auth,
-async(user)=>{
+provider
+);
 
-if(!user){
-return;
-}
+const user =
+result.user;
 
 const snap =
 await getDoc(
@@ -333,88 +299,18 @@ user.uid
 )
 );
 
-if(
-snap.exists()
-){
-window.location.replace(
-"Dashboard.html"
-);
-}else{
-window.location.replace(
-"details.html"
-);
-}
-
-});
-window.googleLogin=
-async()=>{
-
-try{
-
-const result=
-await signInWithPopup(
-auth,
-provider
-);
-
-const user=
-result.user;
-
-localStorage.setItem(
-
-"restaurantUser",
-
-JSON.stringify({
-
-uid:user.uid,
-
-displayName:user.displayName,
-
-email:user.email,
-
-photoURL:user.photoURL
-
-})
-
-);
-
-const ref=
-doc(
-db,
-"restaurants",
-user.uid
-);
-
-const snap=
-await getDoc(
-ref
-);
-
-if(
-snap.exists()
-){
-
-location.href=
+if(snap.exists()){
+location.href =
 "Dashboard.html";
-
-}
-else{
-
-location.href=
+}else{
+location.href =
 "details.html";
-
 }
 
 }
 catch(err){
 
-alert(
-err.message
-);
-
-console.log(
-err
-);
+alert(err.message);
 
 }
 
