@@ -1,104 +1,45 @@
-const CACHE_NAME = "elurufoods-v1";
+const CACHE_NAME = "restaurant-v2";
 
 const FILES = [
-
-"/",
-"/login.html",
-"/Dashboard.html",
-"/Profile.html",
-"/details.html",
-"/manifest.json"
-
+"/restaurant/",
+"/restaurant/login.html",
+"/restaurant/Dashboard.html",
+"/restaurant/Profile.html",
+"/restaurant/details.html",
+"/restaurant/manifest.json",
+"/restaurant/icons/restaurant-192.png",
+"/restaurant/icons/restaurant-512.png"
 ];
 
 // INSTALL
-
-self.addEventListener(
-"install",
-
-(event)=>{
-
+self.addEventListener("install",(event)=>{
 event.waitUntil(
-
-caches.open(
-CACHE_NAME
-)
-
-.then(cache=>
-cache.addAll(FILES)
-)
-
+caches.open(CACHE_NAME)
+.then(cache=>cache.addAll(FILES))
 );
-
 self.skipWaiting();
-
-}
-
-);
+});
 
 // ACTIVATE
-
-self.addEventListener(
-"activate",
-
-(event)=>{
-
+self.addEventListener("activate",(event)=>{
 event.waitUntil(
-
-caches.keys()
-
-.then(keys=>
-
+caches.keys().then(keys=>
 Promise.all(
-
 keys.map(key=>{
-
-if(
-key !== CACHE_NAME
-){
-
+if(key!==CACHE_NAME){
 return caches.delete(key);
-
 }
-
 })
-
 )
-
 )
-
 );
-
-self.clients.claim();
-
-}
-
-);
+clients.claim();
+});
 
 // FETCH
-
-self.addEventListener(
-
-"fetch",
-
-(event)=>{
-
+self.addEventListener("fetch",(event)=>{
 event.respondWith(
-
-fetch(
-event.request
-)
-
-.catch(
-
-()=>caches.match(
-event.request
-)
-
-)
-
+caches.match(event.request)
+.then(res=>res || fetch(event.request))
 );
-
-}
-
-);
+});
