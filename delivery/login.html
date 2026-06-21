@@ -319,7 +319,9 @@ serviceWorkerRegistration:sw
 );
 
 console.log("FCM:",token);
-
+alert(
+token || "TOKEN FAILED"
+);
 if(token){
 
 await setDoc(
