@@ -303,19 +303,24 @@ Notification.permission==="default"
 await Notification.requestPermission();
 }
 
-const token=
+const sw =
+await navigator.serviceWorker.register(
+"/delivery/firebase-messaging-sw.js"
+);
+
+const token =
 await getToken(
 messaging,
 {
 vapidKey:
 "BPsWJDECHCc-VL9rGtkOSIizHTDdEQ4fDaWn14J-_wbHSNbzCmE5gK-Z4Rbq_qGC-VddcIEpp5yk8TuoQkiEVvM",
-
-serviceWorkerRegistration:
-await navigator.serviceWorker.register(
-"/delivery/firebase-messaging-sw.js"
-)
+serviceWorkerRegistration:sw
 }
 );
+
+console.log("FCM:",token);
+
+if(token){
 
 await setDoc(
 doc(
@@ -330,6 +335,8 @@ fcmToken:token
 merge:true
 }
 );
+
+}
 localStorage.setItem(
 
 "deliveryUser",
@@ -347,17 +354,17 @@ photo:user.photoURL
 
 const snap=
 await getDoc(
-
 doc(
 db,
 "deliveryPartners",
 user.uid
 )
-
 );
 
 if(
 snap.exists()
+&&
+snap.data()?.name
 ){
 
 location.href=
