@@ -262,7 +262,15 @@ const auth=
 getAuth(
 app
 );
+import {
+setPersistence,
+browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+await setPersistence(
+auth,
+browserLocalPersistence
+);
 const db=
 getFirestore(
 app
