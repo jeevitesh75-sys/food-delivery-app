@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+  
+<meta charset="UTF-8">
+<title>Earnings</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<div class="sidebar">
+
+<h2>Admin</h2>
+
+<a href="index.html">🏠 Dashboard</a>
+<a href="orders.html">📦 Orders</a>
+<a href="customers.html">👥 Customers</a>
+<a href="deliveryboys.html">🚴 Delivery Boys</a>
+<a href="restaurants.html">🏪 Restaurants</a>
+<a href="earnings.html">💰 Earnings</a>
+<a href="settings.html">⚙ Settings</a>
+<a href="#" id="logoutBtn">
+🚪 Logout
+</a>
+</div>
+
+<div class="main">
+
+<!-- existing page content here -->
+
+
+<div class="header">
+💰 Earnings Management
+</div>
+
+<div class="stats">
+
+<div class="card">
+<h3>Today's Earnings</h3>
+<h1 id="todayEarn">₹0</h1>
+</div>
+
+<div class="card">
+<h3>Total Earnings</h3>
+<h1 id="totalEarn">₹0</h1>
+</div>
+
+<div class="card">
+<h3>Platform Fees</h3>
+<h1 id="platformEarn">₹0</h1>
+</div>
+
+<div class="card">
+<h3>Delivered Orders</h3>
+<h1 id="deliveredOrders">0</h1>
+</div>
+
+</div>
+
+<div style="padding:10px;">
+<button id="resetBtn">
+Reset Today's Earnings
+</button>
+</div>
+
+<div id="earningsList"></div>
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getAuth,
+onAuthStateChanged,
+signOut
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const app = initializeApp({
+apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+authDomain:"food-delivery-app-97300.firebaseapp.com",
+projectId:"food-delivery-app-97300"
+});
+
+const auth = getAuth(app);
+
+onAuthStateChanged(auth,(user)=>{
+
+  if(!user){
+    location.href="login.html";
+  }
+
+});
+
+document.getElementById("logoutBtn")
+.onclick = async()=>{
+
+  await signOut(auth);
+  location.href="login.html";
+
+};
+
+</script>
+<script type="module" src="js/earnings.js"></script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+</body>
+</html>

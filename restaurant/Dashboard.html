@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Restaurant Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+<style>
+body {
+  font-family: Arial;
+  background:#f5f5f5;
+  margin:0;
+  padding-bottom:80px;
+}
+
+.header {
+  background:#ff4d4d;
+  color:white;
+  padding:15px;
+  text-align:center;
+  font-size:18px;
+  font-weight:bold;
+}
+
+.container {
+  max-width:700px;
+  margin:auto;
+}
+
+.card {
+  background:white;
+  margin:10px;
+  padding:15px;
+  border-radius:12px;
+}
+
+input {
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
+
+button {
+  padding:8px 12px;
+  border:none;
+  border-radius:6px;
+  color:white;
+  margin:4px;
+  cursor:pointer;
+}
+
+.green { background:#28a745; }
+.red { background:#dc3545; }
+.orange { background:#ff9800; }
+
+.food-item {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin:10px 0;
+}
+
+.food-left {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.food-img {
+  width:50px;
+  height:50px;
+  border-radius:8px;
+  object-fit:cover;
+}
+
+.order-box {
+  border-bottom:1px solid #eee;
+  padding:10px 0;
+}
+
+.bottom-nav {
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:white;
+  display:flex;
+  justify-content:center;
+  padding:10px 0;
+  border-top:1px solid #ccc;
+}
+
+.nav-item {
+  text-align:center;
+  cursor:pointer;
+}
+
+.earn-box {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:8px 0;
+}
+/* FOOD BOX SCROLL */
+
+.food-scroll{
+
+max-height:420px;
+
+overflow-y:auto;
+
+padding-right:6px;
+
+}
+
+.food-scroll::-webkit-scrollbar{
+
+width:6px;
+
+}
+
+.food-scroll::-webkit-scrollbar-thumb{
+
+background:#ff4d4d;
+
+border-radius:10px;
+
+}
+
+.food-scroll::-webkit-scrollbar-track{
+
+background:#eee;
+
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">Restaurant Dashboard</div>
+
+<div class="container">
+
+<!-- ADD FOOD -->
+<div class="card">
+<h3>Add Food</h3>
+<input id="fname" placeholder="Food name">
+<input id="price" placeholder="Price">
+<input id="img" placeholder="Image URL">
+<button class="green" onclick="addFood()">Add Food</button>
+</div>
+
+<!-- FOODS -->
+<div class="card">
+  <h3>Your Foods</h3>
+
+  <input
+    id="searchFood"
+    placeholder="Search food..."
+    onkeyup="filterFoods()">
+
+<div id="foodList" class="food-scroll"></div>
+</div>
+
+<!-- ORDERS -->
+<div class="card">
+<h3>Your Orders</h3>
+<div id="orders"></div>
+</div>
+
+<!-- EARNINGS -->
+<div class="card">
+<h3>Earnings</h3>
+
+<div class="earn-box">
+  <div>Today: ₹<span id="todayEarn">0</span></div>
+  <button class="red" onclick="resetToday()">Reset</button>
+</div>
+
+<div class="earn-box">
+  <div>Total: ₹<span id="totalEarn">0</span></div>
+  <button class="red" onclick="resetTotal()">Reset</button>
+</div>
+
+</div>
+
+</div>
+
+<!-- NAV -->
+<div class="bottom-nav">
+  <div class="nav-item" onclick="goProfile()">👤 Profile</div>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  query,
+  where,
+  onSnapshot,
+  deleteDoc,
+  doc,
+  updateDoc,
+  getDocs,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+// FIREBASE
+const app = initializeApp({
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+});
+
+const db = getFirestore(app);
+const auth = getAuth(app);
+onAuthStateChanged(auth, (user) => {
+
+if(!user){
+  location.href = "login.html";
+  return;
+}
+
+let restaurantId = user.uid;
+
+
+const restaurantRef =
+doc(db,"restaurants",restaurantId);
+
+onSnapshot(
+  restaurantRef,
+  (snap)=>{
+
+    if(!snap.exists()) return;
+
+    const data = snap.data();
+
+    document.getElementById("todayEarn").innerText =
+    data.todayEarn || 0;
+
+    document.getElementById("totalEarn").innerText =
+    data.totalEarn || 0;
+
+  }
+);
+// ✅ LOAD EARNINGS FROM STORAGE (IMPORTANT)
+
+
+// INPUTS
+let fname = document.getElementById("fname");
+let priceInput = document.getElementById("price");
+let img = document.getElementById("img");
+
+// ADD FOOD
+
+window.addFood = async ()=>{
+  let name = fname.value;
+  let price = priceInput.value;
+  let image = img.value;
+
+  if(!name || !price){
+    alert("Fill details");
+    return;
+  }
+
+  await addDoc(collection(db,"menu"),{
+  name,
+  price:Number(price),
+  image,
+  restaurantId,
+  enabled:true
+});
+
+  fname.value="";
+  priceInput.value="";
+  img.value="";
+};
+
+// FOOD LIST
+let allFoods = [];
+
+onSnapshot(
+query(collection(db,"menu"),
+where("restaurantId","==",restaurantId)),
+snap=>{
+
+  allFoods = [];
+
+  snap.forEach(d=>{
+    allFoods.push({
+      id:d.id,
+      ...d.data()
+    });
+  });
+
+  renderFoods(allFoods);
+});
+
+function renderFoods(list){
+
+  let html="";
+
+  list.forEach(f=>{
+
+    html += `
+    <div class="food-item">
+
+      <div class="food-left">
+        <img
+        class="food-img"
+        src="${f.image || 'https://via.placeholder.com/50'}">
+
+        <div>
+          <b>${f.name}</b><br>
+          ₹${f.price}<br>
+
+          <small style="
+          color:${f.enabled ? 'green':'red'}">
+
+          ${f.enabled ?
+          'Available' :
+          'Unavailable'}
+
+          </small>
+        </div>
+      </div>
+
+      <div>
+
+<button
+class="${f.enabled ? 'orange':'green'}"
+onclick="toggleFood('${f.id}',${f.enabled})">
+${f.enabled ? 'Disable':'Enable'}
+</button>
+<button
+class="green"
+onclick="editFood(
+'${f.id}',
+'${f.name}',
+${f.price},
+'${f.image || ""}'
+)">
+Edit
+</button>
+
+<button
+class="red"
+onclick="deleteFood('${f.id}')">
+Delete
+</button>
+
+</div>
+
+    </div>
+    `;
+  });
+
+  foodList.innerHTML = html;
+}
+
+window.deleteFood = async(id)=>{
+  await deleteDoc(doc(db,"menu",id));
+};
+
+window.toggleFood = async(id,current)=>{
+
+  await updateDoc(
+  doc(db,"menu",id),
+  {
+    enabled: !current
+  });
+
+};
+ window.editFood = async(id,name,price,image)=>{
+
+  let newName =
+  prompt("Food Name", name);
+
+  if(newName === null) return;
+
+  let newPrice =
+  prompt("Price", price);
+
+  if(newPrice === null) return;
+
+  let newImage =
+  prompt("Image URL", image);
+
+  if(newImage === null) return;
+
+  await updateDoc(
+    doc(db,"menu",id),
+    {
+      name:newName,
+      price:Number(newPrice),
+      image:newImage
+    }
+  );
+
+  alert("Food Updated");
+}; 
+let editingFoodId = "";
+
+window.editFood = (
+id,
+name,
+price,
+image
+)=>{
+
+editingFoodId = id;
+
+document.getElementById(
+"editName"
+).value = name;
+
+document.getElementById(
+"editPrice"
+).value = price;
+
+document.getElementById(
+"editImage"
+).value = image || "";
+
+document.getElementById(
+"editModal"
+).style.display = "flex";
+
+};
+
+window.closeEdit = ()=>{
+
+document.getElementById(
+"editModal"
+).style.display = "none";
+
+};
+
+window.saveFood = async()=>{
+
+const name =
+document.getElementById(
+"editName"
+).value;
+
+const price =
+document.getElementById(
+"editPrice"
+).value;
+
+const image =
+document.getElementById(
+"editImage"
+).value;
+
+await updateDoc(
+doc(db,"menu",editingFoodId),
+{
+name,
+price:Number(price),
+image
+}
+);
+
+closeEdit();
+
+alert("Food Updated");
+
+};
+window.filterFoods = ()=>{
+
+  let text =
+  document
+  .getElementById("searchFood")
+  .value
+  .toLowerCase();
+
+  let filtered =
+  allFoods.filter(f=>
+    f.name.toLowerCase().includes(text)
+  );
+
+  renderFoods(filtered);
+};
+
+// ORDERS (NO EARNINGS CALC HERE ❌)
+onSnapshot(query(collection(db,"orders"),where("restaurantId","==",restaurantId)),snap=>{
+  let html="";
+
+  snap.forEach(d=>{
+    let o=d.data();
+    if(
+  o.status === "Rejected" ||
+  o.status === "Delivered"
+){
+  return;
+}
+
+html += `
+<div class="order-box">
+
+<b>Customer:</b> ${o.customerName || "-"}<br>
+<b>Phone:</b> ${o.customerPhone || "-"}<br>
+<b>Address:</b> ${o.customerAddress || "-"}<br><br>
+
+<b>Food Amount:</b> ₹${o.subtotal || o.total}<br>
+
+<small>
+Delivery Fee: ₹${o.deliveryFee || 0}
+<br>
+Platform Fee: ₹${o.platformFee || 0}
+</small><br>
+<b>Status:</b> ${o.status}<br>
+
+${o.deliveryBoyName ? `
+<hr>
+<b>Delivery Boy:</b> ${o.deliveryBoyName}<br>
+<b>Phone:</b> ${o.deliveryBoyPhone || "-"}<br>
+` : ""}
+
+<br>
+
+<button class="green"
+onclick="updateOrder('${d.id}','Ready')">
+Accept
+</button>
+
+<button class="red"
+onclick="rejectOrder('${d.id}')">
+Reject
+</button>
+
+
+
+
+</div>
+`;
+  });
+
+  orders.innerHTML = html;
+});
+window.updateOrder = async(id,status)=>{
+
+  if(status !== "Ready"){
+    await updateDoc(doc(db,"orders",id),{
+      status
+    });
+    return;
+  }
+
+  const riders = await getDocs(
+  query(
+    collection(db,"deliveryPartners"),
+    where("online","==",true)
+  )
+);
+
+let nearestBoy = null;
+let minDistance = Infinity;
+
+const orderDoc = await getDocs(
+  query(
+    collection(db,"orders")
+  )
+);
+
+// get restaurant location from current order
+const orderSnap = await getDoc(doc(db,"orders",id));
+const order = orderSnap.data();
+
+riders.forEach(r=>{
+
+  const boy = r.data();
+
+  if(
+    !boy.liveLat ||
+    !boy.liveLng ||
+    !order.restaurantLat ||
+    !order.restaurantLng
+  ){
+    return;
+  }
+
+  const distance =
+  Math.sqrt(
+    Math.pow(boy.liveLat - order.restaurantLat,2) +
+    Math.pow(boy.liveLng - order.restaurantLng,2)
+  );
+
+  if(distance < minDistance){
+    minDistance = distance;
+    nearestBoy = {
+      id:r.id,
+      ...boy
+    };
+  }
+
+});
+  
+
+  await updateDoc(
+  doc(db,"orders",id),
+  {
+    status:"Ready",
+    assignedDeliveryBoyId:""
+  }
+);
+
+};
+
+window.rejectOrder = async(id)=>{
+
+  await updateDoc(
+    doc(db,"orders",id),
+    {
+      status:"Rejected"
+    }
+  );
+
+  setTimeout(async()=>{
+    await deleteDoc(doc(db,"orders",id));
+  },3000);
+
+};
+
+// RESET
+window.resetToday = ()=>{
+  alert("Today's earnings are calculated from delivered orders. Reset must be done from Admin Panel.");
+};
+
+window.resetTotal = ()=>{
+  alert("Lifetime earnings are calculated from delivered orders. Reset must be done from Admin Panel.");
+};
+
+// PROFILE
+window.goProfile = ()=>{
+  window.location.href = "Profile.html";
+};
+
+});
+</script>
+  <script>
+if("serviceWorker" in navigator){
+navigator.serviceWorker.register("./sw.js");
+}
+</script>
+<!-- EDIT MODAL -->
+
+<div id="editModal"
+style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.5);
+justify-content:center;
+align-items:center;
+z-index:9999;
+">
+
+<div style="
+background:white;
+padding:20px;
+border-radius:12px;
+width:90%;
+max-width:400px;
+">
+
+<h3>Edit Food</h3>
+
+<input id="editName" placeholder="Food Name">
+<input id="editPrice" placeholder="Price">
+<input id="editImage" placeholder="Image URL">
+
+<button class="green"
+onclick="saveFood()">
+Save
+</button>
+
+<button class="red"
+onclick="closeEdit()">
+Cancel
+</button>
+
+</div>
+
+</div>
+</body>
+</html>
