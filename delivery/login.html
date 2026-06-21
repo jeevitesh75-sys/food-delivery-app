@@ -9,7 +9,7 @@
 
 <meta
 name="viewport"
-content="width=device-width, initial-scale=1">
+content="width=device-width,initial-scale=1">
 
 <link
 rel="manifest"
@@ -29,123 +29,72 @@ font-family:Arial,sans-serif;
 }
 
 body{
-
+display:none;
 min-height:100vh;
-
-display:flex;
-
 justify-content:center;
-
 align-items:center;
-
 background:
 linear-gradient(
 180deg,
 #ff4d4d,
 #ff884d
 );
-
 padding:20px;
-
 }
 
 .card{
-
 width:100%;
-
 max-width:380px;
-
 background:white;
-
 padding:35px;
-
 border-radius:24px;
-
 text-align:center;
-
 box-shadow:
 0 20px 50px
 rgba(0,0,0,.15);
-
 }
 
 .logo{
-
 width:100px;
-
 height:100px;
-
 margin:auto;
-
 border-radius:50%;
-
 background:#fff3ec;
-
 display:flex;
-
 align-items:center;
-
 justify-content:center;
-
 font-size:48px;
-
 margin-bottom:20px;
-
 }
 
 .title{
-
 font-size:28px;
-
 font-weight:bold;
-
 }
 
 .sub{
-
 margin-top:10px;
-
 color:#777;
-
 line-height:24px;
-
 }
 
 .google-btn{
-
 margin-top:30px;
-
 width:100%;
-
 padding:15px;
-
 border:none;
-
 border-radius:14px;
-
 background:#4285F4;
-
 color:white;
-
 font-size:16px;
-
 font-weight:bold;
-
 cursor:pointer;
-
 }
 
 .footer{
-
 margin-top:18px;
-
 font-size:12px;
-
 color:#999;
-
-}
-  body{
-display:none;
 }
 
 </style>
@@ -165,10 +114,8 @@ Delivery Partner
 </div>
 
 <div class="sub">
-
 Sign in and start<br>
 delivering orders
-
 </div>
 
 <button
@@ -180,22 +127,20 @@ class="google-btn">
 </button>
 
 <div class="footer">
-
 Powered by Eluru Foods
-
 </div>
 
 </div>
 
 <script type="module">
 
-import {
+import{
 initializeApp
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-import {
+import{
 getFirestore,
 doc,
 getDoc,
@@ -204,7 +149,7 @@ setDoc
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import {
+import{
 getAuth,
 GoogleAuthProvider,
 signInWithPopup,
@@ -214,13 +159,16 @@ onAuthStateChanged
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
+
+import{
 getMessaging,
 getToken
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
-const firebaseConfig={
+
+const app=
+initializeApp({
 
 apiKey:
 "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
@@ -231,56 +179,46 @@ authDomain:
 projectId:
 "food-delivery-app-97300"
 
-};
+});
 
-const app=
-initializeApp(firebaseConfig);
-
-const auth =
+const auth=
 getAuth(app);
+
+const db=
+getFirestore(app);
+
+const messaging=
+getMessaging(app);
 
 await setPersistence(
 auth,
 browserLocalPersistence
 );
+
 onAuthStateChanged(
 auth,
-async(user)=>{
+(user)=>{
 
 if(!user){
 
-document.body.style.display =
+document.body.style.display=
 "flex";
 
 return;
 
 }
 
-if(
-Notification.permission==="default"
-){
-await Notification.requestPermission();
+location.href=
+"home.html";
+
 }
-
-return;
-
-});
-const db=
-getFirestore(app);
-
-const messaging=
-getMessaging(app);
-
-const db=
-getFirestore(app);
-
-const messaging=
-getMessaging(app);
+);
 
 document
-.getElementById("loginBtn")
-.addEventListener(
-"click",
+.getElementById(
+"loginBtn"
+)
+.onclick=
 async()=>{
 
 try{
@@ -298,9 +236,11 @@ const user=
 result.user;
 
 if(
-Notification.permission==="default"
+Notification.permission!=="granted"
 ){
+
 await Notification.requestPermission();
+
 }
 
 try{
@@ -316,7 +256,9 @@ messaging,
 {
 vapidKey:
 "BPsWJDECHCc-VL9rGtkOSIizHTDdEQ4fDaWn14J-_wbHSNbzCmE5gK-Z4Rbq_qGC-VddcIEpp5yk8TuoQkiEVvM",
-serviceWorkerRegistration:sw
+
+serviceWorkerRegistration:
+sw
 }
 );
 
@@ -329,7 +271,8 @@ db,
 user.uid
 ),
 {
-fcmToken:token
+fcmToken:
+token
 },
 {
 merge:true
@@ -340,21 +283,29 @@ merge:true
 
 }catch(e){
 
-console.log(
-"FCM ERROR",
-e
-);
+console.log(e);
 
 }
 
 localStorage.setItem(
 "deliveryUser",
+
 JSON.stringify({
-uid:user.uid,
-name:user.displayName,
-email:user.email,
-photo:user.photoURL
+
+uid:
+user.uid,
+
+name:
+user.displayName,
+
+email:
+user.email,
+
+photo:
+user.photoURL
+
 })
+
 );
 
 const snap=
@@ -384,34 +335,34 @@ location.href=
 
 }catch(err){
 
-console.log(err);
-
-alert(err.message);
-
-}
-
-}
+alert(
+err.message
 );
+
+}
+
+};
 
 </script>
 
-
 <script>
+
 if(
 "serviceWorker"
 in navigator
 ){
 
-navigator
-.serviceWorker
-.register(
+navigator.serviceWorker.register(
 "/delivery/sw.js",
 {
-scope:"/delivery/"
-});
+scope:
+"/delivery/"
+}
+);
 
 }
-</script>
-</body>
 
+</script>
+
+</body>
 </html>
