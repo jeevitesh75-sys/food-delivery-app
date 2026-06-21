@@ -162,9 +162,8 @@ background:#eee;
     id="searchFood"
     placeholder="Search food..."
     onkeyup="filterFoods()">
-
 <div id="foodList" class="food-scroll"></div>
-  <div id="foodList"></div>
+
 </div>
 
 <!-- ORDERS -->
@@ -361,21 +360,7 @@ Delete
 </button>
 
 </div>
-        <button
-        class="${f.enabled ? 'orange':'green'}"
-        onclick="toggleFood('${f.id}',${f.enabled})">
-
-        ${f.enabled ? 'Disable':'Enable'}
-
-        </button>
-
-        <button
-        class="red"
-        onclick="deleteFood('${f.id}')">
-
-        Delete
-
-        </button>
+        
 
       </div>
 
