@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <title>Delivery Details</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="/manifest.json">
+<link
+rel="manifest"
+href="/delivery/manifest.json">
 <meta name="theme-color" content="#ff4d4d">
 <style>
 body{
@@ -149,10 +151,22 @@ window.saveDetails = async ()=>{
 };
 
 </script>
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js");
+
+  <script>
+if(
+"serviceWorker"
+in navigator
+){
+
+navigator
+.serviceWorker
+.register(
+"/delivery/sw.js",
+{
+scope:"/delivery/"
+});
+
 }
-</script>
+  </script>
 </body>
 </html>
