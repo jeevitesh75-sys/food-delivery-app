@@ -33,68 +33,106 @@ display:none;
 min-height:100vh;
 justify-content:center;
 align-items:center;
+padding:20px;
+
 background:
 linear-gradient(
 180deg,
 #ff4d4d,
 #ff884d
 );
-padding:20px;
 }
 
 .card{
 width:100%;
 max-width:380px;
+
 background:white;
+
 padding:35px;
+
 border-radius:24px;
+
 text-align:center;
+
 box-shadow:
 0 20px 50px
 rgba(0,0,0,.15);
 }
 
 .logo{
+
 width:100px;
 height:100px;
+
 margin:auto;
+
 border-radius:50%;
+
 background:#fff3ec;
+
 display:flex;
+
 align-items:center;
+
 justify-content:center;
+
 font-size:48px;
+
 margin-bottom:20px;
+
 }
 
 .title{
+
 font-size:28px;
+
 font-weight:bold;
+
 }
 
 .sub{
+
 margin-top:10px;
+
 color:#777;
+
 line-height:24px;
+
 }
 
 .google-btn{
+
 margin-top:30px;
+
 width:100%;
+
 padding:15px;
+
 border:none;
+
 border-radius:14px;
+
 background:#4285F4;
+
 color:white;
+
 font-size:16px;
+
 font-weight:bold;
+
 cursor:pointer;
+
 }
 
 .footer{
+
 margin-top:18px;
+
 font-size:12px;
+
 color:#999;
+
 }
 
 </style>
@@ -134,22 +172,13 @@ Powered by Eluru Foods
 
 <script type="module">
 
-import{
+import {
 initializeApp
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-import{
-getFirestore,
-doc,
-getDoc,
-setDoc
-}
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-import{
+import {
 getAuth,
 GoogleAuthProvider,
 signInWithPopup,
@@ -160,15 +189,23 @@ onAuthStateChanged
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-import{
+import {
+getFirestore,
+doc,
+getDoc,
+setDoc
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
 getMessaging,
 getToken
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
-const app=
-initializeApp({
+const firebaseConfig={
 
 apiKey:
 "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
@@ -179,7 +216,12 @@ authDomain:
 projectId:
 "food-delivery-app-97300"
 
-});
+};
+
+const app=
+initializeApp(
+firebaseConfig
+);
 
 const auth=
 getAuth(app);
@@ -187,17 +229,32 @@ getAuth(app);
 const db=
 getFirestore(app);
 
-const messaging=
-getMessaging(app);
-
 await setPersistence(
 auth,
 browserLocalPersistence
 );
 
+let messaging=null;
+
+try{
+
+messaging=
+getMessaging(
+app
+);
+
+}catch(e){
+
+console.log(
+"FCM disabled",
+e
+);
+
+}
+
 onAuthStateChanged(
 auth,
-(user)=>{
+async(user)=>{
 
 if(!user){
 
@@ -208,8 +265,30 @@ return;
 
 }
 
+const snap=
+await getDoc(
+doc(
+db,
+"deliveryPartners",
+user.uid
+)
+);
+
+if(
+snap.exists()
+&&
+snap.data()?.name
+){
+
 location.href=
 "home.html";
+
+}else{
+
+location.href=
+"details.html";
+
+}
 
 }
 );
@@ -236,12 +315,20 @@ const user=
 result.user;
 
 if(
-Notification.permission!=="granted"
+Notification.permission===
+"default"
 ){
 
 await Notification.requestPermission();
 
 }
+
+if(
+messaging
+&&
+Notification.permission===
+"granted"
+){
 
 try{
 
@@ -260,6 +347,11 @@ vapidKey:
 serviceWorkerRegistration:
 sw
 }
+);
+
+console.log(
+"FCM:",
+token
 );
 
 if(token){
@@ -283,7 +375,12 @@ merge:true
 
 }catch(e){
 
-console.log(e);
+console.log(
+"TOKEN FAILED",
+e
+);
+
+}
 
 }
 
@@ -305,7 +402,6 @@ photo:
 user.photoURL
 
 })
-
 );
 
 const snap=
@@ -335,6 +431,10 @@ location.href=
 
 }catch(err){
 
+console.log(
+err
+);
+
 alert(
 err.message
 );
@@ -342,6 +442,9 @@ err.message
 }
 
 };
+
+document.body.style.display=
+"flex";
 
 </script>
 
@@ -357,12 +460,12 @@ navigator.serviceWorker.register(
 {
 scope:
 "/delivery/"
-}
-);
+});
 
 }
 
 </script>
 
 </body>
+
 </html>
