@@ -310,6 +310,42 @@ location.href =
 }
 
 });
+  import {
+onAuthStateChanged
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+onAuthStateChanged(
+auth,
+async(user)=>{
+
+if(!user){
+return;
+}
+
+const snap =
+await getDoc(
+doc(
+db,
+"restaurants",
+user.uid
+)
+);
+
+if(
+snap.exists()
+){
+window.location.replace(
+"Dashboard.html"
+);
+}else{
+window.location.replace(
+"details.html"
+);
+}
+
+});
 window.googleLogin=
 async()=>{
 
