@@ -154,7 +154,9 @@ font-size:12px;
 color:#999;
 
 }
-
+body{
+display:none;
+}
 </style>
 
 </head>
@@ -252,12 +254,18 @@ getFirestore(app);
 
 const provider =
 new GoogleAuthProvider();
-
 onAuthStateChanged(
 auth,
 async(user)=>{
 
-if(!user) return;
+if(!user){
+
+document.body.style.display =
+"flex";
+
+return;
+
+}
 
 const snap =
 await getDoc(
@@ -269,12 +277,21 @@ user.uid
 );
 
 if(snap.exists()){
-location.replace("Dashboard.html");
+
+window.location.replace(
+"Dashboard.html"
+);
+
 }else{
-location.replace("details.html");
+
+window.location.replace(
+"details.html"
+);
+
 }
 
 });
+
 
 window.googleLogin =
 async()=>{
