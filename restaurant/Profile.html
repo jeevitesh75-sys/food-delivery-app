@@ -5,7 +5,7 @@
 <title>Profile</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="./manifest.json">
+<link rel="manifest" href="/restaurant/manifest.json">
 <meta name="theme-color" content="#ff4d4d">
 <style>
 body {
@@ -277,14 +277,11 @@ window.logout = async ()=>{
 });
 </script>
 <script>
-if("serviceWorker" in navigator){
-window.addEventListener("load",()=>{
+if ("serviceWorker" in navigator) {
 navigator.serviceWorker.register(
 "/restaurant/sw.js",
 {
 scope:"/restaurant/"
-}
-);
 });
 }
 </script>

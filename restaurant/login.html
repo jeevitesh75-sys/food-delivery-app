@@ -11,9 +11,7 @@
 name="viewport"
 content="width=device-width, initial-scale=1">
 
-<link
-rel="manifest"
-href="./manifest.json">
+<link rel="manifest" href="/restaurant/manifest.json">
 
 <meta
 name="theme-color"
@@ -348,15 +346,16 @@ err
 };
 
 </script>
-
 <script>
 if ("serviceWorker" in navigator) {
-navigator.serviceWorker
-.register("/restaurant/sw.js")
-.then(()=>alert("registered"))
-.catch(e=>alert(e));
+navigator.serviceWorker.register(
+"/restaurant/sw.js",
+{
+scope:"/restaurant/"
+});
 }
 </script>
+
 </body>
 
 </html>
