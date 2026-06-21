@@ -262,9 +262,7 @@ Notification.permission==="default"
 await Notification.requestPermission();
 }
 
-window.location.replace(
-"home.html"
-);
+return;
 
 });
 const db=
@@ -302,17 +300,16 @@ Notification.permission==="default"
 ){
 await Notification.requestPermission();
 }
-
 let token="";
 
 try{
 
-const sw=
+const sw =
 await navigator.serviceWorker.register(
 "/delivery/firebase-messaging-sw.js"
 );
 
-token=
+token =
 await getToken(
 messaging,
 {
@@ -342,11 +339,10 @@ merge:true
 
 }catch(e){
 
-console.log(e);
+console.log("FCM ERROR",e);
 
 }
 
-}
 localStorage.setItem(
 
 "deliveryUser",
@@ -362,7 +358,7 @@ photo:user.photoURL
 
 );
 
-const snap=
+const snap =
 await getDoc(
 doc(
 db,
@@ -387,7 +383,6 @@ location.href=
 
 }
 
-}
 catch(err){
 
 console.log(err);
