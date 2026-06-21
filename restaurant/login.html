@@ -350,15 +350,11 @@ err
 </script>
 
 <script>
-if("serviceWorker" in navigator){
-window.addEventListener("load",()=>{
-navigator.serviceWorker.register(
-"/restaurant/sw.js",
-{
-scope:"/restaurant/"
-}
-);
-});
+if ("serviceWorker" in navigator) {
+navigator.serviceWorker
+.register("/restaurant/sw.js")
+.then(()=>alert("registered"))
+.catch(e=>alert(e));
 }
 </script>
 </body>
