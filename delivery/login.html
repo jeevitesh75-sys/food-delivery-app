@@ -271,15 +271,16 @@ getFirestore(app);
 const messaging=
 getMessaging(app);
 
+const db=
+getFirestore(app);
+
+const messaging=
+getMessaging(app);
+
 document
-.getElementById(
-"loginBtn"
-)
-
+.getElementById("loginBtn")
 .addEventListener(
-
 "click",
-
 async()=>{
 
 try{
@@ -295,21 +296,21 @@ provider
 
 const user=
 result.user;
+
 if(
 Notification.permission==="default"
 ){
 await Notification.requestPermission();
 }
-let token="";
 
 try{
 
-const sw =
+const sw=
 await navigator.serviceWorker.register(
 "/delivery/firebase-messaging-sw.js"
 );
 
-token =
+const token=
 await getToken(
 messaging,
 {
@@ -339,26 +340,24 @@ merge:true
 
 }catch(e){
 
-console.log("FCM ERROR",e);
+console.log(
+"FCM ERROR",
+e
+);
 
 }
 
 localStorage.setItem(
-
 "deliveryUser",
-
 JSON.stringify({
-
 uid:user.uid,
 name:user.displayName,
 email:user.email,
 photo:user.photoURL
-
 })
-
 );
 
-const snap =
+const snap=
 await getDoc(
 doc(
 db,
@@ -383,22 +382,15 @@ location.href=
 
 }
 
-} // closes try
-
-catch(err){
+}catch(err){
 
 console.log(err);
 
-alert(
-err.message
-);
+alert(err.message);
 
 }
 
-
-
 }
-
 );
 
 </script>
