@@ -222,11 +222,18 @@ from
 import {
 getFirestore,
 doc,
-getDoc
+getDoc,
+setDoc
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+  
+import {
+getMessaging,
+getToken
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 const firebaseConfig = {
 
 apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
@@ -251,6 +258,9 @@ browserLocalPersistence
 
 const db =
 getFirestore(app);
+
+const messaging =
+getMessaging(app);
 
 const provider =
 new GoogleAuthProvider();
@@ -306,7 +316,34 @@ provider
 
 const user =
 result.user;
+await Notification.requestPermission();
 
+const token =
+await getToken(
+messaging,
+{
+vapidKey:
+"BPsWJDECHCc-VL9rGtkOSIizHTDdEQ4fDaWn14J-_wbHSNbzCmE5gK-Z4Rbq_qGC-VddcIEpp5yk8TuoQkiEVvM",
+serviceWorkerRegistration:
+await navigator.serviceWorker.register(
+"/restaurant/firebase-messaging-sw.js"
+)
+}
+);
+
+await setDoc(
+doc(
+db,
+"restaurants",
+user.uid
+),
+{
+fcmToken:token
+},
+{
+merge:true
+}
+);
 const snap =
 await getDoc(
 doc(
