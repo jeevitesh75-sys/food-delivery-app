@@ -280,31 +280,18 @@ navigator.serviceWorker.register(
 }
 </script>
 
-<!-- WEBPUSHR -->
+<script src="https://js.pusher.com/beams/2.1.0/push-notifications-cdn.js"></script>
+<script src="https://js.pusher.com/beams/2.1.0/push-notifications-cdn.js"></script>
 
 <script>
-(function(w,d,s,id){
-if(typeof(w.webpushr)!=="undefined") return;
-
-w.webpushr=w.webpushr||function(){
-(w.webpushr.q=w.webpushr.q||[]).push(arguments);
-};
-
-var js,fjs=d.getElementsByTagName(s)[0];
-
-js=d.createElement(s);
-js.id=id;
-js.async=1;
-js.src="https://cdn.webpushr.com/app.min.js";
-
-fjs.parentNode.appendChild(js);
-
-})(window,document,"script","webpushr-jssdk");
-
-webpushr('setup',{
-key:'BM2b-wTIlQyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI'
+const beamsClient = new PusherPushNotifications.Client({
+  instanceId: '849b1c52-d900-4b1b-906f-90339c5a4509',
 });
-  </script>
 
+beamsClient.start()
+  .then(() => beamsClient.addDeviceInterest('hello'))
+  .then(() => console.log('Successfully registered and subscribed!'))
+  .catch(console.error);
+</script>
 </body>
 </html>
