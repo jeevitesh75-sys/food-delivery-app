@@ -261,18 +261,33 @@ e
 
 }
 
-// DO NOT AUTO REDIRECT
 onAuthStateChanged(
 auth,
-(user)=>{
+async(user)=>{
 
 if(!user){
 document.body.style.display="flex";
 return;
 }
 
-// user already logged in
-document.body.style.display="flex";
+const snap =
+await getDoc(
+doc(
+db,
+"deliveryPartners",
+user.uid
+)
+);
+
+if(
+snap.exists()
+&&
+snap.data()?.name
+){
+location.href="home.html";
+}else{
+location.href="details.html";
+}
 
 }
 );
@@ -332,6 +347,8 @@ token
 "FCM EMPTY"
 );
 
+/* FCM SAVE (DISABLED)
+
 if(token){
 
 await setDoc(
@@ -350,6 +367,7 @@ merge:true
 
 }
 
+*/
 }
 
 }catch(e){

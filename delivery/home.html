@@ -592,6 +592,7 @@ alert("Order Delivered ✅");
 
 </script>
 <script>
+
 if(
 "serviceWorker"
 in navigator
@@ -602,10 +603,92 @@ navigator
 .register(
 "/delivery/sw.js",
 {
-scope:"/delivery/"
+scope:
+"/delivery/"
 });
 
 }
+
+</script>
+
+<!-- FIREBASE FCM KEPT IN COMMENTS -->
+
+<!--
+Old Firebase notification system kept disabled
+-->
+
+<!-- WEBPUSHR -->
+
+<script>
+
+(function(w,d,s,id){
+
+if(
+typeof(w.webpushr)!=="undefined"
+)
+return;
+
+w.webpushr=
+w.webpushr||
+function(){
+
+(
+w.webpushr.q=
+w.webpushr.q||
+[]
+
+).push(arguments);
+
+};
+
+var js;
+
+var fjs=
+d.getElementsByTagName(s)[0];
+
+js=
+d.createElement(s);
+
+js.id=id;
+
+js.async=1;
+
+js.src=
+"https://cdn.webpushr.com/app.min.js";
+
+fjs.parentNode.appendChild(js);
+
+})(
+window,
+document,
+"script",
+"webpushr-jssdk"
+);
+
+webpushr(
+"setup",
+{
+key:
+"BM2b-wTIlQyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI"
+}
+);
+
+setTimeout(
+()=>{
+
+if(
+Notification.permission
+!=="granted"
+){
+
+Notification.requestPermission();
+
+}
+
+},
+1500
+);
+
 </script>
 </body>
 </html>

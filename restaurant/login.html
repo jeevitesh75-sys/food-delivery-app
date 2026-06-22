@@ -284,12 +284,29 @@ console.log(e);
 
 }
 
-// NO AUTO REDIRECT
+// AUTO LOGIN
 onAuthStateChanged(
 auth,
-()=>{
-document.body.style.display=
-"flex";
+async(user)=>{
+
+document.body.style.display="flex";
+
+if(!user) return;
+
+const snap =
+await getDoc(
+doc(db,"restaurants",user.uid)
+);
+
+if(
+snap.exists() &&
+snap.data()?.name
+){
+location.href="Dashboard.html";
+}else{
+location.href="details.html";
+}
+
 }
 );
 
@@ -348,6 +365,8 @@ console.log(
 token
 );
 
+/* FCM SAVE (DISABLED)
+
 if(token){
 
 await setDoc(
@@ -357,8 +376,7 @@ db,
 user.uid
 ),
 {
-fcmToken:
-token
+fcmToken:token
 },
 {
 merge:true
@@ -367,6 +385,7 @@ merge:true
 
 }
 
+*/
 }
 
 }catch(e){

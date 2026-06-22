@@ -267,7 +267,40 @@ total: total,
     createdAt:serverTimestamp()
 
   });
+// WEBPUSHR NOTIFICATION
+try{
 
+await fetch(
+"https://api.webpushr.com/v1/notification/send",
+{
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+title:"🍔 New Order",
+
+message:
+`${userData.name} placed order ₹${total}`,
+
+url:
+"/restaurant/index.html"
+
+})
+
+});
+
+}catch(e){
+
+console.log(
+"Notification failed",
+e
+);
+
+        }
   localStorage.removeItem("cart");
 
   alert("Order placed ✅");
