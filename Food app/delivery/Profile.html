@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Delivery Profile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link
+rel="manifest"
+href="/delivery/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+background:#f5f5f5;
+padding-bottom:80px;
+}
+
+.header{
+background:#ff4d4d;
+color:white;
+padding:15px;
+font-size:20px;
+font-weight:bold;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.back{
+cursor:pointer;
+font-size:22px;
+}
+
+.card{
+background:white;
+margin:10px;
+padding:15px;
+border-radius:12px;
+}
+
+.profile-pic{
+width:100px;
+height:100px;
+border-radius:50%;
+object-fit:cover;
+display:block;
+margin:auto;
+}
+
+.center{
+text-align:center;
+}
+
+input,select{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:8px;
+color:white;
+margin-top:10px;
+cursor:pointer;
+}
+
+.green{
+background:#28a745;
+}
+
+.orange{
+background:#ff9800;
+}
+
+.red{
+background:#dc3545;
+}
+
+.bottom-nav{
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+background:white;
+display:flex;
+justify-content:space-around;
+padding:12px;
+border-top:1px solid #ccc;
+}
+
+.bottom-nav a{
+text-decoration:none;
+color:black;
+font-weight:bold;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+<span class="back" onclick="history.back()">←</span>
+Delivery Profile
+</div>
+
+<div class="card center">
+
+<img
+id="photoPreview"
+class="profile-pic"
+src="https://via.placeholder.com/100">
+
+<h3 id="nameText">Loading...</h3>
+<p id="emailText"></p>
+<h3>Pay Delivery Earnings</h3>
+
+<img
+id="upiQr"
+style="
+width:220px;
+max-width:100%;
+border:1px solid #ccc;
+border-radius:10px;
+">
+
+</div>
+
+<div class="card">
+
+<input id="name" placeholder="Full Name">
+
+<input id="phone" placeholder="Phone Number">
+
+<input id="address" placeholder="Address">
+
+<select id="vehicle">
+<option value="">Vehicle Type</option>
+<option>Bike</option>
+<option>Scooter</option>
+<option>Bicycle</option>
+<option>Car</option>
+</select>
+
+<input id="photo" placeholder="Photo URL">
+
+<button class="green" onclick="saveProfile()">
+Save Changes
+</button>
+
+<button class="orange" onclick="toggleOnline()">
+Online / Offline
+</button>
+
+<button class="red" onclick="logout()">
+Logout
+</button>
+
+</div>
+
+<div class="bottom-nav">
+<a href="home.html">🏠 Home</a>
+<a href="Profile.html">👤 Profile</a>
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+getFirestore,
+doc,
+getDoc,
+updateDoc
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  signOut
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+const app = initializeApp({
+apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+authDomain:"food-delivery-app-97300.firebaseapp.com",
+projectId:"food-delivery-app-97300"
+});
+
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, async(user)=>{
+
+  if(!user){
+    location.href = "login.html";
+    return;
+  }
+
+  const ref =
+  doc(db,"deliveryPartners",user.uid);
+
+  const snap =
+  await getDoc(ref);
+
+  if(!snap.exists()){
+    location.href = "details.html";
+    return;
+  }
+
+  const data = snap.data();
+
+  document.getElementById("nameText").innerText =
+  data.name || "";
+
+  document.getElementById("emailText").innerText =
+  data.email || "";
+
+  document.getElementById("name").value =
+  data.name || "";
+
+  document.getElementById("phone").value =
+  data.phone || "";
+
+  document.getElementById("address").value =
+  data.address || "";
+
+  document.getElementById("vehicle").value =
+  data.vehicle || "";
+
+  document.getElementById("photo").value =
+  data.photo || "";
+
+  document.getElementById("photoPreview").src =
+  data.photo ||
+  user.photoURL ||
+  "https://via.placeholder.com/100";
+
+  window.saveProfile = async()=>{
+
+    await updateDoc(ref,{
+      name:document.getElementById("name").value,
+      phone:document.getElementById("phone").value,
+      address:document.getElementById("address").value,
+      vehicle:document.getElementById("vehicle").value,
+      photo:document.getElementById("photo").value
+    });
+
+    alert("Profile Updated");
+    location.reload();
+  };
+
+  window.toggleOnline = async()=>{
+
+    await updateDoc(ref,{
+      online: !(data.online || false)
+    });
+
+    alert(
+      (data.online || false)
+      ? "Offline"
+      : "Online"
+    );
+
+    location.reload();
+  };
+
+});
+
+window.logout = async()=>{
+
+  await signOut(auth);
+
+  localStorage.removeItem("deliveryUser");
+
+  location.href = "login.html";
+};
+
+
+
+const upiId = "9494837377@axl";
+
+document.getElementById("upiQr").src =
+`https://quickchart.io/qr?text=upi://pay?pa=${upiId}&pn=Delivery%20Owner`;
+
+</script>
+<script>
+if(
+"serviceWorker"
+in navigator
+){
+
+navigator
+.serviceWorker
+.register(
+"/delivery/sw.js",
+{
+scope:"/delivery/"
+});
+
+}
+</script>
+</body>
+</html>

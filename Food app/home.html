@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Home</title>
+
+<link rel="stylesheet" href="css/style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+<style>
+.details {
+  color: gray;
+  font-size: 14px;
+}
+
+.card {
+  position: relative;
+}
+
+.closed {
+  filter: grayscale(100%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.closed::after {
+  content: "Closed";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: red;
+  color: white;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 5px;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid #ccc;
+}
+
+body {
+  padding-bottom: 80px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">🍔 Restaurants</div>
+
+<div class="search-box">
+  <input type="text" placeholder="Search food or restaurants..." id="search">
+</div>
+
+<div id="restaurantList" class="restaurants"></div>
+<div class="bottom-nav">
+  <a href="home.html"><div class="nav-item active">🏠<br>Home</div></a>
+  <a href="cart.html"><div class="nav-item">🛒<br>Cart</div></a>
+  <a href="profile.html"><div class="nav-item">👤<br>Profile</div></a>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  getDoc
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+const app = initializeApp({
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+});
+
+const db = getFirestore(app);
+const auth = getAuth(app);
+let foodMarkup = 0;
+onAuthStateChanged(auth, async(user) => {
+
+  if (!user) {
+    location.href = "login.html";
+    return;
+  }
+
+  // ALL YOUR FIRESTORE CODE GOES HERE
+const settingsSnap =
+await getDoc(
+  doc(db,"settings","appConfig")
+);
+
+if(settingsSnap.exists()){
+  foodMarkup =
+  settingsSnap.data().foodMarkup || 0;
+}
+// LOGIN
+
+let container = document.getElementById("restaurantList");
+
+let allRestaurants = [];
+let menuMap = {}; // 🔥 restaurantId → foods[]
+
+let userLat=null, userLng=null;
+const userDoc = await getDoc(
+  doc(db,"users",user.uid)
+);
+
+if(userDoc.exists()){
+  userLat = userDoc.data().lat;
+  userLng = userDoc.data().lng;
+}
+function getDistance(lat1, lon1, lat2, lon2){
+  let R = 6371;
+  let dLat = (lat2-lat1) * Math.PI/180;
+  let dLon = (lon2-lon1) * Math.PI/180;
+
+  let a =
+    Math.sin(dLat/2)**2 +
+    Math.cos(lat1*Math.PI/180) *
+    Math.cos(lat2*Math.PI/180) *
+    Math.sin(dLon/2)**2;
+
+  let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return (R * c).toFixed(1) + " km";
+}
+
+// 🔥 LOAD ALL DATA
+async function init(){
+
+  // restaurants
+  const resSnap = await getDocs(collection(db, "restaurants"));
+  allRestaurants = resSnap.docs.map(d => ({id:d.id, ...d.data()}));
+
+  // menu
+  // menu
+const menuSnap = await getDocs(collection(db, "menu"));
+
+menuSnap.forEach(doc=>{
+
+  let m = doc.data();
+
+  // Hide disabled foods
+  if(m.enabled === false){
+    return;
+  }
+
+  if(!menuMap[m.restaurantId]){
+    menuMap[m.restaurantId] = [];
+  }
+
+  menuMap[m.restaurantId].push(
+    m.name.toLowerCase()
+  );
+
+});
+render(allRestaurants);
+  // location async
+} 
+
+
+// 🔥 RENDER
+function render(list){
+
+  container.innerHTML="";
+
+  list.forEach(res=>{
+
+    let isOpen = res.isOpen !== false;
+
+    let dist = "📍 --";
+    if(userLat && res.lat && res.lng){
+      dist = "📍 " + getDistance(userLat, userLng, res.lat, res.lng);
+    }
+
+    container.innerHTML += `
+      <div class="card ${!isOpen ? 'closed' : ''}"
+        ${isOpen ? `onclick="openRes('${res.id}')"` : ''}>
+
+        <img src="${res.image || 'https://via.placeholder.com/300'}">
+
+        <div class="card-content">
+          <div class="restaurant-name">${res.name}</div>
+
+          <div class="details">
+            ${isOpen ? "🟢 Open" : "🔴 Closed"} • ${dist}
+          </div>
+        </div>
+
+      </div>
+    `;
+  });
+}
+
+// 🔥 SEARCH (FOOD + RESTAURANT)
+document.getElementById("search").addEventListener("input", function(){
+
+  let value = this.value.toLowerCase();
+
+  let filtered = allRestaurants.filter(res=>{
+
+    let nameMatch = res.name.toLowerCase().includes(value);
+
+    let foods = menuMap[res.id] || [];
+    let foodMatch = foods.some(f => f.includes(value));
+
+    return nameMatch || foodMatch;
+  });
+
+  render(filtered);
+});
+
+// OPEN
+window.openRes = function(id){
+
+  const res = allRestaurants.find(r => r.id === id);
+
+  if(
+    userLat &&
+    userLng &&
+    res.lat &&
+    res.lng
+  ){
+
+    const distance =
+    parseFloat(
+      getDistance(
+        userLat,
+        userLng,
+        res.lat,
+        res.lng
+      )
+    );
+
+    localStorage.setItem(
+      "restaurantDistance",
+      distance
+    );
+  }
+
+  localStorage.setItem(
+    "selectedRestaurant",
+    id
+  );
+
+  window.location.href =
+  "restaurant.html";
+};
+
+init();
+
+});
+
+
+
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+
+navigator.serviceWorker.register(
+"/sw.js"
+);
+
+}
+</script>
+
+<!-- FIREBASE FCM DISABLED
+Old FCM code kept intentionally
+-->
+
+<!-- WEBPUSHR -->
+
+<script>
+
+(function(w,d,s,id){
+
+if(
+typeof(w.webpushr)!=="undefined"
+)
+return;
+
+w.webpushr=
+w.webpushr||
+function(){
+
+(
+w.webpushr.q=
+w.webpushr.q||
+[]
+
+).push(arguments);
+
+};
+
+var js;
+
+var fjs=
+d.getElementsByTagName(
+s
+)[0];
+
+js=
+d.createElement(
+s
+);
+
+js.id=id;
+
+js.async=1;
+
+js.src=
+"https://cdn.webpushr.com/app.min.js";
+
+fjs.parentNode
+.appendChild(
+js
+);
+
+})(
+window,
+document,
+"script",
+"webpushr-jssdk"
+);
+
+webpushr(
+"setup",
+{
+key:
+"BM2b-wTIlQyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI"
+}
+);
+
+// ask permission
+
+setTimeout(
+()=>{
+
+if(
+Notification.permission
+!=="granted"
+){
+
+Notification
+.requestPermission();
+
+}
+
+},
+1500
+);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+ 
+<meta charset="UTF-8">
+<title>Delivery Boys</title>
+
+<link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body>
+
+<div class="sidebar">
+<h2>Admin</h2>
+
+<a href="index.html">🏠 Dashboard</a>
+<a href="orders.html">📦 Orders</a>
+<a href="customers.html">👥 Customers</a>
+<a href="deliveryboys.html">🚴 Delivery Boys</a>
+<a href="restaurants.html">🏪 Restaurants</a>
+<a href="earnings.html">💰 Earnings</a>
+<a href="settings.html">⚙ Settings</a>
+<a href="#" id="logoutBtn">
+🚪 Logout
+</a>
+</div>
+
+<div class="main">
+
+<!-- PASTE YOUR EXISTING DELIVERY BOYS CODE HERE -->
+
+<div class="card">
+  <h3>Total Delivery Boys</h3>
+  <h2 id="totalBoys">0</h2>
+</div>
+
+<div class="card">
+  <h3>Online Delivery Boys</h3>
+  <h2 id="onlineBoys">0</h2>
+</div>
+
+<div class="card">
+  <h3>Today's Earnings</h3>
+  <h2>₹<span id="todayEarn">0</span></h2>
+</div>
+
+<div class="card">
+  <h3>Total Earnings</h3>
+  <h2>₹<span id="totalEarn">0</span></h2>
+</div>
+<div class="card">
+  <h3>Today's Collection</h3>
+  <h2>₹<span id="todayCollection">0</span></h2>
+</div>
+<div class="card">
+  <button id="resetBtn">
+    Reset Today's Earnings
+  </button>
+</div>
+
+<div class="card">
+  <table width="100%" border="1">
+    <thead>
+      <tr>
+       <th>Name</th>
+<th>Phone</th>
+<th>Status</th>
+<th>Today</th>
+<th>Total</th>
+<th>Collection Today</th>
+      </tr>
+    </thead>
+
+    <tbody id="deliveryTable"></tbody>
+  </table>
+</div>
+
+</div>
+
+<script type="module" src="js/deliveryboys.js"></script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+<script type="module">
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain:"food-delivery-app-97300.firebaseapp.com",
+  projectId:"food-delivery-app-97300"
+});
+
+const auth = getAuth(app);
+
+onAuthStateChanged(auth,(user)=>{
+  if(!user){
+    location.href="login.html";
+  }
+});
+
+document.getElementById("logoutBtn")
+?.addEventListener("click", async ()=>{
+  await signOut(auth);
+  location.href="login.html";
+});
+</script>
+</body>
+</html>
