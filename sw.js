@@ -1,3 +1,5 @@
+importScripts("https://js.pusher.com/beams/service-worker.js");
+
 const CACHE_NAME = "eluru-foods-v1";
 
 self.addEventListener("install", (event) => {
@@ -9,5 +11,4 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  // For now just pass requests through
 });
