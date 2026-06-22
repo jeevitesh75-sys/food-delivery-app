@@ -283,14 +283,16 @@ navigator.serviceWorker.register(
 <script src="https://js.pusher.com/beams/2.1.0/push-notifications-cdn.js"></script>
 <script src="https://js.pusher.com/beams/2.1.0/push-notifications-cdn.js"></script>
 
+<script src="https://js.pusher.com/beams/2.1.0/push-notifications-cdn.js"></script>
+
 <script>
 const beamsClient = new PusherPushNotifications.Client({
-  instanceId: '849b1c52-d900-4b1b-906f-90339c5a4509',
+  instanceId: '849b1c52-d900-4b1b-906f-90339c5a4509'
 });
 
 beamsClient.start()
   .then(() => beamsClient.addDeviceInterest('hello'))
-  .then(() => console.log('Successfully registered and subscribed!'))
+  .then(() => console.log('Successfully registered!'))
   .catch(console.error);
 </script>
 </body>
