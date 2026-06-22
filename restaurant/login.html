@@ -222,18 +222,12 @@ from
 import {
 getFirestore,
 doc,
-getDoc,
-setDoc
+getDoc
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import {
-getMessaging,
-getToken
-}
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
+
 
 const firebaseConfig={
 
@@ -271,18 +265,7 @@ auth,
 browserLocalPersistence
 );
 
-let messaging=null;
 
-try{
-
-messaging=
-getMessaging(app);
-
-}catch(e){
-
-console.log(e);
-
-}
 
 // AUTO LOGIN
 onAuthStateChanged(
@@ -327,75 +310,7 @@ provider
 const user=
 result.user;
 
-let token="";
 
-try{
-
-if(
-Notification.permission!=="granted"
-){
-
-await Notification.requestPermission();
-
-}
-
-if(
-messaging &&
-Notification.permission==="granted"
-){
-
-const sw=
-await navigator.serviceWorker.register(
-"/restaurant/firebase-messaging-sw.js"
-);
-
-token=
-await getToken(
-messaging,
-{
-vapidKey:
-"BPsWJDECHCc-VL9rGtkOSIizHTDdEQ4fDaWn14J-_wbHSNbzCmE5gK-Z4Rbq_qGC-VddcIEpp5yk8TuoQkiEVvM",
-serviceWorkerRegistration:
-sw
-}
-);
-
-console.log(
-"TOKEN=",
-token
-);
-
-
-
-if(token){
-
-await setDoc(
-doc(
-db,
-"restaurants",
-user.uid
-),
-{
-fcmToken:token
-},
-{
-merge:true
-}
-);
-
-}
-
-
-}
-
-}catch(e){
-
-alert(
-"FCM ERROR\n"+
-e.message
-);
-
-}
 
 const snap=
 await getDoc(
