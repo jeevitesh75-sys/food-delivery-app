@@ -280,92 +280,31 @@ navigator.serviceWorker.register(
 }
 </script>
 
-<!-- FIREBASE FCM DISABLED
-Old FCM code kept intentionally
--->
-
 <!-- WEBPUSHR -->
 
 <script>
-
 (function(w,d,s,id){
+if(typeof(w.webpushr)!=="undefined") return;
 
-if(
-typeof(w.webpushr)!=="undefined"
-)
-return;
-
-w.webpushr=
-w.webpushr||
-function(){
-
-(
-w.webpushr.q=
-w.webpushr.q||
-[]
-
-).push(arguments);
-
+w.webpushr=w.webpushr||function(){
+(w.webpushr.q=w.webpushr.q||[]).push(arguments);
 };
 
-var js;
+var js,fjs=d.getElementsByTagName(s)[0];
 
-var fjs=
-d.getElementsByTagName(
-s
-)[0];
-
-js=
-d.createElement(
-s
-);
-
+js=d.createElement(s);
 js.id=id;
-
 js.async=1;
+js.src="https://cdn.webpushr.com/app.min.js";
 
-js.src=
-"https://cdn.webpushr.com/app.min.js";
+fjs.parentNode.appendChild(js);
 
-fjs.parentNode
-.appendChild(
-js
-);
+})(window,document,"script","webpushr-jssdk");
 
-})(
-window,
-document,
-"script",
-"webpushr-jssdk"
-);
+webpushr('setup',{
+key:'BM2b-wTIlQyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI'
+});
+  </script>
 
-webpushr(
-"setup",
-{
-key:
-"BM2b-wTIlQyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI"
-}
-);
-
-// ask permission
-
-setTimeout(
-()=>{
-
-if(
-Notification.permission
-!=="granted"
-){
-
-Notification
-.requestPermission();
-
-}
-
-},
-1500
-);
-
-</script>
 </body>
 </html>
