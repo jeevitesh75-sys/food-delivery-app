@@ -1,181 +1,1438 @@
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial,sans-serif;
+/* ============================================================
+   KINTSUGI UI — Black Obsidian & Gold Design System
+   For: Food Delivery App (Zomato/Swiggy-style)
+   Theme: Japanese Kintsugi Art — broken pottery repaired with gold
+   ============================================================ */
+
+/* ── GOOGLE FONTS ── */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600;700&family=Shippori+Mincho:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+/* ── RESET ── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-body{
-  background:#f8f8f8;
-  padding-bottom:100px;
+/* ── ROOT TOKENS ── */
+:root {
+  --gold:          #D4AF37;
+  --gold-bright:   #F0C93A;
+  --gold-dark:     #A07D1C;
+  --gold-pale:     #F5E6A3;
+  --obsidian:      #080808;
+  --obsidian-mid:  #111111;
+  --obsidian-soft: #1A1A1A;
+  --obsidian-card: #141414;
+  --crack-gold:    rgba(212,175,55,0.55);
+  --glass-bg:      rgba(20,20,20,0.65);
+  --glass-border:  rgba(212,175,55,0.25);
+  --glass-hover:   rgba(212,175,55,0.12);
+  --text-primary:  #F0E6CC;
+  --text-muted:    rgba(240,230,204,0.55);
+  --text-dim:      rgba(240,230,204,0.30);
+  --shadow-gold:   0 0 30px rgba(212,175,55,0.15);
+  --shadow-deep:   0 8px 40px rgba(0,0,0,0.7);
+  --radius-lg:     18px;
+  --radius-md:     12px;
+  --radius-sm:     8px;
+  --transition:    0.35s cubic-bezier(0.4,0,0.2,1);
 }
 
-/* THEME */
-:root{
-  --gold:#d4af37;
-  --white:#fff;
-  --text:#333;
-  --shadow:0 4px 12px rgba(0,0,0,0.08);
+/* ── BASE BODY ── */
+body {
+  background-color: var(--obsidian);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  padding-bottom: 130px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
 }
 
-/* HEADER */
-.header{
-  background:var(--gold);
-  color:white;
-  padding:20px;
-  font-size:22px;
-  font-weight:bold;
-  border-bottom-left-radius:20px;
-  border-bottom-right-radius:20px;
+/* ── KINTSUGI BACKGROUND CANVAS ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(212,175,55,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 85%, rgba(212,175,55,0.05) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 60% at 55% 45%, rgba(160,125,28,0.04) 0%, transparent 50%);
+  pointer-events: none;
 }
 
-/* SEARCH */
-.search-box{
-  padding:15px;
+/* SVG Kintsugi crack pattern overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='900' viewBox='0 0 900 900'%3E%3Cg stroke='%23D4AF37' stroke-opacity='0.07' fill='none' stroke-linecap='round'%3E%3Cpath d='M120 0 L180 80 L140 160 L220 260 L190 380' stroke-width='1.5'/%3E%3Cpath d='M180 80 L280 110 L360 90 L480 150' stroke-width='1'/%3E%3Cpath d='M140 160 L80 240 L30 320' stroke-width='1'/%3E%3Cpath d='M220 260 L320 280 L400 240 L520 300 L620 260 L720 310' stroke-width='1.2'/%3E%3Cpath d='M400 240 L420 180 L500 140' stroke-width='0.8'/%3E%3Cpath d='M520 300 L540 420 L480 520 L560 600 L520 700 L580 800' stroke-width='1.5'/%3E%3Cpath d='M560 600 L660 580 L760 620 L860 580' stroke-width='1'/%3E%3Cpath d='M480 520 L380 560 L300 520 L200 560 L120 520 L60 580' stroke-width='1'/%3E%3Cpath d='M720 310 L800 360 L860 320 L900 380' stroke-width='1'/%3E%3Cpath d='M800 360 L820 460 L760 540 L800 640 L760 740 L820 820 L780 900' stroke-width='1.2'/%3E%3Cpath d='M0 420 L60 400 L80 460 L160 440 L200 500' stroke-width='0.8'/%3E%3Cpath d='M0 640 L80 620 L120 680 L60 760 L100 840 L60 900' stroke-width='1'/%3E%3Cpath d='M300 700 L360 660 L440 700 L480 780 L420 860' stroke-width='0.9'/%3E%3Ccircle cx='180' cy='80' r='3' fill='%23D4AF37' fill-opacity='0.2'/%3E%3Ccircle cx='220' cy='260' r='2' fill='%23D4AF37' fill-opacity='0.18'/%3E%3Ccircle cx='520' cy='300' r='3.5' fill='%23D4AF37' fill-opacity='0.22'/%3E%3Ccircle cx='560' cy='600' r='2.5' fill='%23D4AF37' fill-opacity='0.18'/%3E%3Ccircle cx='800' cy='360' r='3' fill='%23D4AF37' fill-opacity='0.2'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 900px 900px;
+  opacity: 1;
+  pointer-events: none;
 }
 
-.search-box input{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  box-shadow:var(--shadow);
+/* All direct children sit above background */
+body > * { position: relative; z-index: 1; }
+
+
+/* ╔══════════════════════════════════════╗
+   ║        PAGE LOADING SCREEN           ║
+   ╚══════════════════════════════════════╝ */
+
+#page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--obsidian);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
 }
 
-/* RESTAURANT CARD */
-.card{
-  background:white;
-  margin:15px;
-  border-radius:15px;
-  overflow:hidden;
-  box-shadow:var(--shadow);
-  cursor:pointer;
+#page-loader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
-.card img{
-  width:100%;
-  height:180px;
-  object-fit:cover;
+.loader-emblem {
+  width: 80px;
+  height: 80px;
+  position: relative;
 }
 
-.card-content{
-  padding:15px;
+.loader-emblem svg {
+  width: 100%;
+  height: 100%;
+  animation: loader-spin 3s linear infinite;
 }
 
-.restaurant-name{
-  font-size:18px;
-  font-weight:bold;
+@keyframes loader-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.distance{
-  font-size:13px;
-  color:gray;
+.loader-crack {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* FOOD CARD */
-.food-card{
-  display:flex;
-  justify-content:space-between;
-  background:white;
-  margin:10px;
-  padding:12px;
-  border-radius:12px;
-  box-shadow:var(--shadow);
+.loader-crack-line {
+  position: absolute;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  border-radius: 2px;
+  animation: crack-glow 1.8s ease-in-out infinite alternate;
 }
 
-.food-image{
-  width:90px;
-  height:90px;
-  border-radius:12px;
+.loader-crack-line:nth-child(1) { width: 50px; height: 1.5px; top: 38%; left: 20%; transform: rotate(-30deg); }
+.loader-crack-line:nth-child(2) { width: 30px; height: 1px;   top: 55%; left: 40%; transform: rotate(20deg); animation-delay: 0.3s; }
+.loader-crack-line:nth-child(3) { width: 20px; height: 1px;   top: 42%; left: 55%; transform: rotate(-10deg); animation-delay: 0.6s; }
+
+@keyframes crack-glow {
+  from { opacity: 0.3; box-shadow: none; }
+  to   { opacity: 1;   box-shadow: 0 0 8px var(--gold); }
 }
 
-.food-name{
-  font-weight:bold;
+.loader-text {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 13px;
+  letter-spacing: 0.35em;
+  color: var(--gold);
+  text-transform: uppercase;
+  opacity: 0.85;
 }
 
-.food-price{
-  color:var(--gold);
-  margin-top:5px;
+.loader-dots {
+  display: flex;
+  gap: 8px;
 }
 
-.add-btn{
-  margin-top:8px;
-  padding:8px 12px;
-  background:var(--gold);
-  color:white;
-  border:none;
-  border-radius:8px;
+.loader-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.3;
+  animation: dot-pulse 1.4s ease-in-out infinite;
 }
 
-/* CART BUTTON */
-.cart-bar{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:var(--gold);
-  color:white;
-  text-align:center;
-  padding:15px;
-  font-weight:bold;
+.loader-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50%       { opacity: 1;   transform: scale(1.3); box-shadow: 0 0 6px var(--gold); }
 }
 
-/* BOTTOM NAV */
-.bottom-nav{
-  position:fixed;
-  bottom:60px;
-  width:100%;
-  background:white;
-  display:flex;
-  justify-content:space-around;
-  padding:10px 0;
-  box-shadow:0 -2px 10px rgba(0,0,0,0.1);
+
+/* ╔══════════════════════════════════════╗
+   ║       PAGE TRANSITION OVERLAY        ║
+   ╚══════════════════════════════════════╝ */
+
+#page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 8888;
+  background: var(--obsidian);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-.nav-item{
-  text-align:center;
-  font-size:12px;
+#page-transition.active {
+  opacity: 1;
+  pointer-events: all;
 }
 
-.active{
-  color:var(--gold);
+/* Page enter animation */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* RESPONSIVE */
-
-@media (min-width:600px){
-
-.restaurants{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px;
+.page-content {
+  animation: page-enter 0.5s cubic-bezier(0.4,0,0.2,1) both;
 }
 
-.food-card{
-flex-direction:row;
+
+/* ╔══════════════════════════════════════╗
+   ║        FOG / STEAM ANIMATION         ║
+   ╚══════════════════════════════════════╝ */
+
+#fog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 7777;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
+#fog-overlay.active {
+  opacity: 1;
+  pointer-events: all;
 }
 
-@media (min-width:900px){
-
-body{
-max-width:900px;
-margin:auto;
-background:#eee;
+.fog-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(212,175,55,0.05) 40%, transparent 70%);
+  filter: blur(18px);
+  animation: fog-rise var(--dur, 2.5s) ease-out forwards;
+  transform-origin: center bottom;
 }
 
-.header{
-border-radius:0 0 20px 20px;
+@keyframes fog-rise {
+  0%   { transform: translateY(0) scale(0.4); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 0.6; }
+  100% { transform: translateY(-55vh) scale(2.5); opacity: 0; }
 }
 
-.restaurants{
-grid-template-columns:repeat(3,1fr);
+.fog-gold {
+  background: radial-gradient(circle, rgba(212,175,55,0.18) 0%, rgba(212,175,55,0.06) 40%, transparent 70%);
 }
 
-.bottom-nav{
-max-width:900px;
-left:50%;
-transform:translateX(-50%);
+
+/* ╔══════════════════════════════════════╗
+   ║             HEADER                   ║
+   ╚══════════════════════════════════════╝ */
+
+.header {
+  background: linear-gradient(135deg, rgba(10,10,10,0.97) 0%, rgba(20,18,10,0.97) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.5), 0 1px 0 rgba(212,175,55,0.15);
 }
 
+.header-brand {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 20px rgba(212,175,55,0.4);
 }
+
+.header-brand span {
+  font-size: 11px;
+  display: block;
+  color: var(--text-muted);
+  letter-spacing: 0.25em;
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  text-transform: uppercase;
+  text-shadow: none;
+  margin-top: 1px;
+}
+
+.header-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 18px;
+  color: var(--gold);
+}
+
+.header-icon:hover {
+  background: var(--glass-hover);
+  border-color: var(--gold);
+  box-shadow: 0 0 16px rgba(212,175,55,0.3);
+  transform: scale(1.05);
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║            SEARCH BOX                ║
+   ╚══════════════════════════════════════╝ */
+
+.search-box {
+  padding: 16px 20px;
+}
+
+.search-wrapper {
+  position: relative;
+}
+
+.search-wrapper::before {
+  content: '🔍';
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  opacity: 0.5;
+  z-index: 2;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 14px 16px 14px 46px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: var(--transition);
+  outline: none;
+}
+
+.search-box input::placeholder {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.search-box input:focus {
+  border-color: var(--gold);
+  background: rgba(20,20,20,0.8);
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.1), 0 0 20px rgba(212,175,55,0.15);
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║       SECTION LABEL / DIVIDER        ║
+   ╚══════════════════════════════════════╝ */
+
+.section-label {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding: 12px 20px 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0.85;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold-dark), transparent);
+  opacity: 0.4;
+}
+
+.section-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 8px 20px 4px;
+  letter-spacing: 0.02em;
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║       RESTAURANT CARD (GLASS)        ║
+   ╚══════════════════════════════════════╝ */
+
+.restaurants {
+  padding: 8px 12px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr;
+}
+
+.card {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-deep), var(--shadow-gold);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  position: relative;
+  transform-style: preserve-3d;
+  perspective: 800px;
+}
+
+/* Kintsugi crack accent on card */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(135deg, transparent 40%, rgba(212,175,55,0.04) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Gold edge shimmer on hover */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(212,175,55,0.06) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity var(--transition);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card:hover {
+  transform: translateY(-5px) rotateX(1.5deg);
+  border-color: rgba(212,175,55,0.5);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.6),
+    0 0 30px rgba(212,175,55,0.2),
+    inset 0 1px 0 rgba(212,175,55,0.15);
+}
+
+.card:hover::after {
+  opacity: 1;
+}
+
+.card:active {
+  transform: translateY(-2px) scale(0.99);
+}
+
+.card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease, filter 0.5s ease;
+  filter: brightness(0.85) saturate(0.9);
+}
+
+.card:hover img {
+  transform: scale(1.04);
+  filter: brightness(0.95) saturate(1.1);
+}
+
+.card-content {
+  padding: 16px;
+  position: relative;
+  z-index: 2;
+}
+
+.restaurant-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  letter-spacing: 0.02em;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.distance {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card-badge {
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  background: rgba(212,175,55,0.12);
+  border: 1px solid rgba(212,175,55,0.25);
+  color: var(--gold);
+  letter-spacing: 0.05em;
+}
+
+.card-rating {
+  font-size: 12px;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Card fog trigger overlay */
+.card-fog-trigger {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  z-index: 3;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  pointer-events: none;
+}
+
+.card-fog-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(212,175,55,0.08) 50%, transparent 70%);
+  filter: blur(15px);
+  bottom: -50px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.card.fog-active .card-fog-particle {
+  animation: card-fog-rise var(--dur, 1.6s) ease-out forwards;
+}
+
+@keyframes card-fog-rise {
+  0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+  25%  { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-180px) scale(2); }
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║           FOOD CARD                  ║
+   ╚══════════════════════════════════════╝ */
+
+.food-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--glass-bg);
+  margin: 10px 16px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-deep);
+  gap: 12px;
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.food-card:hover {
+  border-color: rgba(212,175,55,0.4);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 20px rgba(212,175,55,0.1);
+  transform: translateY(-2px);
+}
+
+.food-info { flex: 1; }
+
+.food-name {
+  font-family: 'Shippori Mincho', serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.food-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.food-price {
+  color: var(--gold);
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 4px;
+  font-family: 'Inter', sans-serif;
+}
+
+.food-image {
+  width: 90px;
+  height: 90px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--glass-border);
+  filter: brightness(0.9);
+  transition: filter var(--transition), transform var(--transition);
+}
+
+.food-card:hover .food-image {
+  filter: brightness(1);
+  transform: scale(1.03);
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║            BUTTONS                   ║
+   ╚══════════════════════════════════════╝ */
+
+.add-btn {
+  margin-top: 8px;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  color: var(--obsidian);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: var(--transition);
+  box-shadow: 0 2px 12px rgba(212,175,55,0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.add-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212,175,55,0.45);
+}
+
+.add-btn:hover::before { opacity: 1; }
+
+.add-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* Primary gold button */
+.btn-primary {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 50%, var(--gold-bright) 100%);
+  color: var(--obsidian);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: var(--transition);
+  box-shadow: 0 4px 20px rgba(212,175,55,0.4);
+  text-align: center;
+  text-decoration: none;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(212,175,55,0.55);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Ghost/outline button */
+.btn-ghost {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  transition: var(--transition);
+  text-align: center;
+  text-decoration: none;
+}
+
+.btn-ghost:hover {
+  background: rgba(212,175,55,0.1);
+  box-shadow: 0 0 20px rgba(212,175,55,0.2);
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║           CART BAR                   ║
+   ╚══════════════════════════════════════╝ */
+
+.cart-bar {
+  position: fixed;
+  bottom: 70px;
+  left: 16px;
+  right: 16px;
+  background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%);
+  color: var(--obsidian);
+  text-align: center;
+  padding: 16px 20px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(212,175,55,0.45);
+  transition: var(--transition);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cart-bar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(212,175,55,0.55);
+}
+
+.cart-bar-count {
+  background: var(--obsidian);
+  color: var(--gold);
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║          BOTTOM NAV                  ║
+   ╚══════════════════════════════════════╝ */
+
+.bottom-nav {
+  position: fixed;
+  bottom: 14px;
+  left: 14px;
+  right: 14px;
+  border-radius: 22px;
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(212,175,55,0.15);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0 12px;
+  z-index: 300;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(212,175,55,0.06);
+}
+
+.nav-item {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px 16px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.03em;
+  font-family: 'Inter', sans-serif;
+}
+
+.nav-item .nav-icon {
+  font-size: 20px;
+  transition: transform var(--transition);
+}
+
+.nav-item:hover {
+  color: var(--gold);
+  background: rgba(212,175,55,0.06);
+}
+
+.nav-item:hover .nav-icon {
+  transform: translateY(-2px);
+}
+
+.nav-item.active {
+  color: var(--gold);
+}
+
+.nav-item.active .nav-icon {
+  filter: drop-shadow(0 0 6px rgba(212,175,55,0.5));
+}
+
+/* Nav active indicator dot */
+.nav-item.active::after {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  margin: -2px auto 0;
+  box-shadow: 0 0 6px var(--gold);
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║          HERO / BANNER               ║
+   ╚══════════════════════════════════════╝ */
+
+.hero-banner {
+  margin: 12px 16px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(20,16,4,0.95) 0%, rgba(30,24,8,0.9) 50%, rgba(15,12,3,0.95) 100%);
+  border: 1px solid rgba(212,175,55,0.2);
+  padding: 24px 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-deep), var(--shadow-gold);
+}
+
+.hero-banner::before {
+  content: '金継ぎ';
+  position: absolute;
+  right: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Shippori Mincho', serif;
+  font-size: 72px;
+  color: rgba(212,175,55,0.05);
+  letter-spacing: -0.02em;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gold);
+  text-shadow: 0 0 20px rgba(212,175,55,0.4);
+  margin-bottom: 6px;
+}
+
+.hero-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 220px;
+}
+
+.hero-gold-line {
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  margin: 10px 0;
+  border-radius: 2px;
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║        CATEGORY CHIPS                ║
+   ╚══════════════════════════════════════╝ */
+
+.category-scroll {
+  padding: 8px 16px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.category-scroll::-webkit-scrollbar { display: none; }
+
+.category-chip {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 30px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: var(--transition);
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+}
+
+.category-chip:hover,
+.category-chip.active {
+  background: rgba(212,175,55,0.15);
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 12px rgba(212,175,55,0.2);
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║          FORM INPUTS                 ║
+   ╚══════════════════════════════════════╝ */
+
+.input-group {
+  margin-bottom: 16px;
+}
+
+.input-label {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+}
+
+.input-field {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: var(--transition);
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.input-field::placeholder {
+  color: var(--text-dim);
+}
+
+.input-field:focus {
+  border-color: var(--gold);
+  background: rgba(20,20,20,0.85);
+  box-shadow: 0 0 0 3px rgba(212,175,55,0.1), 0 0 20px rgba(212,175,55,0.12);
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║         GLASS PANELS                 ║
+   ╚══════════════════════════════════════╝ */
+
+.glass-panel {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 20px;
+  margin: 10px 16px;
+  box-shadow: var(--shadow-deep);
+}
+
+.glass-panel-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 16px;
+  color: var(--gold);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+/* Gold divider */
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dark), transparent);
+  margin: 16px 0;
+  opacity: 0.4;
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║        ORDER / CART ITEM             ║
+   ╚══════════════════════════════════════╝ */
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(212,175,55,0.08);
+}
+
+.cart-item:last-child { border-bottom: none; }
+
+.cart-item-img {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  border: 1px solid var(--glass-border);
+  flex-shrink: 0;
+}
+
+.cart-item-info { flex: 1; }
+
+.cart-item-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.cart-item-price {
+  font-size: 13px;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.qty-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--gold);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.qty-btn:hover {
+  background: rgba(212,175,55,0.15);
+  border-color: var(--gold);
+}
+
+.qty-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 20px;
+  text-align: center;
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║       ORDER STATUS / TRACKING        ║
+   ╚══════════════════════════════════════╝ */
+
+.tracking-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px 0;
+  position: relative;
+}
+
+.tracking-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 44px;
+  width: 1px;
+  height: calc(100% - 12px);
+  background: linear-gradient(180deg, var(--gold-dark), transparent);
+  opacity: 0.4;
+}
+
+.step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 2px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.step-dot.done {
+  background: rgba(212,175,55,0.2);
+  border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(212,175,55,0.3);
+  color: var(--gold);
+}
+
+.step-dot.active {
+  background: var(--gold);
+  border-color: var(--gold-bright);
+  box-shadow: 0 0 20px rgba(212,175,55,0.5);
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { box-shadow: 0 0 12px rgba(212,175,55,0.4); }
+  50%       { box-shadow: 0 0 28px rgba(212,175,55,0.7); }
+}
+
+.step-info { flex: 1; padding-top: 4px; }
+
+.step-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+
+.step-time {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║          PROFILE AVATAR              ║
+   ╚══════════════════════════════════════╝ */
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 24px rgba(212,175,55,0.35);
+  object-fit: cover;
+  display: block;
+}
+
+.profile-name {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 20px;
+  color: var(--text-primary);
+  margin-top: 12px;
+}
+
+.profile-meta {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.profile-stat {
+  text-align: center;
+  padding: 12px;
+}
+
+.stat-value {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║           LOGIN PAGE                 ║
+   ╚══════════════════════════════════════╝ */
+
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.login-logo {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 36px;
+  color: var(--gold);
+  text-shadow: 0 0 30px rgba(212,175,55,0.5);
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.login-logo-jp {
+  font-size: 14px;
+  letter-spacing: 0.4em;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 40px;
+  font-family: 'Noto Serif JP', serif;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 32px 28px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-deep), var(--shadow-gold);
+}
+
+.login-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 22px;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.login-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║          TOAST NOTIFICATION          ║
+   ╚══════════════════════════════════════╝ */
+
+#toast-container {
+  position: fixed;
+  top: 80px;
+  right: 16px;
+  z-index: 9000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-left: 3px solid var(--gold);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  color: var(--text-primary);
+  font-size: 13px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-deep);
+  animation: toast-in 0.35s ease, toast-out 0.35s ease 2.8s forwards;
+  min-width: 220px;
+  pointer-events: all;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(40px); }
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║         PRICE SUMMARY ROW            ║
+   ╚══════════════════════════════════════╝ */
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 14px;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(212,175,55,0.06);
+}
+
+.price-row:last-child { border-bottom: none; }
+
+.price-row.total {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 1px solid var(--glass-border);
+  border-bottom: none;
+}
+
+.price-row.total .price-value {
+  color: var(--gold);
+  font-family: 'Shippori Mincho', serif;
+  font-size: 18px;
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║         SCROLL ANIMATION             ║
+   ╚══════════════════════════════════════╝ */
+
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-in-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║       FLOATING GOLD PARTICLES        ║
+   ╚══════════════════════════════════════╝ */
+
+#particles-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║           RESPONSIVE                 ║
+   ╚══════════════════════════════════════╝ */
+
+@media (min-width: 600px) {
+  .restaurants {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 12px 16px;
+  }
+
+  .food-card {
+    flex-direction: row;
+  }
+}
+
+@media (min-width: 900px) {
+  body {
+    max-width: 900px;
+    margin: auto;
+  }
+
+  .restaurants {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .bottom-nav {
+    max-width: 900px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .cart-bar {
+    max-width: 868px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+
+/* ╔══════════════════════════════════════╗
+   ║   KINTSUGI JS UTILITY (in CSS)       ║
+   ║   Animate gold crack on load         ║
+   ╚══════════════════════════════════════╝ */
+
+@keyframes gold-crack-draw {
+  from { stroke-dashoffset: 600; opacity: 0; }
+  to   { stroke-dashoffset: 0;   opacity: 1; }
+}
+
+.crack-svg path {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: gold-crack-draw 1.8s ease forwards;
+}
+
+.crack-svg path:nth-child(2) { animation-delay: 0.3s; }
+.crack-svg path:nth-child(3) { animation-delay: 0.6s; }
+.crack-svg path:nth-child(4) { animation-delay: 0.9s; }

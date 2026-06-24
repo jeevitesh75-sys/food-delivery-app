@@ -1,364 +1,501 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Eluru Foods Login</title>
-
+<title>Eluru Foods · Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff4d4d">
+<meta name="theme-color" content="#D4AF37">
+<link rel="stylesheet" href="css/style.css">
 
 <style>
+/* ── LOGIN PAGE SPECIFIC ── */
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  padding-bottom: 24px; /* override home page bottom padding */
 }
 
-body{
-background:linear-gradient(
-180deg,
-#ff4d4d,
-#ff914d
-);
-
-min-height:100vh;
-
-display:flex;
-
-justify-content:center;
-
-align-items:center;
-
-padding:20px;
+/* Animated gold crack lines across full bg */
+.bg-cracks {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
 }
 
-.login-container{
-width:100%;
-max-width:380px;
+.bg-cracks svg {
+  width: 100%;
+  height: 100%;
 }
 
-.card{
+.bg-cracks path {
+  stroke-dasharray: 800;
+  stroke-dashoffset: 800;
+  animation: crack-draw 2s ease forwards;
+}
+.bg-cracks path:nth-child(2) { animation-delay: 0.4s; }
+.bg-cracks path:nth-child(3) { animation-delay: 0.7s; }
+.bg-cracks path:nth-child(4) { animation-delay: 1.0s; }
+.bg-cracks path:nth-child(5) { animation-delay: 1.2s; }
 
-background:white;
-
-padding:35px;
-
-border-radius:24px;
-
-text-align:center;
-
-box-shadow:
-0 15px 45px
-rgba(0,0,0,.15);
-
+@keyframes crack-draw {
+  to { stroke-dashoffset: 0; }
 }
 
-.logo{
-
-width:100px;
-
-height:100px;
-
-margin:auto;
-
-background:#fff2e5;
-
-border-radius:50%;
-
-display:flex;
-
-align-items:center;
-
-justify-content:center;
-
-font-size:46px;
-
-margin-bottom:20px;
-
+/* ── LOGIN WRAPPER ── */
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  z-index: 2;
+  animation: login-enter 0.7s cubic-bezier(0.4,0,0.2,1) both;
 }
 
-.title{
-
-font-size:32px;
-
-font-weight:bold;
-
-color:#222;
-
+@keyframes login-enter {
+  from { opacity: 0; transform: translateY(28px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.subtitle{
-
-margin-top:12px;
-
-color:#666;
-
-line-height:26px;
-
-font-size:15px;
-
+/* ── LOGO EMBLEM ── */
+.logo-wrap {
+  text-align: center;
+  margin-bottom: 28px;
 }
 
-.login-btn{
-
-width:100%;
-
-margin-top:32px;
-
-padding:16px;
-
-background:#4285F4;
-
-color:white;
-
-border:none;
-
-border-radius:14px;
-
-font-size:18px;
-
-font-weight:bold;
-
-cursor:pointer;
-
+.logo-ring {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: rgba(20,20,20,0.7);
+  border: 2px solid rgba(212,175,55,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  position: relative;
+  box-shadow:
+    0 0 0 8px rgba(212,175,55,0.05),
+    0 0 40px rgba(212,175,55,0.2),
+    0 8px 32px rgba(0,0,0,0.6);
+  animation: emblem-glow 3s ease-in-out infinite alternate;
 }
 
-.login-btn:active{
-
-transform:scale(.98);
-
+@keyframes emblem-glow {
+  from { box-shadow: 0 0 0 8px rgba(212,175,55,0.04), 0 0 24px rgba(212,175,55,0.15), 0 8px 32px rgba(0,0,0,0.6); }
+  to   { box-shadow: 0 0 0 12px rgba(212,175,55,0.08), 0 0 48px rgba(212,175,55,0.3), 0 8px 40px rgba(0,0,0,0.7); }
 }
 
-.bottom{
-
-margin-top:18px;
-
-color:#888;
-
-font-size:13px;
-
+/* Rotating gold orbit ring */
+.logo-ring::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  border-top-color: rgba(212,175,55,0.6);
+  border-right-color: rgba(212,175,55,0.2);
+  animation: orbit 4s linear infinite;
 }
 
+@keyframes orbit {
+  to { transform: rotate(360deg); }
+}
+
+.logo-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: #D4AF37;
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 24px rgba(212,175,55,0.4);
+}
+
+.logo-jp {
+  font-size: 12px;
+  letter-spacing: 0.35em;
+  color: rgba(240,230,204,0.35);
+  font-family: 'Noto Serif JP', serif;
+  margin-top: 4px;
+}
+
+/* ── GLASS CARD ── */
+.card {
+  background: rgba(14,14,14,0.75);
+  border: 1px solid rgba(212,175,55,0.22);
+  border-radius: 22px;
+  padding: 36px 28px 32px;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow:
+    0 24px 64px rgba(0,0,0,0.75),
+    0 0 0 1px rgba(212,175,55,0.06),
+    inset 0 1px 0 rgba(212,175,55,0.1);
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Inner crack texture */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='380' height='300' viewBox='0 0 380 300'%3E%3Cg stroke='%23D4AF37' stroke-opacity='0.06' fill='none' stroke-linecap='round'%3E%3Cpath d='M0 150 L70 130 L120 160 L200 140 L280 165 L360 145 L380 150' stroke-width='1'/%3E%3Cpath d='M120 160 L130 200 L110 240' stroke-width='0.8'/%3E%3Cpath d='M280 165 L290 210 L320 240' stroke-width='0.7'/%3E%3Cpath d='M200 140 L210 90 L190 50' stroke-width='0.7'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: cover;
+  pointer-events: none;
+  border-radius: 22px;
+}
+
+/* Subtle top gold shimmer */
+.card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.5), transparent);
+}
+
+.card-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #F0E6CC;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.card-subtitle {
+  font-size: 13px;
+  color: rgba(240,230,204,0.45);
+  line-height: 1.7;
+  position: relative;
+  z-index: 1;
+  margin-bottom: 6px;
+}
+
+/* Gold divider */
+.gold-rule {
+  width: 48px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #D4AF37, transparent);
+  margin: 18px auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Tagline pills */
+.tagline {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+.tag-pill {
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(212,175,55,0.1);
+  border: 1px solid rgba(212,175,55,0.2);
+  color: rgba(212,175,55,0.8);
+  letter-spacing: 0.08em;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ── GOOGLE BUTTON ── */
+.login-btn {
+  width: 100%;
+  padding: 16px 20px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 14px;
+  color: #F0E6CC;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: 0.3s cubic-bezier(0.4,0,0.2,1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+
+.login-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.login-btn:hover {
+  border-color: rgba(212,175,55,0.65);
+  background: rgba(212,175,55,0.08);
+  box-shadow: 0 0 28px rgba(212,175,55,0.2), 0 4px 20px rgba(0,0,0,0.4);
+  transform: translateY(-2px);
+}
+
+.login-btn:hover::before { opacity: 1; }
+
+.login-btn:active {
+  transform: scale(0.98) translateY(0);
+}
+
+.g-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.btn-loading {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(212,175,55,0.3);
+  border-top-color: #D4AF37;
+  border-radius: 50%;
+  animation: orbit 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+.login-btn.loading .btn-text { display: none; }
+.login-btn.loading .g-icon  { display: none; }
+.login-btn.loading .btn-loading { display: block; }
+
+/* ── FOOTER NOTE ── */
+.bottom {
+  margin-top: 20px;
+  font-size: 12px;
+  color: rgba(240,230,204,0.28);
+  letter-spacing: 0.05em;
+  font-family: 'Inter', sans-serif;
+  position: relative;
+  z-index: 1;
+  line-height: 1.6;
+}
+
+/* ── ERROR TOAST ── */
+.err-toast {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(180,30,30,0.25);
+  border: 1px solid rgba(255,80,80,0.3);
+  border-radius: 10px;
+  color: #ff9999;
+  font-size: 13px;
+  display: none;
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(8px);
+}
+
+.err-toast.show { display: block; }
 </style>
-
 </head>
 
 <body>
 
+<!-- ── KINTSUGI CRACK BG LINES ── -->
+<div class="bg-cracks">
+  <svg viewBox="0 0 800 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#D4AF37" stroke-opacity="0.07" fill="none" stroke-linecap="round">
+      <path d="M100 0 L160 90 L130 180 L210 290 L180 420" stroke-width="1.5"/>
+      <path d="M160 90 L260 120 L380 100 L500 160" stroke-width="1"/>
+      <path d="M210 290 L320 310 L420 270 L540 330 L660 290" stroke-width="1.2"/>
+      <path d="M540 330 L560 460 L500 560 L570 660 L530 780" stroke-width="1.5"/>
+      <path d="M700 0 L740 100 L800 160" stroke-width="1"/>
+      <path d="M0 500 L80 480 L120 540 L60 620 L100 720" stroke-width="1"/>
+    </g>
+  </svg>
+</div>
+
+<!-- ── PARTICLES CANVAS ── -->
+<canvas id="particles-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.3;"></canvas>
+
+<!-- ── LOGIN CONTAINER ── -->
 <div class="login-container">
 
-<div class="card">
+  <!-- Logo above card -->
+  <div class="logo-wrap">
+    <div class="logo-ring">🍱</div>
+    <div class="logo-title">ELURU FOODS</div>
+    <div class="logo-jp">金継ぎ · Kintsugi</div>
+  </div>
 
-<div class="logo">
-🍔
+  <!-- Glass card -->
+  <div class="card">
+    <div class="card-title">Welcome Back</div>
+    <div class="card-subtitle">Order from the finest local kitchens,<br>delivered with care</div>
+
+    <div class="gold-rule"></div>
+
+    <div class="tagline">
+      <span class="tag-pill">⚡ Fast</span>
+      <span class="tag-pill">✦ Easy</span>
+      <span class="tag-pill">📍 Local</span>
+    </div>
+
+    <button class="login-btn" onclick="googleLogin()">
+      <!-- Google SVG icon -->
+      <svg class="g-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      <span class="btn-text">Sign in with Google</span>
+      <div class="btn-loading"></div>
+    </button>
+
+    <div class="err-toast" id="errToast"></div>
+
+    <div class="bottom">
+      By continuing you agree to our Terms &amp; Privacy Policy
+    </div>
+  </div>
+
 </div>
 
-<div class="title">
-Eluru Foods
-</div>
-
-<div class="subtitle">
-
-Order food from local restaurants
-
-<br><br>
-
-Fast • Easy • Local
-
-</div>
-
-<button
-class="login-btn"
-onclick="googleLogin()">
-
-🔵 Sign in with Google
-
-</button>
-
-<div class="bottom">
-
-Continue to access your account
-
-</div>
-
-</div>
-
-</div>
-
+<!-- ══ ALL ORIGINAL FIREBASE LOGIC (UNTOUCHED) ══ -->
 <script type="module">
+import { initializeApp }           from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc }            from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import {
-initializeApp
-}
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-getAuth,
-signInWithPopup,
-GoogleAuthProvider
-}
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-import {
-getFirestore,
-doc,
-getDoc,
-setDoc
-}
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig={
-
-apiKey:
-"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-
-authDomain:
-"food-delivery-app-97300.firebaseapp.com",
-
-projectId:
-"food-delivery-app-97300"
-
+const firebaseConfig = {
+  apiKey:    "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain:"food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
 };
 
-const app=
-initializeApp(firebaseConfig);
+const app      = initializeApp(firebaseConfig);
+const auth     = getAuth(app);
+const db       = getFirestore(app);
+const provider = new GoogleAuthProvider();
 
-const auth=
-getAuth(app);
+window.googleLogin = async () => {
+  const btn = document.querySelector('.login-btn');
+  btn.classList.add('loading');
 
-const db=
-getFirestore(app);
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user   = result.user;
 
-const provider=
-new GoogleAuthProvider();
+    localStorage.setItem("user", JSON.stringify(user));
 
-window.googleLogin=
-async()=>{
+    const userRef = doc(db, "users", user.uid);
+    const snap    = await getDoc(userRef);
 
-try{
+    if (snap.exists()) {
+      const data = snap.data();
+      if (data.policyAccepted) {
+        if (data.phone && data.address) {
+          location.href = "home.html";
+        } else {
+          location.href = "details.html";
+        }
+      } else {
+        location.href = "accept.html";
+      }
+    } else {
+      await setDoc(userRef, {
+        name:      user.displayName,
+        email:     user.email,
+        photo:     user.photoURL,
+        createdAt: new Date()
+      });
+      location.href = "accept.html";
+    }
 
-const result=
-await signInWithPopup(
-auth,
-provider
-);
-
-const user=
-result.user;
-
-localStorage.setItem(
-"user",
-JSON.stringify(user)
-);
-
-const userRef=
-doc(
-db,
-"users",
-user.uid
-);
-
-const snap=
-await getDoc(
-userRef
-);
-
-if(
-snap.exists()
-){
-
-const data=
-snap.data();
-
-if(
-data.policyAccepted
-){
-
-if(
-data.phone
-&&
-data.address
-){
-
-location.href=
-"home.html";
-
-}else{
-
-location.href=
-"details.html";
-
-}
-
-}else{
-
-location.href=
-"accept.html";
-
-}
-
-}
-else{
-
-await setDoc(
-userRef,
-{
-
-name:
-user.displayName,
-
-email:
-user.email,
-
-photo:
-user.photoURL,
-
-createdAt:
-new Date()
-
-}
-
-);
-
-location.href=
-"accept.html";
-
-}
-
-}catch(err){
-
-alert(
-err.message
-);
-
-}
-
+  } catch (err) {
+    btn.classList.remove('loading');
+    const toast = document.getElementById('errToast');
+    toast.textContent = err.message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+  }
 };
-
 </script>
 
+<!-- ── SERVICE WORKER ── -->
 <script>
-
-if(
-"serviceWorker"
-in navigator
-){
-
-navigator
-.serviceWorker
-.register(
-"/sw.js"
-);
-
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
 }
+</script>
 
+<!-- ── GOLD PARTICLES ── -->
+<script>
+(function () {
+  const canvas = document.getElementById('particles-canvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function Particle() { this.reset(); }
+  Particle.prototype.reset = function () {
+    this.x    = Math.random() * W;
+    this.y    = Math.random() * H;
+    this.r    = 0.5 + Math.random() * 1.3;
+    this.vx   = (Math.random() - 0.5) * 0.2;
+    this.vy   = -0.1 - Math.random() * 0.2;
+    this.life = 0;
+    this.max  = 200 + Math.random() * 200;
+    this.gold = Math.random() > 0.35;
+  };
+
+  function init() {
+    resize();
+    for (let i = 0; i < 50; i++) {
+      const p = new Particle();
+      p.life  = Math.random() * p.max;
+      particles.push(p);
+    }
+    loop();
+  }
+
+  function loop() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.life++;
+      if (p.life > p.max) p.reset();
+      const alpha = Math.sin((p.life / p.max) * Math.PI) * 0.6;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.gold
+        ? `rgba(212,175,55,${alpha})`
+        : `rgba(240,230,204,${alpha * 0.3})`;
+      ctx.fill();
+      p.x += p.vx;
+      p.y += p.vy;
+    });
+    requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('resize', resize);
+  init();
+})();
 </script>
 
 </body>

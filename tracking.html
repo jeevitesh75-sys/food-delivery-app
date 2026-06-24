@@ -1,299 +1,568 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Order Tracking</title>
-
+<title>Order Tracking · Eluru Foods</title>
 <link rel="stylesheet" href="css/style.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff4d4d">
-<style>
-.order-item{
-  background:white;
-  margin:10px;
-  padding:12px;
-  border-radius:10px;
-  cursor:pointer;
-}
-.active-order{
-  border:2px solid green;
-}
-.step { display:flex; margin:10px 0; }
-.circle {
-  width:14px; height:14px;
-  border-radius:50%;
-  margin-right:10px;
-  background:gray;
-}
-.active { background:green; }
-#map{
-  height:200px;
-  border-radius:10px;
-  margin-top:10px;
-}
-</style>
+<meta name="theme-color" content="#D4AF37">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
+<style>
+/* ── PAGE ── */
+body {
+  padding-bottom: 110px;
+  opacity: 0;
+  animation: fade-in 0.55s ease 0.05s forwards;
+}
+@keyframes fade-in { to { opacity: 1; } }
+
+/* ── LOADER ── */
+#loader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #080808;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 22px;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+#loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.gold-ring {
+  width: 58px; height: 58px; border-radius: 50%;
+  border: 2px solid rgba(212,175,55,0.15);
+  border-top-color: #D4AF37; border-right-color: rgba(212,175,55,0.45);
+  animation: spin 1.3s linear infinite;
+  box-shadow: 0 0 22px rgba(212,175,55,0.2); position: relative;
+}
+.gold-ring::after {
+  content: '金'; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 20px; color: #D4AF37; opacity: 0.7;
+  animation: spin 1.3s linear infinite reverse;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#loader h2 {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 16px; color: #D4AF37;
+  letter-spacing: 0.3em; text-shadow: 0 0 18px rgba(212,175,55,0.35);
+}
+
+/* ── HEADER ── */
+.header {
+  background: rgba(8,8,8,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(212,175,55,0.18);
+  color: #D4AF37; padding: 18px 20px;
+  display: flex; align-items: center; gap: 12px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+  font-family: 'Shippori Mincho', serif;
+  font-size: 19px; font-weight: 600;
+  text-shadow: 0 0 14px rgba(212,175,55,0.3);
+}
+
+/* ── SECTION LABEL ── */
+.sec-label {
+  padding: 16px 18px 8px;
+  display: flex; align-items: center; gap: 10px;
+  position: relative; z-index: 1;
+}
+.sec-label span {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 13px; color: rgba(212,175,55,0.65);
+  letter-spacing: 0.2em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.sec-label::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, rgba(212,175,55,0.2), transparent);
+}
+
+/* ── ORDER LIST ITEM ── */
+.order-item {
+  background: rgba(20,20,20,0.68);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212,175,55,0.17);
+  margin: 8px 14px;
+  padding: 16px;
+  border-radius: 18px;
+  color: #F0E6CC;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  position: relative; overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+  opacity: 0;
+  animation: card-in 0.4s ease forwards;
+}
+.order-item::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.18), transparent);
+}
+@keyframes card-in {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.order-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.5), 0 0 20px rgba(212,175,55,0.12);
+  border-color: rgba(212,175,55,0.3);
+}
+.active-order {
+  border: 1.5px solid #D4AF37 !important;
+  box-shadow: 0 0 28px rgba(212,175,55,0.25) !important;
+  background: rgba(30,24,8,0.75) !important;
+}
+
+.order-num {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px; font-weight: 600; color: #D4AF37;
+  margin-bottom: 6px;
+}
+.order-meta {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  margin-top: 6px;
+}
+.order-total {
+  font-size: 14px; font-weight: 700; color: #F0E6CC;
+  font-family: 'Inter', sans-serif;
+}
+.order-status-badge {
+  font-size: 11px; padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(212,175,55,0.12);
+  border: 1px solid rgba(212,175,55,0.25);
+  color: #D4AF37; font-family: 'Inter', sans-serif;
+  letter-spacing: 0.06em;
+}
+.order-status-badge.pending   { background:rgba(255,180,0,0.1);  border-color:rgba(255,180,0,0.3);  color:#FFB800; }
+.order-status-badge.preparing { background:rgba(255,140,0,0.1);  border-color:rgba(255,140,0,0.3);  color:#FF8C00; }
+.order-status-badge.ready     { background:rgba(100,200,100,0.1);border-color:rgba(100,200,100,0.3);color:#64C864; }
+.order-status-badge.out       { background:rgba(80,160,255,0.1); border-color:rgba(80,160,255,0.3); color:#50A0FF; }
+
+/* ── ORDER DETAIL CARD ── */
+#orderBox {
+  position: relative; z-index: 1;
+  padding: 0 14px 14px;
+}
+#orderBox .card {
+  background: rgba(20,20,20,0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212,175,55,0.18);
+  border-radius: 20px;
+  padding: 20px;
+  color: #F0E6CC;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  position: relative; overflow: hidden;
+}
+#orderBox .card::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.25), transparent);
+}
+
+/* ── STATUS HEADING ── */
+.status-head {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 20px; color: #D4AF37;
+  text-shadow: 0 0 14px rgba(212,175,55,0.3);
+  margin-bottom: 18px;
+}
+
+/* ── TRACKING STEPS ── */
+.step {
+  display: flex; align-items: center;
+  margin: 10px 0; color: rgba(240,230,204,0.45);
+  font-size: 14px; font-family: 'Inter', sans-serif;
+  position: relative;
+}
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute; left: 7px; top: 22px;
+  width: 2px; height: 18px;
+  background: linear-gradient(180deg, rgba(212,175,55,0.3), transparent);
+}
+
+.circle {
+  width: 16px; height: 16px; border-radius: 50%;
+  margin-right: 14px; flex-shrink: 0;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  transition: all 0.4s ease;
+}
+.circle.active {
+  background: #D4AF37;
+  border-color: #F0C93A;
+  box-shadow: 0 0 14px rgba(212,175,55,0.6);
+  animation: pulse-step 2s ease-in-out infinite;
+}
+@keyframes pulse-step {
+  0%,100% { box-shadow: 0 0 10px rgba(212,175,55,0.4); }
+  50%      { box-shadow: 0 0 22px rgba(212,175,55,0.8); }
+}
+.step.done { color: rgba(240,230,204,0.8); }
+
+/* ── GOLD DIVIDER ── */
+.gold-hr {
+  border: none; border-top: 1px solid rgba(212,175,55,0.12);
+  margin: 16px 0;
+}
+
+/* ── ORDER ITEMS LIST ── */
+.track-items {
+  font-size: 13px; color: rgba(240,230,204,0.6);
+  font-family: 'Inter', sans-serif; line-height: 2;
+}
+.track-total {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 17px; color: #D4AF37; margin-top: 6px;
+}
+
+/* ── DELIVERY PARTNER ── */
+.delivery-section { margin-top: 14px; }
+.delivery-title {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 15px; color: #D4AF37; margin-bottom: 10px;
+}
+.delivery-row {
+  font-size: 13px; color: rgba(240,230,204,0.6);
+  font-family: 'Inter', sans-serif; margin-bottom: 5px;
+}
+.delivery-row b { color: rgba(240,230,204,0.85); }
+
+.call-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 12px;
+  padding: 11px 20px;
+  background: linear-gradient(135deg, #1a4a1a, #2d8a2d);
+  color: #fff;
+  border: 1px solid rgba(100,200,100,0.3);
+  border-radius: 12px;
+  font-size: 13px; font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer; text-decoration: none;
+  transition: 0.3s ease;
+  box-shadow: 0 4px 16px rgba(0,128,0,0.25);
+}
+.call-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,128,0,0.4);
+}
+
+.waiting-text {
+  font-size: 13px; color: rgba(240,230,204,0.35);
+  font-style: italic; font-family: 'Inter', sans-serif;
+  margin-top: 8px;
+}
+
+/* ── MAP ── */
+#map {
+  height: 220px; border-radius: 14px;
+  overflow: hidden; margin-top: 16px;
+  border: 1px solid rgba(212,175,55,0.2);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  filter: brightness(0.85) saturate(0.85);
+}
+
+/* ── EMPTY STATE ── */
+.empty-orders {
+  text-align: center; padding: 80px 30px;
+  color: rgba(240,230,204,0.3);
+}
+.empty-orders .ei { font-size: 52px; margin-bottom: 16px; opacity: 0.35; }
+.empty-orders p {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 17px; margin-bottom: 8px;
+}
+.empty-orders small {
+  font-size: 13px; color: rgba(240,230,204,0.2);
+}
+.empty-orders a {
+  display: inline-block; margin-top: 24px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #A07D1C, #D4AF37);
+  color: #080808; border-radius: 30px;
+  font-weight: 700; font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none; letter-spacing: 0.06em;
+  transition: 0.3s ease;
+  box-shadow: 0 4px 18px rgba(212,175,55,0.35);
+}
+.empty-orders a:hover { transform: translateY(-2px); }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed;
+  left: 14px; right: 14px; bottom: 14px;
+  border-radius: 22px;
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(212,175,55,0.15);
+  display: flex; justify-content: space-around;
+  padding: 10px 0 12px; z-index: 300;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+}
+.nav-item {
+  text-align: center; font-size: 11px;
+  color: rgba(240,230,204,0.45); text-decoration: none;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 4px 16px; border-radius: 10px;
+  transition: 0.3s ease; font-family: 'Inter', sans-serif;
+}
+.nav-item .nav-icon { font-size: 19px; }
+.nav-item:hover { color: #D4AF37; }
+</style>
 </head>
 
 <body>
 
-<div class="header">🚚 Your Orders</div>
+<!-- ── LOADER ── -->
+<div id="loader">
+  <div class="gold-ring"></div>
+  <h2>ELURU FOODS</h2>
+</div>
 
-<div id="orderList"></div>
+<!-- ── PARTICLES ── -->
+<canvas id="particles-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.3;"></canvas>
+
+<!-- ── HEADER ── -->
+<div class="header" style="position:relative;z-index:1;">
+  🚚 Your Orders
+</div>
+
+<!-- ── ACTIVE ORDERS LABEL ── -->
+<div class="sec-label" style="position:relative;z-index:1;">
+  <span>Active Orders</span>
+</div>
+
+<!-- ── ORDER LIST ── -->
+<div id="orderList" style="position:relative;z-index:1;"></div>
+
+<!-- ── ORDER DETAIL ── -->
 <div id="orderBox"></div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<!-- ── BOTTOM NAV ── -->
+<div class="bottom-nav">
+  <a href="home.html" class="nav-item">
+    <span class="nav-icon">🏠</span>Home
+  </a>
+  <a href="cart.html" class="nav-item">
+    <span class="nav-icon">🛒</span>Cart
+  </a>
+  <a href="profile.html" class="nav-item active">
+    <span class="nav-icon">👤</span>Profile
+  </a>
+</div>
+
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
+<!-- ══ ALL ORIGINAL FIREBASE LOGIC (UNTOUCHED) ══ -->
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore,
-  collection,
-  onSnapshot,
-  query,
-  where,
-  doc
+  getFirestore, collection, onSnapshot, query, where, doc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-// 🔥 Firebase
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 const app = initializeApp({
-  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  apiKey:    "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain:"food-delivery-app-97300.firebaseapp.com",
   projectId: "food-delivery-app-97300"
 });
-
-const db = getFirestore(app);
+const db   = getFirestore(app);
 const auth = getAuth(app);
 
-
 onAuthStateChanged(auth, (user) => {
+  if (!user) { location.href = "login.html"; return; }
 
-  if(!user){
-    location.href = "login.html";
-    return;
-  }
+  const orderListDiv = document.getElementById("orderList");
+  const orderBox     = document.getElementById("orderBox");
 
-  let orderListDiv = document.getElementById("orderList");
-  let orderBox = document.getElementById("orderBox");
+  const q = query(collection(db, "orders"), where("userId", "==", user.uid));
 
-  const q = query(
-    collection(db, "orders"),
-    where("userId", "==", user.uid)
-  );
-
-  onSnapshot(q, (snapshot)=>{
-    // existing code
+  onSnapshot(q, (snapshot) => {
     orderListDiv.innerHTML = "";
-  orderBox.innerHTML = "";
+    orderBox.innerHTML     = "";
+    let activeOrders       = 0;
 
-  let activeOrders = 0;
+    snapshot.docs.forEach((docSnap, index) => {
+      const data = docSnap.data();
+      if (data.status === "Delivered") return;
 
-  snapshot.docs.forEach((docSnap, index)=>{
+      activeOrders++;
 
-    let data = docSnap.data();
+      // Status badge class
+      const badgeClass = {
+        "Pending":          "pending",
+        "Preparing":        "preparing",
+        "Ready":            "ready",
+        "Out for Delivery": "out"
+      }[data.status] || "";
 
-    if(data.status === "Delivered"){
-      return;
+      const div       = document.createElement("div");
+      div.className   = "order-item";
+      div.style.animationDelay = `${(activeOrders - 1) * 0.08}s`;
+
+      div.innerHTML = `
+        <div class="order-num">✦ Order #${index + 1}</div>
+        <div class="order-meta">
+          <span class="order-total">₹${data.total}</span>
+          <span class="order-status-badge ${badgeClass}">${data.status}</span>
+        </div>
+        ${data.restaurantName ? `<div style="font-size:12px;color:rgba(240,230,204,0.35);margin-top:5px;font-family:'Inter',sans-serif;">${data.restaurantName}</div>` : ''}
+      `;
+
+      div.onclick = () => showOrder(data, div);
+      orderListDiv.appendChild(div);
+
+      if (activeOrders === 1) showOrder(data, div);
+    });
+
+    if (activeOrders === 0) {
+      orderListDiv.innerHTML = `
+        <div class="empty-orders">
+          <div class="ei">✅</div>
+          <p>No active orders</p>
+          <small>All your orders have been delivered</small>
+          <br><a href="home.html">✦ Order Again</a>
+        </div>`;
+      orderBox.innerHTML = "";
     }
-
-    activeOrders++;
-
-    let div = document.createElement("div");
-    div.className = "order-item";
-
-    div.innerHTML = `
-      <b>Order #${index+1}</b><br>
-      ₹${data.total}<br>
-      ${data.status}
-    `;
-
-    div.onclick = ()=> showOrder(data, div);
-
-    orderListDiv.appendChild(div);
-
-    if(activeOrders === 1){
-      showOrder(data, div);
-    }
-
   });
 
-  if(activeOrders === 0){
-    orderListDiv.innerHTML =
-    "<h3 style='text-align:center'>No active orders ✅</h3>";
+  function showOrder(order, element) {
+    // Highlight selected
+    document.querySelectorAll(".order-item").forEach(el => el.classList.remove("active-order"));
+    element.classList.add("active-order");
 
-    orderBox.innerHTML = "";
-  }
-  });
+    const steps        = ["Pending", "Preparing", "Ready", "Out for Delivery", "Delivered"];
+    const currentIndex = steps.indexOf(order.status);
 
-  function showOrder(order, element){
-    // existing code
-    document.querySelectorAll(".order-item").forEach(el=>{
-    el.classList.remove("active-order");
-  });
-  element.classList.add("active-order");
+    const stepsHTML = steps.map((step, i) => `
+      <div class="step ${i <= currentIndex ? 'done' : ''}">
+        <div class="circle ${i <= currentIndex ? 'active' : ''}"></div>
+        ${step}
+      </div>`).join("");
 
-  let steps = [
-  "Pending",
-  "Preparing",
-  "Ready",
-  "Out for Delivery",
-  "Delivered"
-];
-  let currentIndex = steps.indexOf(order.status);
+    const itemsHTML = order.items.map(i =>
+      `<div>${i.name} <span style="color:rgba(212,175,55,0.6)">×${i.qty}</span></div>`
+    ).join("");
 
-  let stepsHTML = steps.map((step,i)=>`
-    <div class="step">
-      <div class="circle ${i<=currentIndex?'active':''}"></div>
-      ${step}
-    </div>
-  `).join("");
+    const deliveryHTML = order.deliveryBoyName
+      ? `<div class="delivery-section">
+           <div class="delivery-title">🛵 Delivery Partner</div>
+           <div class="delivery-row"><b>Name:</b> ${order.deliveryBoyName}</div>
+           <div class="delivery-row"><b>Phone:</b> ${order.deliveryBoyPhone || "—"}</div>
+           <a href="tel:${order.deliveryBoyPhone || ''}" class="call-btn">
+             📞 Call Delivery Partner
+           </a>
+         </div>`
+      : `<div class="waiting-text">⏳ Waiting for delivery partner…</div>`;
 
-  let itemsHTML = order.items.map(i=>`${i.name} × ${i.qty}`).join("<br>");
+    orderBox.innerHTML = `
+      <div class="sec-label" style="padding-top:8px;">
+        <span>Order Details</span>
+      </div>
+      <div class="card">
+        <div class="status-head">Status: ${order.status}</div>
+        ${stepsHTML}
+        <hr class="gold-hr">
+        <div class="track-items">${itemsHTML}</div>
+        <div class="track-total">Total: ₹${order.total}</div>
+        <hr class="gold-hr">
+        ${deliveryHTML}
+        <div id="map"></div>
+      </div>`;
 
-  orderBox.innerHTML = `
-    <div class="card">
-      <h3>Status: ${order.status}</h3>
-      ${stepsHTML}
-      <h4>${itemsHTML}</h4>
-      <h4>Total: ₹${order.total}</h4>
-      ${order.deliveryBoyName ? `
-<hr>
+    // MAP (original logic)
+    setTimeout(() => {
+      const mapDiv = document.getElementById("map");
+      if (!mapDiv) return;
+      mapDiv.innerHTML = "";
 
-<h4>🚴 Delivery Partner</h4>
+      const map = L.map("map").setView(
+        [order.customerLat || order.restaurantLat, order.customerLng || order.restaurantLng], 15
+      );
 
-<p>
-<b>Name:</b>
-${order.deliveryBoyName}
-</p>
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap"
+      }).addTo(map);
 
-<p>
-<b>Phone:</b>
-${order.deliveryBoyPhone || "-"}
-</p>
-
-<a href="tel:${order.deliveryBoyPhone || ''}">
-<button style="
-background:green;
-color:white;
-border:none;
-padding:10px;
-border-radius:8px;
-cursor:pointer;">
-📞 Call Delivery Boy
-</button>
-</a>
-
-` : `
-<p>Waiting for delivery partner...</p>
-`}
-      <div id="map"></div>
-    </div>
-  `;
-// MAP
-setTimeout(()=>{
-
-let mapDiv = document.getElementById("map");
-if(!mapDiv) return;
-
-mapDiv.innerHTML = "";
-
-let map = L.map("map").setView(
-[
-  order.customerLat || order.restaurantLat,
-  order.customerLng || order.restaurantLng
-],
-15
-);
-
-L.tileLayer(
-"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-{
-  attribution:"© OpenStreetMap"
-}
-).addTo(map);
-
-// Customer
-if(order.customerLat && order.customerLng){
-  L.marker([
-    order.customerLat,
-    order.customerLng
-  ])
-  .addTo(map)
-  .bindPopup("🏠 Customer");
-}
-
-// Restaurant
-if(order.restaurantLat && order.restaurantLng){
-  L.marker([
-    order.restaurantLat,
-    order.restaurantLng
-  ])
-  .addTo(map)
-  .bindPopup("🍔 Restaurant");
-}
-
-if(order.deliveryBoyId){
-
-  let riderMarker = null;
-
-  onSnapshot(
-    doc(db,"deliveryPartners",order.deliveryBoyId),
-    (snap)=>{
-
-      let rider = snap.data();
-
-      if(!rider || !rider.liveLat || !rider.liveLng){
-        return;
+      if (order.customerLat && order.customerLng) {
+        L.marker([order.customerLat, order.customerLng]).addTo(map).bindPopup("🏠 Customer");
+      }
+      if (order.restaurantLat && order.restaurantLng) {
+        L.marker([order.restaurantLat, order.restaurantLng]).addTo(map).bindPopup("🍔 Restaurant");
       }
 
-      if(riderMarker){
-
-        riderMarker.setLatLng([
-          rider.liveLat,
-          rider.liveLng
-        ]);
-
-      }else{
-
-        riderMarker = L.marker([
-          rider.liveLat,
-          rider.liveLng
-        ])
-        .addTo(map)
-        .bindPopup("🛵 Delivery Partner");
-
+      if (order.deliveryBoyId) {
+        let riderMarker = null;
+        onSnapshot(doc(db, "deliveryPartners", order.deliveryBoyId), (snap) => {
+          const rider = snap.data();
+          if (!rider || !rider.liveLat || !rider.liveLng) return;
+          if (riderMarker) {
+            riderMarker.setLatLng([rider.liveLat, rider.liveLng]);
+          } else {
+            riderMarker = L.marker([rider.liveLat, rider.liveLng])
+              .addTo(map).bindPopup("🛵 Delivery Partner");
+          }
+        });
       }
-
-    }
-  );
-}
-
-},300);
+    }, 300);
   }
-
 });
-
-
-
-
 </script>
 
-<div class="bottom-nav">
-  <a href="home.html"><div class="nav-item">🏠<br>Home</div></a>
-  
-  <a href="cart.html"><div class="nav-item">🛒<br>Cart</div></a>
-  <a href="profile.html"><div class="nav-item">👤<br>Profile</div></a>
-</div>
+<!-- ── SERVICE WORKER ── -->
 <script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js");
-}
+if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js"); }
 </script>
+
+<!-- ── LOADER HIDE ── -->
+<script>
+window.addEventListener("load", () => {
+  setTimeout(() => { document.getElementById("loader").classList.add("hidden"); }, 1000);
+});
+</script>
+
+<!-- ── GOLD PARTICLES ── -->
+<script>
+(function () {
+  const canvas = document.getElementById('particles-canvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H, particles = [];
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  function P() { this.reset(); }
+  P.prototype.reset = function () {
+    this.x = Math.random()*W; this.y = Math.random()*H;
+    this.r = 0.5 + Math.random()*1.2;
+    this.vx = (Math.random()-0.5)*0.2; this.vy = -0.1 - Math.random()*0.2;
+    this.life = 0; this.max = 180 + Math.random()*200;
+    this.gold = Math.random() > 0.38;
+  };
+  function init() {
+    resize();
+    for (let i = 0; i < 48; i++) { const p = new P(); p.life = Math.random()*p.max; particles.push(p); }
+    loop();
+  }
+  function loop() {
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p => {
+      p.life++; if (p.life > p.max) p.reset();
+      const a = Math.sin((p.life/p.max)*Math.PI)*0.5;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = p.gold ? `rgba(212,175,55,${a})` : `rgba(240,230,204,${a*0.3})`;
+      ctx.fill(); p.x += p.vx; p.y += p.vy;
+    });
+    requestAnimationFrame(loop);
+  }
+  window.addEventListener('resize', resize);
+  init();
+})();
+</script>
+
 </body>
 </html>

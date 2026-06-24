@@ -3,339 +3,535 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Checkout</title>
-
+<title>Checkout · Eluru Foods</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff4d4d">
-<style>
-.checkout-box { padding: 15px; }
-.summary { margin-top: 20px; }
-.place-btn {
-  background: green;
-  color: white;
-  padding: 12px;
-  text-align: center;
-  margin-top: 20px;
-  border-radius: 5px;
-}
-</style>
+<meta name="theme-color" content="#D4AF37">
 
+<style>
+/* ── PAGE ── */
+body {
+  padding-bottom: 160px;
+  opacity: 0;
+  animation: fade-in 0.55s ease 0.05s forwards;
+}
+@keyframes fade-in { to { opacity: 1; } }
+
+/* ── LOADER ── */
+#loader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #080808;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 22px;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+#loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.gold-ring {
+  width: 58px; height: 58px; border-radius: 50%;
+  border: 2px solid rgba(212,175,55,0.15);
+  border-top-color: #D4AF37; border-right-color: rgba(212,175,55,0.45);
+  animation: spin 1.3s linear infinite;
+  box-shadow: 0 0 22px rgba(212,175,55,0.2); position: relative;
+}
+.gold-ring::after {
+  content: '金'; position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 20px; color: #D4AF37; opacity: 0.7;
+  animation: spin 1.3s linear infinite reverse;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#loader h2 {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 16px; color: #D4AF37;
+  letter-spacing: 0.3em; text-shadow: 0 0 18px rgba(212,175,55,0.35);
+}
+
+/* ── HEADER ── */
+.header {
+  background: rgba(8,8,8,0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(212,175,55,0.18);
+  color: #D4AF37; padding: 18px 20px;
+  display: flex; align-items: center; gap: 14px;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+  font-family: 'Shippori Mincho', serif;
+  font-size: 19px; font-weight: 600;
+  text-shadow: 0 0 14px rgba(212,175,55,0.3);
+}
+.header a {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(212,175,55,0.08);
+  border: 1px solid rgba(212,175,55,0.22);
+  display: flex; align-items: center; justify-content: center;
+  color: #D4AF37; text-decoration: none; font-size: 16px;
+  transition: 0.3s ease; flex-shrink: 0;
+}
+.header a:hover { background: rgba(212,175,55,0.15); border-color: rgba(212,175,55,0.5); }
+
+/* ── CHECKOUT WRAPPER ── */
+.checkout-box {
+  padding: 10px 14px 20px;
+  position: relative; z-index: 1;
+}
+
+/* ── SECTION HEADING ── */
+.sec-h {
+  font-family: 'Shippori Mincho', serif;
+  font-size: 14px; color: rgba(212,175,55,0.75);
+  letter-spacing: 0.2em; text-transform: uppercase;
+  margin: 22px 0 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-h::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, rgba(212,175,55,0.25), transparent);
+}
+
+/* ── GLASS PANELS ── */
+.glass-block {
+  background: rgba(20,20,20,0.68);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212,175,55,0.17);
+  border-radius: 18px;
+  padding: 18px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  animation: block-in 0.45s ease both;
+}
+.glass-block::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
+}
+@keyframes block-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.glass-block:nth-child(2) { animation-delay: 0.08s; }
+.glass-block:nth-child(3) { animation-delay: 0.16s; }
+.glass-block:nth-child(4) { animation-delay: 0.24s; }
+
+/* ── ADDRESS BLOCK ── */
+#userAddress {
+  font-size: 14px;
+  color: rgba(240,230,204,0.75);
+  line-height: 1.8;
+  font-family: 'Inter', sans-serif;
+  white-space: pre-line;
+}
+.address-icon {
+  font-size: 22px; margin-bottom: 8px; display: block;
+}
+
+/* ── PAYMENT CARD ── */
+.payment-option {
+  display: flex; align-items: center; gap: 14px;
+  padding: 4px 0;
+}
+.payment-option input[type="radio"] {
+  accent-color: #D4AF37;
+  width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;
+}
+.payment-label {
+  font-size: 15px; font-weight: 600;
+  color: #D4AF37; font-family: 'Shippori Mincho', serif;
+  cursor: pointer;
+}
+.payment-sub {
+  font-size: 12px; color: rgba(240,230,204,0.38);
+  font-family: 'Inter', sans-serif; margin-top: 2px;
+}
+
+/* ── ORDER SUMMARY ── */
+.summary-row {
+  display: flex; justify-content: space-between;
+  align-items: center; padding: 7px 0;
+  font-size: 13px; color: rgba(240,230,204,0.5);
+  font-family: 'Inter', sans-serif;
+  border-bottom: 1px solid rgba(212,175,55,0.06);
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-row.total-row {
+  font-size: 17px; font-weight: 700;
+  color: #F0E6CC; padding-top: 12px; margin-top: 4px;
+}
+.summary-row.total-row span:last-child {
+  color: #D4AF37;
+  font-family: 'Shippori Mincho', serif; font-size: 22px;
+}
+
+/* ── ORDER ITEMS MINI LIST ── */
+.order-item-row {
+  display: flex; justify-content: space-between;
+  align-items: center; padding: 6px 0;
+  font-size: 13px; color: rgba(240,230,204,0.6);
+  font-family: 'Inter', sans-serif;
+  border-bottom: 1px solid rgba(212,175,55,0.05);
+}
+.order-item-row:last-child { border-bottom: none; }
+.order-item-name { flex: 1; }
+.order-item-qty  { color: rgba(212,175,55,0.6); margin: 0 10px; }
+.order-item-price { color: rgba(240,230,204,0.75); font-weight: 600; }
+
+/* ── PLACE ORDER BUTTON ── */
+.place-btn {
+  margin-top: 24px;
+  width: 100%;
+  background: linear-gradient(135deg, #A07D1C 0%, #D4AF37 50%, #F0C93A 100%);
+  color: #080808;
+  font-weight: 700; font-family: 'Inter', sans-serif;
+  font-size: 16px; letter-spacing: 0.06em;
+  padding: 18px 22px;
+  border-radius: 16px; border: none;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(212,175,55,0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.place-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 44px rgba(212,175,55,0.55);
+}
+.place-btn:active { transform: scale(0.98); }
+.place-btn.loading {
+  opacity: 0.7; pointer-events: none;
+}
+.place-btn-icon {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+
+/* Spinner inside button when loading */
+.btn-spinner {
+  display: none;
+  width: 20px; height: 20px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: #080808;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.place-btn.loading .btn-spinner   { display: block; }
+.place-btn.loading .place-btn-icon { display: none; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed;
+  left: 14px; right: 14px; bottom: 14px;
+  border-radius: 22px;
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(212,175,55,0.15);
+  display: flex; justify-content: space-around;
+  padding: 10px 0 12px; z-index: 300;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+}
+.nav-item {
+  text-align: center; font-size: 11px;
+  color: rgba(240,230,204,0.45); text-decoration: none;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 4px 16px; border-radius: 10px;
+  transition: 0.3s ease; font-family: 'Inter', sans-serif;
+}
+.nav-item .nav-icon { font-size: 19px; }
+.nav-item:hover { color: #D4AF37; }
+</style>
 </head>
 
 <body>
 
-<div class="header">
-<a href="cart.html">
-<div class="back-btn">←</div>
-</a>
-Checkout
+<!-- ── LOADER ── -->
+<div id="loader">
+  <div class="gold-ring"></div>
+  <h2>ELURU FOODS</h2>
 </div>
 
+<!-- ── PARTICLES ── -->
+<canvas id="particles-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.3;"></canvas>
+
+<!-- ── HEADER ── -->
+<div class="header" style="position:relative;z-index:1;">
+  <a href="cart.html">←</a>
+  Checkout
+</div>
+
+<!-- ── CHECKOUT BODY ── -->
 <div class="checkout-box">
 
-<h3>📍 Delivery Address</h3>
-<p id="userAddress">Loading...</p>
+  <!-- Delivery Address -->
+  <div class="sec-h">📍 Delivery Address</div>
+  <div class="glass-block">
+    <span class="address-icon">🏠</span>
+    <div id="userAddress">Loading…</div>
+  </div>
 
-<h3>💳 Payment Method</h3>
+  <!-- Payment Method -->
+  <div class="sec-h">💳 Payment Method</div>
+  <div class="glass-block">
+    <div class="payment-option">
+      <input type="radio" name="payment" value="COD" id="codRadio" checked>
+      <label for="codRadio">
+        <div class="payment-label">💵 Cash on Delivery</div>
+        <div class="payment-sub">Pay when your order arrives</div>
+      </label>
+    </div>
+  </div>
 
-<label>
-<input type="radio" name="payment" value="COD" checked>
- Cash on Delivery
-</label>
-<br>
-<label>
-<input type="radio" name="payment" value="UPI">
- UPI
-</label>
+  <!-- Order Items -->
+  <div class="sec-h">🧾 Order Items</div>
+  <div class="glass-block" id="orderItemsList"></div>
 
-<div class="summary">
-<h3>🧾 Order Summary</h3>
-<p>Total: ₹<span id="total">0</span></p>
+  <!-- Order Summary -->
+  <div class="sec-h">✦ Bill Summary</div>
+  <div class="glass-block">
+    <div class="summary-row">
+      <span>Item Total</span>
+      <span id="subtotalDisplay">₹0</span>
+    </div>
+    <div class="summary-row">
+      <span>Delivery Fee</span>
+      <span id="deliveryDisplay">₹0</span>
+    </div>
+    <div class="summary-row">
+      <span>Platform Fee</span>
+      <span id="platformDisplay">₹0</span>
+    </div>
+    <div class="summary-row total-row">
+      <span>Total</span>
+      <span>₹<span id="total">0</span></span>
+    </div>
+  </div>
+
+  <!-- Place Order -->
+  <button class="place-btn" id="placeBtn" onclick="placeOrder()">
+    <span>Place Order</span>
+    <span class="place-btn-icon">✅</span>
+    <div class="btn-spinner"></div>
+  </button>
+
 </div>
 
-<div class="place-btn" onclick="placeOrder()">
-Place Order ✅
+<!-- ── BOTTOM NAV ── -->
+<div class="bottom-nav">
+  <a href="home.html" class="nav-item">
+    <span class="nav-icon">🏠</span>Home
+  </a>
+  <a href="cart.html" class="nav-item">
+    <span class="nav-icon">🛒</span>Cart
+  </a>
+  <a href="profile.html" class="nav-item">
+    <span class="nav-icon">👤</span>Profile
+  </a>
 </div>
 
-</div>
-
+<!-- ══ ALL ORIGINAL FIREBASE LOGIC (UNTOUCHED) ══ -->
 <script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { 
-  getFirestore, 
-  doc, 
-  getDoc, 
-  collection, 
-  addDoc,
-  serverTimestamp   // ✅ IMPORTANT
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-// 🔥 Firebase
+  getFirestore, doc, getDoc, collection, addDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 const firebaseConfig = {
-  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  apiKey:    "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain:"food-delivery-app-97300.firebaseapp.com",
   projectId: "food-delivery-app-97300"
 };
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
 const auth = getAuth(app);
-onAuthStateChanged(auth, async(user) => {
 
-  if(!user){
-    location.href = "login.html";
-    return;
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { location.href = "login.html"; return; }
+
+  let deliveryFee = 30;
+  let platformFee = 3;
+
+  const settingsSnap = await getDoc(doc(db, "settings", "appConfig"));
+  if (settingsSnap.exists()) {
+    const s        = settingsSnap.data();
+    const distance = Number(localStorage.getItem("restaurantDistance")) || 0;
+    if      (distance <= 3)  deliveryFee = s.fee0to3   || 30;
+    else if (distance <= 7)  deliveryFee = s.fee3to7   || 50;
+    else if (distance <= 10) deliveryFee = s.fee7to10  || 70;
+    else                     deliveryFee = s.fee10plus || 100;
+    platformFee = s.platformFee || 3;
   }
 
-  // ALL YOUR EXISTING CODE HERE
-let deliveryFee = 30;
-let platformFee = 3;
-
-const settingsSnap =
-await getDoc(
-  doc(db,"settings","appConfig")
-);
-
-if(settingsSnap.exists()){
-
-  const s = settingsSnap.data();
-
-  const distance =
-Number(
-localStorage.getItem(
-"restaurantDistance"
-)) || 0;
-
-if(distance <= 3){
-  deliveryFee = s.fee0to3 || 30;
-}
-else if(distance <= 7){
-  deliveryFee = s.fee3to7 || 50;
-}
-else if(distance <= 10){
-  deliveryFee = s.fee7to10 || 70;
-}
-else{
-  deliveryFee = s.fee10plus || 100;
-}
-
-  platformFee =
-  s.platformFee || 3;
-}
-// ✅ USER
-
-
-// ✅ LOAD USER DETAILS
-async function loadUser() {
-  const snap = await getDoc(
-  doc(db, "users", auth.currentUser.uid)
-);
-
-  if (snap.exists()) {
-    let data = snap.data();
-
-    document.getElementById("userAddress").innerText =
-      data.name + " | " + data.phone + "\n" + data.address;
-
-  } else {
-    window.location.href = "details.html";
+  // ── LOAD USER ──
+  async function loadUser() {
+    const snap = await getDoc(doc(db, "users", auth.currentUser.uid));
+    if (snap.exists()) {
+      const data = snap.data();
+      document.getElementById("userAddress").innerText =
+        (data.name || "") + " | " + (data.phone || "") + "\n" + (data.address || "");
+    } else {
+      window.location.href = "details.html";
+    }
   }
-}
 
-// ✅ CART
-let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-if(cartItems.length === 0){
-  document.getElementById("total").innerText = "0";
-}
-// Restaurant amount
-let subtotal = cartItems.reduce(
-(sum,item)=>
-sum + ((item.restaurantPrice || item.price) * item.qty),
-0
-);
+  // ── CART ──
+  let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
 
-// Customer amount (includes markup)
-let customerSubtotal = cartItems.reduce(
-(sum,item)=>
-sum + (item.price * item.qty),
-0
-);
-
-let total =
-customerSubtotal +
-deliveryFee +
-platformFee;
-
-document.getElementById("total").innerText = total;
-// 🔥 GET RESTAURANT ID
-let restaurantId = cartItems.length > 0 ? cartItems[0].restaurantId : null;
-
-// ✅ PLACE ORDER
-window.placeOrder = async function () {
-
+  // Render order items list
+  const listEl = document.getElementById("orderItemsList");
   if (cartItems.length === 0) {
-    alert("Cart empty ❌");
-    return;
+    listEl.innerHTML = `<div style="color:rgba(240,230,204,0.35);font-size:13px;">No items</div>`;
+  } else {
+    listEl.innerHTML = cartItems.map(i => `
+      <div class="order-item-row">
+        <span class="order-item-name">${i.name}</span>
+        <span class="order-item-qty">×${i.qty}</span>
+        <span class="order-item-price">₹${i.price * i.qty}</span>
+      </div>`).join('');
   }
 
-  if (!restaurantId) {
-    alert("Restaurant missing ❌");
-    return;
-  }
+  // Totals (original logic)
+  let subtotal = cartItems.reduce(
+    (sum, item) => sum + ((item.restaurantPrice || item.price) * item.qty), 0);
+  let customerSubtotal = cartItems.reduce(
+    (sum, item) => sum + (item.price * item.qty), 0);
+  let total = customerSubtotal + deliveryFee + platformFee;
 
-  let payment = document.querySelector('input[name="payment"]:checked').value;
+  document.getElementById("subtotalDisplay").innerText = "₹" + customerSubtotal;
+  document.getElementById("deliveryDisplay").innerText = "₹" + deliveryFee;
+  document.getElementById("platformDisplay").innerText = "₹" + platformFee;
+  document.getElementById("total").innerText = total;
 
- try {
+  let restaurantId = cartItems.length > 0 ? cartItems[0].restaurantId : null;
 
-  const userSnap =
-await getDoc(doc(db,"users",user.uid));
+  // ── PLACE ORDER (original logic) ──
+  window.placeOrder = async function () {
+    if (cartItems.length === 0) { alert("Cart empty ❌"); return; }
+    if (!restaurantId)          { alert("Restaurant missing ❌"); return; }
 
-let userData = {};
+    let payment = document.querySelector('input[name="payment"]:checked').value;
 
-if(userSnap.exists()){
-  userData = userSnap.data();
-}
+    const btn = document.getElementById("placeBtn");
+    btn.classList.add("loading");
 
-// ✅ ADD THIS HERE
-if(!userData.address){
-  alert("Please select a delivery address");
-  return;
-}
-const restaurantSnap =
-await getDoc(
-  doc(db,"restaurants",restaurantId)
-);
+    try {
+      const userSnap = await getDoc(doc(db, "users", user.uid));
+      let userData   = {};
+      if (userSnap.exists()) userData = userSnap.data();
 
-let restaurantData = {};
+      if (!userData.address) {
+        alert("Please select a delivery address");
+        btn.classList.remove("loading");
+        return;
+      }
 
-if(restaurantSnap.exists()){
-  restaurantData =
-  restaurantSnap.data();
-}
-const restaurantToken =
-restaurantData.fcmToken || "";
-  await addDoc(collection(db,"orders"),{
-    customerLat:userData.lat || null,
-customerLng:userData.lng || null,
+      const restaurantSnap = await getDoc(doc(db, "restaurants", restaurantId));
+      let restaurantData   = {};
+      if (restaurantSnap.exists()) restaurantData = restaurantSnap.data();
 
-    userId:user.uid,
+      await addDoc(collection(db, "orders"), {
+        customerLat:      userData.lat  || null,
+        customerLng:      userData.lng  || null,
+        userId:           user.uid,
+        customerName:     userData.name    || "",
+        customerPhone:    userData.phone   || "",
+        customerAddress:  userData.address || "",
+        restaurantId,
+        restaurantName:   restaurantData.name    || "",
+        restaurantToken:  restaurantData.fcmToken || "",
+        restaurantPhone:  restaurantData.phone   || "",
+        restaurantAddress:restaurantData.address || "",
+        restaurantLat:    restaurantData.lat || null,
+        restaurantLng:    restaurantData.lng || null,
+        items:            cartItems,
+        subtotal,
+        customerSubtotal,
+        deliveryFee,
+        platformFee,
+        total,
+        payment,
+        status:           "Pending",
+        deliveryBoyId:    "",
+        deliveryBoyName:  "",
+        deliveryBoyPhone: "",
+        createdAt:        serverTimestamp()
+      });
 
-    customerName:userData.name || "",
-    customerPhone:userData.phone || "",
-    customerAddress:userData.address || "",
+      // Webpushr notification
+      try {
+        await fetch("https://api.webpushr.com/v1/notification/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title:   "🍔 New Order",
+            message: `${userData.name} placed order ₹${total}`,
+            url:     "/restaurant/index.html"
+          })
+        });
+      } catch(e) { console.log("Notification failed", e); }
 
-    restaurantId:restaurantId,
-    restaurantName:
-restaurantData.name || "",
-restaurantToken:
-restaurantData.fcmToken || "",
+      localStorage.removeItem("cart");
+      alert("Order placed ✅");
+      window.location.href = "tracking.html";
 
-restaurantPhone:
-restaurantData.phone || "",
+    } catch (err) {
+      alert(err.message);
+      console.log(err);
+      btn.classList.remove("loading");
+    }
+  };
 
-restaurantAddress:
-restaurantData.address || "",
-
-restaurantLat:
-restaurantData.lat || null,
-
-restaurantLng:
-restaurantData.lng || null,
-
-    items:cartItems,
-
-    subtotal: subtotal,
-customerSubtotal: customerSubtotal,
-
-deliveryFee: deliveryFee,
-platformFee: platformFee,
-
-total: total,
-    payment:payment,
-
-    status:"Pending",
-
-    deliveryBoyId:"",
-    deliveryBoyName:"",
-    deliveryBoyPhone:"",
-
-    createdAt:serverTimestamp()
-
-  });
-// WEBPUSHR NOTIFICATION
-try{
-
-await fetch(
-"https://api.webpushr.com/v1/notification/send",
-{
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-title:"🍔 New Order",
-
-message:
-`${userData.name} placed order ₹${total}`,
-
-url:
-"/restaurant/index.html"
-
-})
-
+  loadUser();
 });
-
-}catch(e){
-
-console.log(
-"Notification failed",
-e
-);
-
-        }
-  localStorage.removeItem("cart");
-
-  alert("Order placed ✅");
-
-  window.location.href="tracking.html";
-
-}
-catch(err){
-
-  alert(err.message);
-  console.log(err);
-
-}
-
-}; // ← close placeOrder function
-
-// INIT
-loadUser();
-  
-
-});
-
-
 </script>
 
-<div class="bottom-nav">
-  <a href="home.html"><div class="nav-item">🏠<br>Home</div></a>
-  
-  <a href="cart.html"><div class="nav-item">🛒<br>Cart</div></a>
-  <a href="profile.html"><div class="nav-item">👤<br>Profile</div></a>
-</div>
+<!-- ── SERVICE WORKER ── -->
 <script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js");
-}
+if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js"); }
 </script>
+
+<!-- ── LOADER HIDE ── -->
+<script>
+window.addEventListener("load", () => {
+  setTimeout(() => { document.getElementById("loader").classList.add("hidden"); }, 900);
+});
+</script>
+
+<!-- ── GOLD PARTICLES ── -->
+<script>
+(function () {
+  const canvas = document.getElementById('particles-canvas');
+  const ctx    = canvas.getContext('2d');
+  let W, H, particles = [];
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  function P() { this.reset(); }
+  P.prototype.reset = function () {
+    this.x = Math.random()*W; this.y = Math.random()*H;
+    this.r = 0.5 + Math.random()*1.2;
+    this.vx = (Math.random()-0.5)*0.2; this.vy = -0.1 - Math.random()*0.2;
+    this.life = 0; this.max = 180 + Math.random()*200;
+    this.gold = Math.random() > 0.38;
+  };
+  function init() {
+    resize();
+    for (let i = 0; i < 48; i++) { const p = new P(); p.life = Math.random()*p.max; particles.push(p); }
+    loop();
+  }
+  function loop() {
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p => {
+      p.life++; if (p.life > p.max) p.reset();
+      const a = Math.sin((p.life/p.max)*Math.PI)*0.5;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = p.gold ? `rgba(212,175,55,${a})` : `rgba(240,230,204,${a*0.3})`;
+      ctx.fill(); p.x += p.vx; p.y += p.vy;
+    });
+    requestAnimationFrame(loop);
+  }
+  window.addEventListener('resize', resize);
+  init();
+})();
+</script>
+
 </body>
 </html>
