@@ -1,3 +1,6 @@
+// ── DELIVERY sw.js — Webpushr ──
+importScripts("https://cdn.webpushr.com/sw.min.js");
+
 const CACHE_NAME = "delivery-v1";
 
 const FILES = [

@@ -12,7 +12,7 @@
 /* ── PAGE ENTRY ── */
 body {
   opacity: 0;
-  animation: page-fade-in 0.6s cubic-bezier(0.4,0,0.2,1) 0.1s forwards;
+  animation: page-fade-in 0.3s ease forwards;
   padding-bottom: 200px;
 }
 @keyframes page-fade-in {
@@ -151,39 +151,25 @@ body {
   margin: 10px 14px;
   padding: 14px;
   border-radius: 18px;
-  background: rgba(20,20,20,0.65);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: #161410;
   border: 1px solid rgba(212,175,55,0.16);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
   position: relative;
   overflow: hidden;
-  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1),
-              box-shadow 0.35s ease,
-              border-color 0.35s ease;
+  transition: transform 0.22s ease, border-color 0.22s ease;
   gap: 14px;
-  /* stagger set by JS */
-  opacity: 0;
-  animation: card-rise 0.4s ease forwards;
+  will-change: transform;
+  contain: layout style;
 }
 @keyframes card-rise {
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-.food-card { transform: translateY(14px); }
 
-/* Inner shimmer line */
-.food-card::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
-}
+/* shimmer removed for scroll perf */
 .food-card:hover {
-  transform: translateY(-4px) scale(1.01);
-  border-color: rgba(212,175,55,0.38);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.5),
-              0 0 28px rgba(212,175,55,0.12);
+  transform: translateY(-3px);
+  border-color: rgba(212,175,55,0.36);
 }
 
 /* Food image */
@@ -195,12 +181,10 @@ body {
   flex-shrink: 0;
   border: 1px solid rgba(212,175,55,0.15);
   box-shadow: 0 0 18px rgba(212,175,55,0.12);
-  transition: transform 0.4s ease, filter 0.4s ease;
-  filter: brightness(0.88) saturate(0.9);
+  transition: transform 0.25s ease;
 }
 .food-card:hover .food-image {
-  transform: scale(1.07);
-  filter: brightness(1) saturate(1.05);
+  transform: scale(1.05);
 }
 
 /* Food info */
@@ -544,6 +528,7 @@ onAuthStateChanged(auth, async (user) => {
   };
 
   // ── LOAD MENU (original logic + Kintsugi render) ──
+  let firstMenuLoad = true;
   async function loadMenu() {
     const q        = query(collection(db, "menu"), where("restaurantId","==",restaurantId), limit(MENU_LIMIT));
     const snapshot = await getDocs(q);
@@ -573,8 +558,10 @@ onAuthStateChanged(auth, async (user) => {
              + Add
            </button>`;
 
+      const animClass = firstMenuLoad ? 'animate-in' : '';
+      const animDelay = firstMenuLoad ? `animation-delay:${count * 0.04}s` : '';
       html += `
-        <div class="food-card" style="animation-delay:${count * 0.06}s">
+        <div class="food-card ${animClass}" style="${animDelay}">
           <img class="food-image" loading="lazy"
                src="${imgSrc}" alt="${food.name}">
           <div class="food-info">
@@ -594,6 +581,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 
     container.innerHTML = html;
+    firstMenuLoad = false;
     document.getElementById("menuCount").textContent = count > 0 ? count + " items" : "";
     document.getElementById("loadMore").style.display = snapshot.size >= MENU_LIMIT ? "block" : "none";
     updateCartCount();
@@ -633,6 +621,11 @@ window.goBack = function (e) {
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js");
 }
+// Reset fog on every load — prevents stuck fog on back navigation
+(function(){
+  const f = document.getElementById('menuFog');
+  if(f){ f.classList.remove('show'); f.innerHTML=''; f.style.opacity='0'; }
+})();
 </script>
 
 <!-- ── GOLD PARTICLES ── -->
@@ -640,35 +633,41 @@ if ("serviceWorker" in navigator) {
 (function () {
   const canvas = document.getElementById('particles-canvas');
   const ctx    = canvas.getContext('2d');
-  let W, H, particles = [];
+  let W, H, particles = [], last = 0;
+  const FPS = 20, INTERVAL = 1000 / FPS;  // throttle to 20fps
 
   function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
 
   function P() { this.reset(); }
   P.prototype.reset = function () {
     this.x = Math.random()*W; this.y = Math.random()*H;
-    this.r = 0.5 + Math.random()*1.2;
-    this.vx = (Math.random()-0.5)*0.22; this.vy = -0.12 - Math.random()*0.22;
-    this.life = 0; this.max = 180 + Math.random()*200;
-    this.gold = Math.random() > 0.38;
+    this.r = 0.7 + Math.random()*1.1;
+    this.vx = (Math.random()-0.5)*0.18; this.vy = -0.1 - Math.random()*0.18;
+    this.life = 0; this.max = 220 + Math.random()*180;
+    this.gold = Math.random() > 0.35;
   };
+
+  // Pause when tab hidden — saves CPU
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) last = 0; });
 
   function init() {
     resize();
-    for (let i = 0; i < 50; i++) { const p = new P(); p.life = Math.random()*p.max; particles.push(p); }
-    loop();
+    for (let i = 0; i < 28; i++) { const p = new P(); p.life = Math.random()*p.max; particles.push(p); }
+    requestAnimationFrame(loop);
   }
 
-  function loop() {
+  function loop(ts) {
+    requestAnimationFrame(loop);
+    if (ts - last < INTERVAL) return;  // skip frames
+    last = ts;
     ctx.clearRect(0,0,W,H);
     particles.forEach(p => {
       p.life++; if (p.life > p.max) p.reset();
-      const a = Math.sin((p.life/p.max)*Math.PI)*0.55;
+      const a = Math.sin((p.life/p.max)*Math.PI)*0.5;
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fillStyle = p.gold ? `rgba(212,175,55,${a})` : `rgba(240,230,204,${a*0.3})`;
+      ctx.fillStyle = p.gold ? `rgba(212,175,55,${a})` : `rgba(240,230,204,${a*0.25})`;
       ctx.fill(); p.x += p.vx; p.y += p.vy;
     });
-    requestAnimationFrame(loop);
   }
 
   window.addEventListener('resize', resize);

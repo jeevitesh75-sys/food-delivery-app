@@ -457,18 +457,54 @@ onAuthStateChanged(auth, async (user) => {
         createdAt:        serverTimestamp()
       });
 
-      // Webpushr notification
+      // ── NOTIFY RESTAURANT via Webpushr ──
       try {
-        await fetch("https://api.webpushr.com/v1/notification/send", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title:   "🍔 New Order",
-            message: `${userData.name} placed order ₹${total}`,
-            url:     "/restaurant/index.html"
-          })
-        });
-      } catch(e) { console.log("Notification failed", e); }
+        // Get restaurant's Webpushr subscriber ID from Firestore
+        const restSnap2 = await getDoc(doc(db, "restaurants", restaurantId));
+        const restData2 = restSnap2.exists() ? restSnap2.data() : {};
+        const restSubId = restData2.webpushrSubId || null;
+
+        // Build item summary
+        const itemSummary = cartItems
+          .map(i => `${i.name} x${i.qty}`)
+          .join(", ");
+
+        if (restSubId) {
+          // Send to specific restaurant subscriber
+          await fetch("https://api.webpushr.com/v1/notification/send/sid", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "webpushrKey":  "0dda84e7a8c1a7a0c5f6b9d2e3f4a5b6",
+              "webpushrAuthToken": "YOUR_WEBPUSHR_AUTH_TOKEN"
+            },
+            body: JSON.stringify({
+              title:   "🍔 New Order Received!",
+              message: `${userData.name} • ₹${total} • ${itemSummary}`,
+              url:     "/restaurant/Dashboard.html",
+              sid:     restSubId,
+              auto_hide: 0
+            })
+          });
+        } else {
+          // Fallback: broadcast to restaurant interest channel
+          await fetch("https://api.webpushr.com/v1/notification/send/segment", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "webpushrKey":  "0dda84e7a8c1a7a0c5f6b9d2e3f4a5b6",
+              "webpushrAuthToken": "YOUR_WEBPUSHR_AUTH_TOKEN"
+            },
+            body: JSON.stringify({
+              title:    "🍔 New Order Received!",
+              message:  `${userData.name} • ₹${total} • ${itemSummary}`,
+              url:      "/restaurant/Dashboard.html",
+              segment:  `restaurant_${restaurantId}`,
+              auto_hide: 0
+            })
+          });
+        }
+      } catch(e) { console.log("Restaurant notification failed", e); }
 
       localStorage.removeItem("cart");
       alert("Order placed ✅");

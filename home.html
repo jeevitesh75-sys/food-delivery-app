@@ -117,19 +117,15 @@
   position: fixed;
   inset: 0;
   z-index: 7000;
-  pointer-events: none;
+  pointer-events: none !important; /* never block clicks — only visual */
   opacity: 0;
   background: radial-gradient(ellipse at center, rgba(212,175,55,0.08) 0%, rgba(8,8,8,0.95) 70%);
-  transition: opacity 0.5s ease;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  transition: opacity 0.4s ease;
   overflow: hidden;
+  will-change: opacity;
 }
-
 #fog.show {
   opacity: 1;
-  pointer-events: all;
 }
 
 /* Fog steam particles inside #fog */
@@ -292,14 +288,14 @@
 }
 
 /* Card stagger animation */
-.card {
-  opacity: 0;
-  transform: translateY(18px);
-  animation: card-appear 0.45s ease forwards;
-}
-
 @keyframes card-appear {
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card {
+  animation: card-appear 0.35s ease both;
+  will-change: transform;
+  contain: layout style;
 }
 
 /* Card fog particles container */
@@ -576,7 +572,15 @@ onAuthStateChanged(auth, async (user) => {
     spawnFogParticles(fogEl);
     fogEl.classList.add('show');
 
-    setTimeout(() => { window.location.href = "restaurant.html"; }, 750);
+    setTimeout(() => {
+      window.location.href = "restaurant.html";
+    }, 600);
+
+    // Clean up fog after nav so back-button won't see it stuck
+    setTimeout(() => {
+      fogEl.classList.remove('show');
+      fogEl.innerHTML = '';
+    }, 700);
   };
 
   // Spawn steam particles inside fog overlay
@@ -627,21 +631,39 @@ if ("serviceWorker" in navigator) {
 <!-- ══ PUSH NOTIFICATIONS ══ -->
 <script src="https://js.pusher.com/beams/2.1.0/push-notifications-cdn.js"></script>
 <script>
-const beamsClient = new PusherPushNotifications.Client({
-  instanceId: '849b1c52-d900-4b1b-906f-90339c5a4509'
+window.addEventListener('load', () => {
+  try {
+    if (typeof PusherPushNotifications === 'undefined') return;
+    const beamsClient = new PusherPushNotifications.Client({
+      instanceId: '849b1c52-d900-4b1b-906f-90339c5a4509'
+    });
+    beamsClient.start()
+      .then(() => beamsClient.addDeviceInterest('hello'))
+      .then(() => console.log('Push registered!'))
+      .catch(e => console.log('Push error:', e));
+  } catch(e) {
+    console.log('Pusher not available:', e);
+  }
 });
-beamsClient.start()
-  .then(() => beamsClient.addDeviceInterest('hello'))
-  .then(() => console.log('Successfully registered!'))
-  .catch(console.error);
 </script>
 
 <!-- ══ LOADER HIDE + PARTICLES ══ -->
 <script>
+// FIX: Always reset fog on page load (clears stuck fog from back navigation)
+(function() {
+  const fog = document.getElementById('fog');
+  if (fog) {
+    fog.classList.remove('show');
+    fog.innerHTML = '';
+    fog.style.opacity = '0';
+    fog.style.pointerEvents = 'none';
+  }
+})();
+
 window.addEventListener("load", () => {
   setTimeout(() => {
     document.getElementById("loader").classList.add("hidden");
-  }, 1400);
+  }, 900);
 });
 
 // ── Floating gold dust particles ──

@@ -1,4 +1,6 @@
-importScripts("https://js.pusher.com/beams/service-worker.js");
+// ── CUSTOMER sw.js — Webpushr ──
+importScripts("https://cdn.webpushr.com/sw.min.js");
+
 
 const CACHE_NAME = "eluru-foods-v1";
 

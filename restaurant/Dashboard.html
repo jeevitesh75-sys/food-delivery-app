@@ -13,7 +13,6 @@ body {
   margin:0;
   padding-bottom:80px;
 }
-
 .header {
   background:#ff4d4d;
   color:white;
@@ -21,28 +20,26 @@ body {
   text-align:center;
   font-size:18px;
   font-weight:bold;
+  position:sticky;
+  top:0;
+  z-index:100;
 }
-
-.container {
-  max-width:700px;
-  margin:auto;
-}
-
+.container { max-width:700px; margin:auto; }
 .card {
   background:white;
   margin:10px;
   padding:15px;
   border-radius:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
-
 input {
   width:100%;
   padding:10px;
   margin:8px 0;
   border-radius:8px;
   border:1px solid #ccc;
+  box-sizing:border-box;
 }
-
 button {
   padding:8px 12px;
   border:none;
@@ -50,41 +47,37 @@ button {
   color:white;
   margin:4px;
   cursor:pointer;
+  font-size:13px;
 }
-
-.green { background:#28a745; }
-.red { background:#dc3545; }
+.green  { background:#28a745; }
+.red    { background:#dc3545; }
 .orange { background:#ff9800; }
+.blue   { background:#007bff; }
 
 .food-item {
   display:flex;
   align-items:center;
   justify-content:space-between;
   margin:10px 0;
+  padding:8px 0;
+  border-bottom:1px solid #f0f0f0;
 }
-
-.food-left {
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.food-img {
-  width:50px;
-  height:50px;
-  border-radius:8px;
-  object-fit:cover;
-}
+.food-left { display:flex; align-items:center; gap:10px; }
+.food-img { width:50px; height:50px; border-radius:8px; object-fit:cover; }
 
 .order-box {
   border-bottom:1px solid #eee;
-  padding:10px 0;
+  padding:12px 0;
+  animation: order-pop 0.4s ease;
+}
+@keyframes order-pop {
+  from { opacity:0; transform:translateY(-8px); }
+  to   { opacity:1; transform:translateY(0); }
 }
 
 .bottom-nav {
   position:fixed;
-  bottom:0;
-  left:0;
+  bottom:0; left:0;
   width:100%;
   background:white;
   display:flex;
@@ -92,11 +85,7 @@ button {
   padding:10px 0;
   border-top:1px solid #ccc;
 }
-
-.nav-item {
-  text-align:center;
-  cursor:pointer;
-}
+.nav-item { text-align:center; cursor:pointer; font-size:14px; }
 
 .earn-box {
   display:flex;
@@ -104,673 +93,550 @@ button {
   align-items:center;
   margin:8px 0;
 }
-/* FOOD BOX SCROLL */
+.food-scroll {
+  max-height:420px;
+  overflow-y:auto;
+  padding-right:6px;
+}
+.food-scroll::-webkit-scrollbar { width:6px; }
+.food-scroll::-webkit-scrollbar-thumb { background:#ff4d4d; border-radius:10px; }
+.food-scroll::-webkit-scrollbar-track { background:#eee; }
 
-.food-scroll{
-
-max-height:420px;
-
-overflow-y:auto;
-
-padding-right:6px;
-
+/* NOTIFICATION BANNER */
+#notif-banner {
+  display:none;
+  position:fixed;
+  top:60px; left:10px; right:10px;
+  background:#28a745;
+  color:white;
+  padding:14px 18px;
+  border-radius:12px;
+  font-size:15px;
+  font-weight:bold;
+  z-index:9999;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);
+  animation: slide-in 0.4s ease;
+  cursor:pointer;
+}
+@keyframes slide-in {
+  from { transform:translateY(-20px); opacity:0; }
+  to   { transform:translateY(0);     opacity:1; }
 }
 
-.food-scroll::-webkit-scrollbar{
-
-width:6px;
-
+/* PERMISSION PROMPT */
+#notif-prompt {
+  background:#fff3cd;
+  border:1px solid #ffc107;
+  border-radius:10px;
+  padding:12px 16px;
+  margin:10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
 }
+#notif-prompt p { margin:0; font-size:13px; }
 
-.food-scroll::-webkit-scrollbar-thumb{
-
-background:#ff4d4d;
-
-border-radius:10px;
-
+/* STATUS BADGES */
+.status-badge {
+  display:inline-block;
+  padding:3px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
 }
+.status-pending   { background:#fff3cd; color:#856404; }
+.status-accepted  { background:#cce5ff; color:#004085; }
+.status-ready     { background:#d1e7dd; color:#0a3622; }
+.status-rejected  { background:#f8d7da; color:#842029; }
+.status-out-for-delivery { background:#e2d9f3; color:#4a235a; }
 
-.food-scroll::-webkit-scrollbar-track{
-
-background:#eee;
-
+/* EDIT MODAL */
+#editModal {
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,.5);
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
 }
 </style>
-
 </head>
-
 <body>
 
-<div class="header">Restaurant Dashboard</div>
+<!-- NOTIFICATION BANNER -->
+<div id="notif-banner" onclick="document.getElementById('notif-banner').style.display='none'">
+  🔔 <span id="notif-text">New order received!</span>
+</div>
+
+<div class="header">
+  🍴 Dashboard
+  <span id="order-badge" style="display:none;background:white;color:red;border-radius:50%;padding:2px 7px;font-size:12px;margin-left:6px;vertical-align:middle;"></span>
+</div>
 
 <div class="container">
 
-<!-- ADD FOOD -->
-<div class="card">
-<h3>Add Food</h3>
-<input id="fname" placeholder="Food name">
-<input id="price" placeholder="Price">
-<input id="img" placeholder="Image URL">
-<button class="green" onclick="addFood()">Add Food</button>
-</div>
+  <!-- NOTIFICATION PERMISSION PROMPT -->
+  <div id="notif-prompt">
+    <p>🔔 Enable notifications to get new order alerts even when app is closed!</p>
+    <button class="green" onclick="enableNotifications()">Enable</button>
+  </div>
 
-<!-- FOODS -->
-<div class="card">
-  <h3>Your Foods</h3>
+  <!-- ADD FOOD -->
+  <div class="card">
+    <h3>Add Food</h3>
+    <input id="fname"  placeholder="Food name">
+    <input id="price"  placeholder="Price">
+    <input id="img"    placeholder="Image URL">
+    <button class="green" onclick="addFood()">Add Food</button>
+  </div>
 
-  <input
-    id="searchFood"
-    placeholder="Search food..."
-    onkeyup="filterFoods()">
-<div id="foodList" class="food-scroll"></div>
+  <!-- FOODS -->
+  <div class="card">
+    <h3>Your Foods</h3>
+    <input id="searchFood" placeholder="Search food..." onkeyup="filterFoods()">
+    <div id="foodList" class="food-scroll"></div>
+  </div>
 
-</div>
+  <!-- ORDERS -->
+  <div class="card">
+    <h3>
+      Your Orders
+      <span id="order-badge2" style="background:red;color:white;border-radius:50%;padding:2px 8px;font-size:12px;display:none;margin-left:6px;"></span>
+    </h3>
+    <div id="orders"></div>
+  </div>
 
-<!-- ORDERS -->
-<div class="card">
-<h3>Your Orders</h3>
-<div id="orders"></div>
-</div>
-
-<!-- EARNINGS -->
-<div class="card">
-<h3>Earnings</h3>
-
-<div class="earn-box">
-  <div>Today: ₹<span id="todayEarn">0</span></div>
-  <button class="red" onclick="resetToday()">Reset</button>
-</div>
-
-<div class="earn-box">
-  <div>Total: ₹<span id="totalEarn">0</span></div>
-  <button class="red" onclick="resetTotal()">Reset</button>
-</div>
-
-</div>
+  <!-- EARNINGS -->
+  <div class="card">
+    <h3>Earnings</h3>
+    <div class="earn-box">
+      <div>Today: ₹<span id="todayEarn">0</span></div>
+      <button class="red" onclick="resetToday()">Reset</button>
+    </div>
+    <div class="earn-box">
+      <div>Total: ₹<span id="totalEarn">0</span></div>
+      <button class="red" onclick="resetTotal()">Reset</button>
+    </div>
+  </div>
 
 </div>
 
 <!-- NAV -->
 <div class="bottom-nav">
-  <div class="nav-item" onclick="goProfile()">👤 Profile</div>
+  <div class="nav-item" onclick="location.href='Profile.html'">👤 Profile</div>
+</div>
+
+<!-- EDIT MODAL -->
+<div id="editModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);justify-content:center;align-items:center;z-index:9999;">
+  <div style="background:white;padding:20px;border-radius:12px;width:90%;max-width:400px;">
+    <h3>Edit Food</h3>
+    <input id="editName"  placeholder="Food Name">
+    <input id="editPrice" placeholder="Price">
+    <input id="editImage" placeholder="Image URL">
+    <button class="green" onclick="saveFood()">Save</button>
+    <button class="red"   onclick="closeEdit()">Cancel</button>
+  </div>
 </div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore,
-  collection,
-  addDoc,
-  query,
-  where,
-  onSnapshot,
-  deleteDoc,
-  doc,
-  updateDoc,
-  getDocs,
-  getDoc
+  getFirestore, collection, addDoc, query, where,
+  onSnapshot, deleteDoc, doc, updateDoc, getDocs, getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-// FIREBASE
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 const app = initializeApp({
-  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  apiKey:    "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain:"food-delivery-app-97300.firebaseapp.com",
   projectId: "food-delivery-app-97300"
 });
-
-const db = getFirestore(app);
+const db   = getFirestore(app);
 const auth = getAuth(app);
-onAuthStateChanged(auth, (user) => {
 
-if(!user){
-  location.href = "login.html";
-  return;
-}
+// ── WEBPUSHR KEYS ──
+const WEBPUSHR_KEY   = "BM2b-wTIlQyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI";
+const WEBPUSHR_TOKEN = "YOUR_WEBPUSHR_AUTH_TOKEN"; // 🔴 REPLACE THIS in Webpushr dashboard
 
-let restaurantId = user.uid;
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { location.href = "login.html"; return; }
 
+  const restaurantId  = user.uid;
+  const restaurantRef = doc(db, "restaurants", restaurantId);
 
-const restaurantRef =
-doc(db,"restaurants",restaurantId);
-
-onSnapshot(
-  restaurantRef,
-  (snap)=>{
-
-    if(!snap.exists()) return;
-
-    const data = snap.data();
-
-    document.getElementById("todayEarn").innerText =
-    data.todayEarn || 0;
-
-    document.getElementById("totalEarn").innerText =
-    data.totalEarn || 0;
-
-  }
-);
-// ✅ LOAD EARNINGS FROM STORAGE (IMPORTANT)
-
-
-// INPUTS
-let fname = document.getElementById("fname");
-let priceInput = document.getElementById("price");
-let img = document.getElementById("img");
-
-// ADD FOOD
-
-window.addFood = async ()=>{
-  let name = fname.value;
-  let price = priceInput.value;
-  let image = img.value;
-
-  if(!name || !price){
-    alert("Fill details");
-    return;
-  }
-
-  await addDoc(collection(db,"menu"),{
-  name,
-  price:Number(price),
-  image,
-  restaurantId,
-  enabled:true
-});
-
-  fname.value="";
-  priceInput.value="";
-  img.value="";
-};
-
-// FOOD LIST
-let allFoods = [];
-
-onSnapshot(
-query(collection(db,"menu"),
-where("restaurantId","==",restaurantId)),
-snap=>{
-
-  allFoods = [];
-
-  snap.forEach(d=>{
-    allFoods.push({
-      id:d.id,
-      ...d.data()
-    });
+  // ── EARNINGS ──
+  onSnapshot(restaurantRef, (snap) => {
+    if (!snap.exists()) return;
+    const d = snap.data();
+    document.getElementById("todayEarn").innerText = d.todayEarn || 0;
+    document.getElementById("totalEarn").innerText = d.totalEarn || 0;
   });
 
-  renderFoods(allFoods);
-});
+  // ══════════════════════════════════════════════════════════
+  // ENABLE NOTIFICATIONS
+  // Registers service worker + requests push permission
+  // So popup shows even when browser/app is closed
+  // ══════════════════════════════════════════════════════════
+  window.enableNotifications = async () => {
+    try {
+      if (!("Notification" in window)) {
+        alert("Notifications not supported on this browser/device.");
+        return;
+      }
 
-function renderFoods(list){
+      // 1. Register Service Worker (required for background push)
+      if ("serviceWorker" in navigator) {
+        await navigator.serviceWorker.register("/restaurant/sw.js", { scope: "/restaurant/" });
+        console.log("✅ Service Worker registered");
+      }
 
-  let html="";
+      // 2. Request permission
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        alert("Please allow notifications in your browser settings to get order alerts!");
+        return;
+      }
 
-  list.forEach(f=>{
+      // 3. Subscribe via Webpushr (handles VAPID push subscription)
+      if (typeof webpushr !== "undefined") {
+        webpushr("subscribe", {});
 
-    html += `
-    <div class="food-item">
+        webpushr("getAttribute", {}, async (sub) => {
+          if (sub && sub.sid) {
+            // Save subscriber ID so delivery notifications can reach this restaurant
+            await updateDoc(restaurantRef, { webpushrSubId: sub.sid });
+          }
+        });
+      }
 
-      <div class="food-left">
-        <img
-        class="food-img"
-        src="${f.image || 'https://via.placeholder.com/50'}">
+      document.getElementById("notif-prompt").style.display = "none";
+      showBanner("✅ Notifications enabled! You'll get popups even when app is closed.", "green");
 
-        <div>
-          <b>${f.name}</b><br>
-          ₹${f.price}<br>
+    } catch(e) {
+      console.error("Notification setup error:", e);
+    }
+  };
 
-          <small style="
-          color:${f.enabled ? 'green':'red'}">
+  // Auto-hide prompt if already granted
+  if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+    document.getElementById("notif-prompt").style.display = "none";
+    // Re-register SW silently in case it wasn't before
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/restaurant/sw.js", { scope: "/restaurant/" }).catch(() => {});
+    }
+  }
 
-          ${f.enabled ?
-          'Available' :
-          'Unavailable'}
+  // ── INPUTS ──
+  const fname      = document.getElementById("fname");
+  const priceInput = document.getElementById("price");
+  const img        = document.getElementById("img");
 
-          </small>
+  // ── ADD FOOD ──
+  window.addFood = async () => {
+    const name  = fname.value.trim();
+    const price = priceInput.value.trim();
+    const image = img.value.trim();
+    if (!name || !price) { alert("Fill food name and price!"); return; }
+    await addDoc(collection(db, "menu"), {
+      name, price: Number(price), image, restaurantId, enabled: true
+    });
+    fname.value = ""; priceInput.value = ""; img.value = "";
+  };
+
+  // ── FOOD LIST ──
+  let allFoods = [];
+  onSnapshot(query(collection(db, "menu"), where("restaurantId","==",restaurantId)), snap => {
+    allFoods = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderFoods(allFoods);
+  });
+
+  function renderFoods(list) {
+    document.getElementById("foodList").innerHTML = list.map(f => `
+      <div class="food-item">
+        <div class="food-left">
+          <img class="food-img" src="${f.image || 'https://via.placeholder.com/50'}" onerror="this.src='https://via.placeholder.com/50'">
+          <div>
+            <b>${f.name}</b><br>₹${f.price}<br>
+            <small style="color:${f.enabled ? 'green':'red'}">${f.enabled ? 'Available':'Unavailable'}</small>
+          </div>
         </div>
-      </div>
+        <div>
+          <button class="${f.enabled ? 'orange':'green'}" onclick="toggleFood('${f.id}',${f.enabled})">${f.enabled ? 'Disable':'Enable'}</button>
+          <button class="green" onclick="editFood('${f.id}','${f.name}',${f.price},'${f.image||''}')">Edit</button>
+          <button class="red"   onclick="deleteFood('${f.id}')">Delete</button>
+        </div>
+      </div>`).join('');
+  }
 
-      <div>
+  window.deleteFood  = async (id) => { if(confirm("Delete this food?")) await deleteDoc(doc(db,"menu",id)); };
+  window.toggleFood  = async (id, cur) => await updateDoc(doc(db,"menu",id), { enabled: !cur });
+  window.filterFoods = () => {
+    const t = document.getElementById("searchFood").value.toLowerCase();
+    renderFoods(allFoods.filter(f => f.name.toLowerCase().includes(t)));
+  };
 
-<button
-class="${f.enabled ? 'orange':'green'}"
-onclick="toggleFood('${f.id}',${f.enabled})">
-${f.enabled ? 'Disable':'Enable'}
-</button>
-<button
-class="green"
-onclick="editFood(
-'${f.id}',
-'${f.name}',
-${f.price},
-'${f.image || ""}'
-)">
-Edit
-</button>
-
-<button
-class="red"
-onclick="deleteFood('${f.id}')">
-Delete
-</button>
-
-</div>
-        
-
-      </div>
-
-    </div>
-    `;
-  });
-
-  foodList.innerHTML = html;
-}
-
-window.deleteFood = async(id)=>{
-  await deleteDoc(doc(db,"menu",id));
-};
-
-window.toggleFood = async(id,current)=>{
-
-  await updateDoc(
-  doc(db,"menu",id),
-  {
-    enabled: !current
-  });
-
-};
- window.editFood = async(id,name,price,image)=>{
-
-  let newName =
-  prompt("Food Name", name);
-
-  if(newName === null) return;
-
-  let newPrice =
-  prompt("Price", price);
-
-  if(newPrice === null) return;
-
-  let newImage =
-  prompt("Image URL", image);
-
-  if(newImage === null) return;
-
-  await updateDoc(
-    doc(db,"menu",id),
-    {
-      name:newName,
-      price:Number(newPrice),
-      image:newImage
-    }
-  );
-
-  alert("Food Updated");
-}; 
-let editingFoodId = "";
-
-window.editFood = (
-id,
-name,
-price,
-image
-)=>{
-
-editingFoodId = id;
-
-document.getElementById(
-"editName"
-).value = name;
-
-document.getElementById(
-"editPrice"
-).value = price;
-
-document.getElementById(
-"editImage"
-).value = image || "";
-
-document.getElementById(
-"editModal"
-).style.display = "flex";
-
-};
-
-window.closeEdit = ()=>{
-
-document.getElementById(
-"editModal"
-).style.display = "none";
-
-};
-
-window.saveFood = async()=>{
-
-const name =
-document.getElementById(
-"editName"
-).value;
-
-const price =
-document.getElementById(
-"editPrice"
-).value;
-
-const image =
-document.getElementById(
-"editImage"
-).value;
-
-await updateDoc(
-doc(db,"menu",editingFoodId),
-{
-name,
-price:Number(price),
-image
-}
-);
-
-closeEdit();
-
-alert("Food Updated");
-
-};
-
-window.filterFoods = ()=>{
-
-  let text =
-  document
-  .getElementById("searchFood")
-  .value
-  .toLowerCase();
-
-  let filtered =
-  allFoods.filter(f=>
-    f.name.toLowerCase().includes(text)
-  );
-
-  renderFoods(filtered);
-};
-
-// ORDERS (NO EARNINGS CALC HERE ❌)
-onSnapshot(query(collection(db,"orders"),where("restaurantId","==",restaurantId)),snap=>{
-  let html="";
-
-  snap.forEach(d=>{
-    let o=d.data();
-    if(
-  o.status === "Rejected" ||
-  o.status === "Delivered"
-){
-  return;
-}
-
-html += `
-<div class="order-box">
-
-<b>Customer:</b> ${o.customerName || "-"}<br>
-<b>Phone:</b> ${o.customerPhone || "-"}<br>
-<b>Address:</b> ${o.customerAddress || "-"}<br><br>
-
-<b>Food Amount:</b> ₹${o.subtotal || o.total}<br>
-
-<small>
-Delivery Fee: ₹${o.deliveryFee || 0}
-<br>
-Platform Fee: ₹${o.platformFee || 0}
-</small><br>
-<b>Status:</b> ${o.status}<br>
-
-${o.deliveryBoyName ? `
-<hr>
-<b>Delivery Boy:</b> ${o.deliveryBoyName}<br>
-<b>Phone:</b> ${o.deliveryBoyPhone || "-"}<br>
-` : ""}
-
-<br>
-
-<button class="green"
-onclick="updateOrder('${d.id}','Ready')">
-Accept
-</button>
-
-<button class="red"
-onclick="rejectOrder('${d.id}')">
-Reject
-</button>
-
-
-
-
-</div>
-`;
-  });
-
-  orders.innerHTML = html;
-});
-window.updateOrder = async(id,status)=>{
-
-  if(status !== "Ready"){
-    await updateDoc(doc(db,"orders",id),{
-      status
+  let editingFoodId = "";
+  window.editFood = (id, name, price, image) => {
+    editingFoodId = id;
+    document.getElementById("editName").value  = name;
+    document.getElementById("editPrice").value = price;
+    document.getElementById("editImage").value = image || "";
+    document.getElementById("editModal").style.display = "flex";
+  };
+  window.closeEdit = () => document.getElementById("editModal").style.display = "none";
+  window.saveFood  = async () => {
+    await updateDoc(doc(db,"menu",editingFoodId), {
+      name:  document.getElementById("editName").value,
+      price: Number(document.getElementById("editPrice").value),
+      image: document.getElementById("editImage").value
     });
-    return;
-  }
+    closeEdit();
+    showBanner("✅ Food updated!", "green");
+  };
 
-  const riders = await getDocs(
-  query(
-    collection(db,"deliveryPartners"),
-    where("online","==",true)
-  )
-);
+  // ══════════════════════════════════════════════════════════
+  // ORDERS LISTENER
+  // Status flow: Pending → Accepted → Ready → Out for Delivery
+  // ══════════════════════════════════════════════════════════
+  let knownOrders  = new Set();
+  let pendingCount = 0;
 
-let nearestBoy = null;
-let minDistance = Infinity;
+  onSnapshot(
+    query(collection(db,"orders"), where("restaurantId","==",restaurantId)),
+    snap => {
+      let html = "";
+      pendingCount = 0;
 
-const orderDoc = await getDocs(
-  query(
-    collection(db,"orders")
-  )
-);
+      snap.forEach(d => {
+        const o = d.data();
+        // Hide fully done/rejected orders
+        if (o.status === "Rejected" || o.status === "Delivered") return;
 
-// get restaurant location from current order
-const orderSnap = await getDoc(doc(db,"orders",id));
-const order = orderSnap.data();
+        pendingCount++;
 
-riders.forEach(r=>{
+        // ── NEW ORDER ALERT ──
+        if (!knownOrders.has(d.id) && knownOrders.size > 0) {
+          const itemList = (o.items||[]).map(i=>`${i.name} x${i.qty}`).join(", ");
+          showBanner(`🔔 New Order! ₹${o.total} from ${o.customerName||"Customer"}`);
+          playNotifSound();
 
-  const boy = r.data();
+          // In-app / foreground notification
+          if (Notification.permission === "granted") {
+            new Notification("🍔 New Order Received!", {
+              body:    `₹${o.total} • ${itemList}`,
+              icon:    "/restaurant/icons/icon-192.png",
+              vibrate: [300,100,300],
+              tag:     "new-order-" + d.id,   // prevent duplicates
+              renotify: true
+            });
+          }
+        }
+        knownOrders.add(d.id);
 
-  if(
-    !boy.liveLat ||
-    !boy.liveLng ||
-    !order.restaurantLat ||
-    !order.restaurantLng
-  ){
-    return;
-  }
+        // Build items HTML
+        const itemsHTML = (o.items||[]).map(i=>`
+          <div style="font-size:13px;color:#555;">
+            • ${i.name} × ${i.qty} — ₹${i.price * i.qty}
+          </div>`).join('');
 
-  const distance =
-  Math.sqrt(
-    Math.pow(boy.liveLat - order.restaurantLat,2) +
-    Math.pow(boy.liveLng - order.restaurantLng,2)
-  );
+        // Status CSS class
+        const statusClass = "status-" + (o.status||"pending").toLowerCase().replace(/\s+/g,"-");
 
-  if(distance < minDistance){
-    minDistance = distance;
-    nearestBoy = {
-      id:r.id,
-      ...boy
-    };
-  }
+        // ── BUTTONS BASED ON STATUS ──
+        // Pending  → [Accept] [Reject]
+        // Accepted → [Mark Ready]   (no reject)
+        // Ready    → [Mark Out for Delivery]
+        let buttonsHTML = "";
+        if (o.status === "Pending") {
+          buttonsHTML = `
+            <button class="green" onclick="acceptOrder('${d.id}')">✅ Accept</button>
+            <button class="red"   onclick="rejectOrder('${d.id}')">❌ Reject</button>`;
+        } else if (o.status === "Accepted") {
+          buttonsHTML = `
+            <button class="blue" onclick="markReady('${d.id}')">🍽️ Mark Ready</button>`;
+        } else if (o.status === "Ready") {
+          buttonsHTML = `
+            <button class="orange" onclick="markOutForDelivery('${d.id}')">🛵 Mark Out for Delivery</button>`;
+        }
 
-});
-  
+        html += `
+          <div class="order-box" id="order_${d.id}">
+            <b>👤 ${o.customerName||"—"}</b>
+            &nbsp;<span class="status-badge ${statusClass}">${o.status}</span><br>
+            📞 ${o.customerPhone||"—"}<br>
+            📍 ${o.customerAddress||"—"}<br><br>
+            ${itemsHTML}<br>
+            <b>Food: ₹${o.subtotal||o.total}</b><br>
+            <small>Delivery: ₹${o.deliveryFee||0} &nbsp;|&nbsp; Platform: ₹${o.platformFee||0}</small><br>
+            <b style="font-size:16px;">Total: ₹${o.total}</b>
+            ${o.deliveryBoyName ? `<hr><b>🛵 ${o.deliveryBoyName}</b> — ${o.deliveryBoyPhone||""}` : ""}
+            <br><br>
+            ${buttonsHTML}
+          </div>`;
+      });
 
-  await updateDoc(
-  doc(db,"orders",id),
-  {
-    status:"Ready",
-    assignedDeliveryBoyId:""
-  }
-);
+      document.getElementById("orders").innerHTML = html || "<p style='color:#999;'>No active orders</p>";
 
-};
-
-window.rejectOrder = async(id)=>{
-
-  await updateDoc(
-    doc(db,"orders",id),
-    {
-      status:"Rejected"
+      // Update badges
+      const b1 = document.getElementById("order-badge");
+      const b2 = document.getElementById("order-badge2");
+      if (pendingCount > 0) {
+        b1.innerText = pendingCount; b1.style.display = "inline";
+        b2.innerText = pendingCount; b2.style.display = "inline";
+      } else {
+        b1.style.display = "none";
+        b2.style.display = "none";
+      }
     }
   );
 
-  setTimeout(async()=>{
-    await deleteDoc(doc(db,"orders",id));
-  },3000);
+  // ══════════════════════════════════════════════════════════
+  // ACCEPT ORDER
+  // Sets status → "Accepted"
+  // Broadcasts push to ALL delivery boys (not assigning one)
+  // ══════════════════════════════════════════════════════════
+  window.acceptOrder = async (orderId) => {
+    try {
+      const orderSnap = await getDoc(doc(db,"orders",orderId));
+      if (!orderSnap.exists()) { alert("Order not found!"); return; }
+      const order = orderSnap.data();
 
-};
+      // Set status to Accepted (no delivery boy assigned yet)
+      await updateDoc(doc(db,"orders",orderId), {
+        status: "Accepted",
+        assignedDeliveryBoyId: ""   // clear any old assignment
+      });
 
-// RESET
-window.resetToday = ()=>{
-  alert("Today's earnings are calculated from delivered orders. Reset must be done from Admin Panel.");
-};
+      // Broadcast to ALL online delivery boys via Webpushr segment
+      await broadcastToDeliveryBoys(order, orderId);
 
-window.resetTotal = ()=>{
-  alert("Lifetime earnings are calculated from delivered orders. Reset must be done from Admin Panel.");
-};
+      showBanner("✅ Order accepted! All delivery boys notified.", "green");
+    } catch(e) {
+      console.error("Accept order error:", e);
+      alert("Error: " + e.message);
+    }
+  };
 
-// PROFILE
-window.goProfile = ()=>{
-  window.location.href = "Profile.html";
-};
+  // ── BROADCAST TO ALL DELIVERY BOYS ──
+  // Uses Webpushr "delivery_partners" segment so every rider app gets the push
+  async function broadcastToDeliveryBoys(order, orderId) {
+    try {
+      const itemSummary = (order.items||[]).map(i=>`${i.name} x${i.qty}`).join(", ");
+
+      // Webpushr segment push — all riders subscribed to "delivery_partners" get this
+      const res = await fetch("https://api.webpushr.com/v1/notification/send/segment", {
+        method: "POST",
+        headers: {
+          "Content-Type":      "application/json",
+          "webpushrKey":       WEBPUSHR_KEY,
+          "webpushrAuthToken": WEBPUSHR_TOKEN
+        },
+        body: JSON.stringify({
+          title:     "🛵 New Delivery Available!",
+          message:   `${order.restaurantName||"Restaurant"} → ${order.customerAddress||"Customer"} • ₹${order.total}`,
+          url:       "/delivery/Home.html?orderId=" + orderId,
+          segment:   "delivery_partners",
+          auto_hide: 0,
+          expire_push: "1h"     // don't show after 1 hour if not seen
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        console.warn("Webpushr segment push failed:", err);
+        // Fallback: also update Firestore so delivery app can poll
+        await updateDoc(doc(db,"orders",orderId), { broadcastedAt: Date.now() });
+      }
+    } catch(e) {
+      console.warn("Broadcast error (non-critical):", e);
+      // Non-critical: the order is accepted in Firestore, delivery boys can still see it
+    }
+  }
+
+  // ── MARK READY ──
+  // Customer sees "Food Ready" in their app
+  window.markReady = async (orderId) => {
+    await updateDoc(doc(db,"orders",orderId), { status: "Ready" });
+    showBanner("🍽️ Order marked as Ready! Customer notified.", "green");
+  };
+
+  // ── MARK OUT FOR DELIVERY ──
+  window.markOutForDelivery = async (orderId) => {
+    await updateDoc(doc(db,"orders",orderId), { status: "Out for Delivery" });
+    showBanner("🛵 Order is out for delivery!", "green");
+  };
+
+  // ── REJECT ORDER ──
+  window.rejectOrder = async (orderId) => {
+    if (!confirm("Reject this order?")) return;
+    await updateDoc(doc(db,"orders",orderId), { status: "Rejected" });
+    setTimeout(async () => {
+      try { await deleteDoc(doc(db,"orders",orderId)); } catch(e) {}
+    }, 3000);
+  };
+
+  window.resetToday = () => alert("Reset earnings from Admin Panel.");
+  window.resetTotal = () => alert("Reset earnings from Admin Panel.");
+
+  // ── BANNER HELPER ──
+  window.showBanner = (msg, color="green") => {
+    const b = document.getElementById("notif-banner");
+    const colors = { green:"#28a745", orange:"#ff9800", red:"#dc3545", blue:"#007bff" };
+    b.style.background = colors[color] || "#28a745";
+    document.getElementById("notif-text").innerText = msg;
+    b.style.display = "block";
+    clearTimeout(b._timer);
+    b._timer = setTimeout(() => b.style.display = "none", 5000);
+  };
+
+  // ── SOUND: 3-beep chime ──
+  function playNotifSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [880, 660, 880].forEach((freq, i) => {
+        const osc  = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = "sine";
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.18);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.16);
+        osc.start(ctx.currentTime + i * 0.18);
+        osc.stop(ctx.currentTime + i * 0.18 + 0.17);
+      });
+    } catch(e) {}
+  }
 
 });
 </script>
-  <script>
-if ("serviceWorker" in navigator) {
 
-navigator.serviceWorker.register(
-"/restaurant/sw.js",
-{
-scope:"/restaurant/"
-});
-
-}
-</script>
-
-<!-- FIREBASE FCM KEPT DISABLED -->
-
-<!--
-Old Firebase FCM notification code kept.
-Do not delete.
--->
-
-<!-- WEBPUSHR -->
-
+<!-- ── WEBPUSHR SDK ── -->
 <script>
-
 (function(w,d,s,id){
+  if(typeof(w.webpushr)!=="undefined") return;
+  w.webpushr=w.webpushr||function(){ (w.webpushr.q=w.webpushr.q||[]).push(arguments); };
+  var js, fjs=d.getElementsByTagName(s)[0];
+  js=d.createElement(s); js.id=id; js.async=1;
+  js.src="https://cdn.webpushr.com/app.min.js";
+  fjs.parentNode.insertBefore(js,fjs);
+})(window,document,"script","webpushr-jssdk");
 
-if(typeof(w.webpushr)!=="undefined")
-return;
-
-w.webpushr=
-w.webpushr||
-function(){
-
-(
-w.webpushr.q=
-w.webpushr.q||
-[]
-
-).push(arguments);
-
-};
-
-var js;
-
-var fjs=
-d.getElementsByTagName(s)[0];
-
-js=
-d.createElement(s);
-
-js.id=id;
-
-js.async=1;
-
-js.src=
-"https://cdn.webpushr.com/app.min.js";
-
-fjs.parentNode.appendChild(js);
-
-})(
-window,
-document,
-"script",
-"webpushr-jssdk"
-);
-
-webpushr(
-"setup",
-{
-key:
-"BM2b-wTIlQyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI"
-}
-);
-
-
+webpushr("setup",{
+  key:"BM2b-wTIlQyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI"
+});
 </script>
-<!-- EDIT MODAL -->
 
-<div id="editModal"
-style="
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.5);
-justify-content:center;
-align-items:center;
-z-index:9999;
-">
-
-<div style="
-background:white;
-padding:20px;
-border-radius:12px;
-width:90%;
-max-width:400px;
-">
-
-<h3>Edit Food</h3>
-
-<input id="editName" placeholder="Food Name">
-<input id="editPrice" placeholder="Price">
-<input id="editImage" placeholder="Image URL">
-
-<button class="green"
-onclick="saveFood()">
-Save
-</button>
-
-<button class="red"
-onclick="closeEdit()">
-Cancel
-</button>
-
-</div>
-
-</div>
+<!-- ── SERVICE WORKER REGISTRATION ── -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/restaurant/sw.js", { scope:"/restaurant/" })
+    .then(reg => console.log("SW registered:", reg.scope))
+    .catch(err => console.log("SW error:", err));
+}
+</script>
 
 </body>
 </html>
