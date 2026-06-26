@@ -376,7 +376,7 @@ body {
 <!-- ══ ALL ORIGINAL FIREBASE LOGIC (UNTOUCHED) ══ -->
 <script type="module">
 import { initializeApp }           from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc }            from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -389,6 +389,31 @@ const app      = initializeApp(firebaseConfig);
 const auth     = getAuth(app);
 const db       = getFirestore(app);
 const provider = new GoogleAuthProvider();
+
+// ── KEY FIX: If user is already logged in, go straight to home ──
+// This runs before showing the login UI at all
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return; // not logged in — show login page normally
+
+  // Already logged in — check their profile and redirect
+  const userRef = doc(db, "users", user.uid);
+  const snap    = await getDoc(userRef);
+
+  if (snap.exists()) {
+    const data = snap.data();
+    if (data.policyAccepted) {
+      if (data.phone && data.address) {
+        location.href = "home.html";
+      } else {
+        location.href = "details.html";
+      }
+    } else {
+      location.href = "accept.html";
+    }
+  } else {
+    location.href = "accept.html";
+  }
+});
 
 window.googleLogin = async () => {
   const btn = document.querySelector('.login-btn');

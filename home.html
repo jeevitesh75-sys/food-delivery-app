@@ -436,7 +436,19 @@ const auth = getAuth(app);
 let foodMarkup = 0;
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { location.href = "login.html"; return; }
+  if (!user) {
+    // Only redirect if we're sure — check localStorage first
+    // Firebase takes ~1-2 seconds to restore session; localStorage is instant
+    const cachedUser = localStorage.getItem("user");
+    if (!cachedUser) {
+      location.href = "login.html";
+    }
+    // If cachedUser exists, wait for Firebase to restore session
+    // onAuthStateChanged will fire again with the user object shortly
+    return;
+  }
+  // Save user to localStorage so next load is instant
+  localStorage.setItem("user", JSON.stringify({ uid: user.uid, email: user.email }));
 
   const settingsSnap = await getDoc(doc(db, "settings", "appConfig"));
   if (settingsSnap.exists()) {
@@ -628,22 +640,18 @@ if ("serviceWorker" in navigator) {
 }
 </script>
 
-<!-- ══ PUSH NOTIFICATIONS ══ -->
-<script src="https://js.pusher.com/beams/2.1.0/push-notifications-cdn.js"></script>
+<!-- ══ WEBPUSHR ══ -->
 <script>
-window.addEventListener('load', () => {
-  try {
-    if (typeof PusherPushNotifications === 'undefined') return;
-    const beamsClient = new PusherPushNotifications.Client({
-      instanceId: '849b1c52-d900-4b1b-906f-90339c5a4509'
-    });
-    beamsClient.start()
-      .then(() => beamsClient.addDeviceInterest('hello'))
-      .then(() => console.log('Push registered!'))
-      .catch(e => console.log('Push error:', e));
-  } catch(e) {
-    console.log('Pusher not available:', e);
-  }
+(function(w,d,s,id){
+  if(typeof(w.webpushr)!=="undefined") return;
+  w.webpushr=w.webpushr||function(){ (w.webpushr.q=w.webpushr.q||[]).push(arguments); };
+  var js,fjs=d.getElementsByTagName(s)[0];
+  js=d.createElement(s); js.id=id; js.async=1;
+  js.src="https://cdn.webpushr.com/app.min.js";
+  fjs.parentNode.insertBefore(js,fjs);
+})(window,document,"script","webpushr-jssdk");
+webpushr("setup",{
+  key:"BM2b-wTIlQyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI"
 });
 </script>
 
