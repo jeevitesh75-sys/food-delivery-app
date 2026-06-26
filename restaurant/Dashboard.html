@@ -7,169 +7,62 @@
 <link rel="manifest" href="/restaurant/manifest.json">
 <meta name="theme-color" content="#ff4d4d">
 <style>
-body {
-  font-family: Arial;
-  background:#f5f5f5;
-  margin:0;
-  padding-bottom:80px;
-}
+body { font-family:Arial; background:#f5f5f5; margin:0; padding-bottom:80px; }
 .header {
-  background:#ff4d4d;
-  color:white;
-  padding:15px;
-  text-align:center;
-  font-size:18px;
-  font-weight:bold;
-  position:sticky;
-  top:0;
-  z-index:100;
+  background:#ff4d4d; color:white; padding:15px;
+  text-align:center; font-size:18px; font-weight:bold;
+  position:sticky; top:0; z-index:100;
 }
 .container { max-width:700px; margin:auto; }
-.card {
-  background:white;
-  margin:10px;
-  padding:15px;
-  border-radius:12px;
-  box-shadow:0 2px 8px rgba(0,0,0,.08);
-}
-input {
-  width:100%;
-  padding:10px;
-  margin:8px 0;
-  border-radius:8px;
-  border:1px solid #ccc;
-  box-sizing:border-box;
-}
-button {
-  padding:8px 12px;
-  border:none;
-  border-radius:6px;
-  color:white;
-  margin:4px;
-  cursor:pointer;
-  font-size:13px;
-}
+.card { background:white; margin:10px; padding:15px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+input { width:100%; padding:10px; margin:8px 0; border-radius:8px; border:1px solid #ccc; box-sizing:border-box; }
+button { padding:8px 12px; border:none; border-radius:6px; color:white; margin:4px; cursor:pointer; font-size:13px; }
 .green  { background:#28a745; }
 .red    { background:#dc3545; }
 .orange { background:#ff9800; }
 .blue   { background:#007bff; }
-
-.food-item {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin:10px 0;
-  padding:8px 0;
-  border-bottom:1px solid #f0f0f0;
-}
+.food-item { display:flex; align-items:center; justify-content:space-between; margin:10px 0; padding:8px 0; border-bottom:1px solid #f0f0f0; }
 .food-left { display:flex; align-items:center; gap:10px; }
-.food-img { width:50px; height:50px; border-radius:8px; object-fit:cover; }
-
-.order-box {
-  border-bottom:1px solid #eee;
-  padding:12px 0;
-  animation: order-pop 0.4s ease;
-}
-@keyframes order-pop {
-  from { opacity:0; transform:translateY(-8px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-
-.bottom-nav {
-  position:fixed;
-  bottom:0; left:0;
-  width:100%;
-  background:white;
-  display:flex;
-  justify-content:center;
-  padding:10px 0;
-  border-top:1px solid #ccc;
-}
-.nav-item { text-align:center; cursor:pointer; font-size:14px; }
-
-.earn-box {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin:8px 0;
-}
-.food-scroll {
-  max-height:420px;
-  overflow-y:auto;
-  padding-right:6px;
-}
+.food-img  { width:50px; height:50px; border-radius:8px; object-fit:cover; }
+.order-box { border-bottom:1px solid #eee; padding:14px 0; animation:order-pop 0.4s ease; }
+@keyframes order-pop { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+.bottom-nav { position:fixed; bottom:0; left:0; width:100%; background:white; display:flex; justify-content:center; padding:10px 0; border-top:1px solid #ccc; }
+.earn-box   { display:flex; justify-content:space-between; align-items:center; margin:8px 0; }
+.food-scroll{ max-height:420px; overflow-y:auto; padding-right:6px; }
 .food-scroll::-webkit-scrollbar { width:6px; }
 .food-scroll::-webkit-scrollbar-thumb { background:#ff4d4d; border-radius:10px; }
-.food-scroll::-webkit-scrollbar-track { background:#eee; }
+
+/* STATUS BADGES */
+.sbadge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:bold; }
+.s-pending  { background:#fff3cd; color:#856404; }
+.s-accepted { background:#cce5ff; color:#004085; }
+.s-ready    { background:#d1e7dd; color:#0a3622; }
+.s-out-for-delivery { background:#e2d9f3; color:#4a235a; }
 
 /* NOTIFICATION BANNER */
 #notif-banner {
-  display:none;
-  position:fixed;
-  top:60px; left:10px; right:10px;
-  background:#28a745;
-  color:white;
-  padding:14px 18px;
-  border-radius:12px;
-  font-size:15px;
-  font-weight:bold;
-  z-index:9999;
-  box-shadow:0 4px 20px rgba(0,0,0,.25);
-  animation: slide-in 0.4s ease;
-  cursor:pointer;
+  display:none; position:fixed; top:65px; left:10px; right:10px;
+  color:white; padding:14px 16px; border-radius:12px;
+  font-size:14px; font-weight:bold; z-index:9999;
+  box-shadow:0 4px 20px rgba(0,0,0,.3);
+  animation:slide-in 0.35s ease; cursor:pointer;
 }
-@keyframes slide-in {
-  from { transform:translateY(-20px); opacity:0; }
-  to   { transform:translateY(0);     opacity:1; }
-}
+@keyframes slide-in { from{transform:translateY(-16px);opacity:0} to{transform:translateY(0);opacity:1} }
 
-/* PERMISSION PROMPT */
+/* NOTIF PROMPT */
 #notif-prompt {
-  background:#fff3cd;
-  border:1px solid #ffc107;
-  border-radius:10px;
-  padding:12px 16px;
-  margin:10px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
+  background:#fff3cd; border:1px solid #ffc107; border-radius:10px;
+  padding:12px 14px; margin:10px;
+  display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px;
 }
-#notif-prompt p { margin:0; font-size:13px; }
-
-/* STATUS BADGES */
-.status-badge {
-  display:inline-block;
-  padding:3px 10px;
-  border-radius:20px;
-  font-size:12px;
-  font-weight:bold;
-}
-.status-pending   { background:#fff3cd; color:#856404; }
-.status-accepted  { background:#cce5ff; color:#004085; }
-.status-ready     { background:#d1e7dd; color:#0a3622; }
-.status-rejected  { background:#f8d7da; color:#842029; }
-.status-out-for-delivery { background:#e2d9f3; color:#4a235a; }
 
 /* EDIT MODAL */
-#editModal {
-  display:none;
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:rgba(0,0,0,.5);
-  justify-content:center;
-  align-items:center;
-  z-index:9999;
-}
+#editModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); justify-content:center; align-items:center; z-index:9999; }
 </style>
 </head>
 <body>
 
-<!-- NOTIFICATION BANNER -->
-<div id="notif-banner" onclick="document.getElementById('notif-banner').style.display='none'">
-  🔔 <span id="notif-text">New order received!</span>
-</div>
+<div id="notif-banner" onclick="this.style.display='none'">🔔 <span id="notif-text"></span></div>
 
 <div class="header">
   🍴 Dashboard
@@ -178,10 +71,9 @@ button {
 
 <div class="container">
 
-  <!-- NOTIFICATION PERMISSION PROMPT -->
   <div id="notif-prompt">
-    <p>🔔 Enable notifications to get new order alerts even when app is closed!</p>
-    <button class="green" onclick="enableNotifications()">Enable</button>
+    <span>🔔 Enable notifications to get new order alerts even when app is closed!</span>
+    <button class="green" style="white-space:nowrap" onclick="enableNotifications()">Enable</button>
   </div>
 
   <!-- ADD FOOD -->
@@ -202,38 +94,28 @@ button {
 
   <!-- ORDERS -->
   <div class="card">
-    <h3>
-      Your Orders
-      <span id="order-badge2" style="background:red;color:white;border-radius:50%;padding:2px 8px;font-size:12px;display:none;margin-left:6px;"></span>
-    </h3>
+    <h3>Your Orders <span id="order-badge2" style="background:red;color:white;border-radius:50%;padding:2px 8px;font-size:12px;display:none;margin-left:6px;"></span></h3>
     <div id="orders"></div>
   </div>
 
   <!-- EARNINGS -->
   <div class="card">
     <h3>Earnings</h3>
-    <div class="earn-box">
-      <div>Today: ₹<span id="todayEarn">0</span></div>
-      <button class="red" onclick="resetToday()">Reset</button>
-    </div>
-    <div class="earn-box">
-      <div>Total: ₹<span id="totalEarn">0</span></div>
-      <button class="red" onclick="resetTotal()">Reset</button>
-    </div>
+    <div class="earn-box"><div>Today: ₹<span id="todayEarn">0</span></div><button class="red" onclick="alert('Reset from Admin Panel.')">Reset</button></div>
+    <div class="earn-box"><div>Total: ₹<span id="totalEarn">0</span></div><button class="red" onclick="alert('Reset from Admin Panel.')">Reset</button></div>
   </div>
 
 </div>
 
-<!-- NAV -->
 <div class="bottom-nav">
-  <div class="nav-item" onclick="location.href='Profile.html'">👤 Profile</div>
+  <div onclick="location.href='Profile.html'" style="cursor:pointer;font-size:14px;">👤 Profile</div>
 </div>
 
 <!-- EDIT MODAL -->
-<div id="editModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);justify-content:center;align-items:center;z-index:9999;">
+<div id="editModal">
   <div style="background:white;padding:20px;border-radius:12px;width:90%;max-width:400px;">
     <h3>Edit Food</h3>
-    <input id="editName"  placeholder="Food Name">
+    <input id="editName" placeholder="Food Name">
     <input id="editPrice" placeholder="Price">
     <input id="editImage" placeholder="Image URL">
     <button class="green" onclick="saveFood()">Save</button>
@@ -250,284 +132,276 @@ import {
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const app = initializeApp({
-  apiKey:    "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
   authDomain:"food-delivery-app-97300.firebaseapp.com",
-  projectId: "food-delivery-app-97300"
+  projectId:"food-delivery-app-97300"
 });
 const db   = getFirestore(app);
 const auth = getAuth(app);
 
-// ── WEBPUSHR KEYS ──
-const WEBPUSHR_KEY   = "BM2b-wTIlQyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI";
-const WEBPUSHR_TOKEN = "YOUR_WEBPUSHR_AUTH_TOKEN"; // 🔴 REPLACE THIS in Webpushr dashboard
-
+// 🔴 Replace with your token from webpushr.com → REST API tab
+const WEBPUSHR_KEY   = "af92463d3ee3a390fbef2ca6a2114f56";
+const WEBPUSHR_TOKEN = "122215";
 onAuthStateChanged(auth, async (user) => {
   if (!user) { location.href = "login.html"; return; }
 
   const restaurantId  = user.uid;
-  const restaurantRef = doc(db, "restaurants", restaurantId);
+  const restaurantRef = doc(db,"restaurants",restaurantId);
 
-  // ── EARNINGS ──
-  onSnapshot(restaurantRef, (snap) => {
+  // EARNINGS
+  onSnapshot(restaurantRef, snap => {
     if (!snap.exists()) return;
     const d = snap.data();
     document.getElementById("todayEarn").innerText = d.todayEarn || 0;
     document.getElementById("totalEarn").innerText = d.totalEarn || 0;
   });
 
-  // ══════════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════
   // ENABLE NOTIFICATIONS
-  // Registers service worker + requests push permission
-  // So popup shows even when browser/app is closed
-  // ══════════════════════════════════════════════════════════
+  // Registers SW + requests permission + saves subId
+  // Background push works even when app is closed
+  // ══════════════════════════════════════════════
   window.enableNotifications = async () => {
     try {
-      if (!("Notification" in window)) {
-        alert("Notifications not supported on this browser/device.");
-        return;
-      }
+      if (!("Notification" in window)) { alert("Notifications not supported."); return; }
 
-      // 1. Register Service Worker (required for background push)
+      // Register SW first — required for background push to work
       if ("serviceWorker" in navigator) {
-        await navigator.serviceWorker.register("/restaurant/sw.js", { scope: "/restaurant/" });
-        console.log("✅ Service Worker registered");
+        const reg = await navigator.serviceWorker.register("/restaurant/sw.js", { scope:"/restaurant/" });
+        await navigator.serviceWorker.ready;
+        console.log("✅ SW ready:", reg.scope);
       }
 
-      // 2. Request permission
-      const permission = await Notification.requestPermission();
-      if (permission !== "granted") {
-        alert("Please allow notifications in your browser settings to get order alerts!");
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted") {
+        alert("Please allow notifications in browser settings!");
         return;
       }
 
-      // 3. Subscribe via Webpushr (handles VAPID push subscription)
+      // Webpushr subscribe — it creates a push subscription and sends to its servers
+      // When Webpushr pushes a notification, sw.min.js inside sw.js handles showing it
       if (typeof webpushr !== "undefined") {
         webpushr("subscribe", {});
-
-        webpushr("getAttribute", {}, async (sub) => {
-          if (sub && sub.sid) {
-            // Save subscriber ID so delivery notifications can reach this restaurant
-            await updateDoc(restaurantRef, { webpushrSubId: sub.sid });
-          }
-        });
+        // Get subscriber ID and save to Firestore for targeting
+        setTimeout(() => {
+          webpushr("getAttribute", {}, async (sub) => {
+            if (sub && sub.sid) {
+              await updateDoc(restaurantRef, { webpushrSubId: sub.sid });
+              console.log("✅ Webpushr subId saved:", sub.sid);
+            }
+          });
+        }, 2000);
       }
 
       document.getElementById("notif-prompt").style.display = "none";
-      showBanner("✅ Notifications enabled! You'll get popups even when app is closed.", "green");
-
+      showBanner("✅ Notifications ON! You'll get popups even when app is closed.", "green");
     } catch(e) {
       console.error("Notification setup error:", e);
+      alert("Error enabling notifications: " + e.message);
     }
   };
 
-  // Auto-hide prompt if already granted
+  // Auto-hide prompt + silent SW register if already granted
   if (typeof Notification !== "undefined" && Notification.permission === "granted") {
     document.getElementById("notif-prompt").style.display = "none";
-    // Re-register SW silently in case it wasn't before
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/restaurant/sw.js", { scope: "/restaurant/" }).catch(() => {});
+      navigator.serviceWorker.register("/restaurant/sw.js",{scope:"/restaurant/"}).catch(()=>{});
     }
   }
 
-  // ── INPUTS ──
-  const fname      = document.getElementById("fname");
-  const priceInput = document.getElementById("price");
-  const img        = document.getElementById("img");
-
-  // ── ADD FOOD ──
+  // ADD FOOD
   window.addFood = async () => {
-    const name  = fname.value.trim();
-    const price = priceInput.value.trim();
-    const image = img.value.trim();
+    const name  = document.getElementById("fname").value.trim();
+    const price = document.getElementById("price").value.trim();
+    const image = document.getElementById("img").value.trim();
     if (!name || !price) { alert("Fill food name and price!"); return; }
-    await addDoc(collection(db, "menu"), {
-      name, price: Number(price), image, restaurantId, enabled: true
-    });
-    fname.value = ""; priceInput.value = ""; img.value = "";
+    await addDoc(collection(db,"menu"),{ name, price:Number(price), image, restaurantId, enabled:true });
+    document.getElementById("fname").value="";
+    document.getElementById("price").value="";
+    document.getElementById("img").value="";
   };
 
-  // ── FOOD LIST ──
+  // FOOD LIST
   let allFoods = [];
-  onSnapshot(query(collection(db, "menu"), where("restaurantId","==",restaurantId)), snap => {
-    allFoods = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  onSnapshot(query(collection(db,"menu"),where("restaurantId","==",restaurantId)), snap => {
+    allFoods = snap.docs.map(d => ({id:d.id,...d.data()}));
     renderFoods(allFoods);
   });
 
   function renderFoods(list) {
-    document.getElementById("foodList").innerHTML = list.map(f => `
+    document.getElementById("foodList").innerHTML = list.map(f=>`
       <div class="food-item">
         <div class="food-left">
-          <img class="food-img" src="${f.image || 'https://via.placeholder.com/50'}" onerror="this.src='https://via.placeholder.com/50'">
-          <div>
-            <b>${f.name}</b><br>₹${f.price}<br>
-            <small style="color:${f.enabled ? 'green':'red'}">${f.enabled ? 'Available':'Unavailable'}</small>
+          <img class="food-img" src="${f.image||'https://via.placeholder.com/50'}" onerror="this.src='https://via.placeholder.com/50'">
+          <div><b>${f.name}</b><br>₹${f.price}<br>
+            <small style="color:${f.enabled?'green':'red'}">${f.enabled?'Available':'Unavailable'}</small>
           </div>
         </div>
         <div>
-          <button class="${f.enabled ? 'orange':'green'}" onclick="toggleFood('${f.id}',${f.enabled})">${f.enabled ? 'Disable':'Enable'}</button>
+          <button class="${f.enabled?'orange':'green'}" onclick="toggleFood('${f.id}',${f.enabled})">${f.enabled?'Disable':'Enable'}</button>
           <button class="green" onclick="editFood('${f.id}','${f.name}',${f.price},'${f.image||''}')">Edit</button>
           <button class="red"   onclick="deleteFood('${f.id}')">Delete</button>
         </div>
       </div>`).join('');
   }
 
-  window.deleteFood  = async (id) => { if(confirm("Delete this food?")) await deleteDoc(doc(db,"menu",id)); };
-  window.toggleFood  = async (id, cur) => await updateDoc(doc(db,"menu",id), { enabled: !cur });
+  window.deleteFood  = async id => { if(confirm("Delete?")) await deleteDoc(doc(db,"menu",id)); };
+  window.toggleFood  = async (id,cur) => await updateDoc(doc(db,"menu",id),{enabled:!cur});
   window.filterFoods = () => {
     const t = document.getElementById("searchFood").value.toLowerCase();
-    renderFoods(allFoods.filter(f => f.name.toLowerCase().includes(t)));
+    renderFoods(allFoods.filter(f=>f.name.toLowerCase().includes(t)));
   };
 
   let editingFoodId = "";
-  window.editFood = (id, name, price, image) => {
+  window.editFood = (id,name,price,image) => {
     editingFoodId = id;
     document.getElementById("editName").value  = name;
     document.getElementById("editPrice").value = price;
-    document.getElementById("editImage").value = image || "";
+    document.getElementById("editImage").value = image||"";
     document.getElementById("editModal").style.display = "flex";
   };
   window.closeEdit = () => document.getElementById("editModal").style.display = "none";
   window.saveFood  = async () => {
-    await updateDoc(doc(db,"menu",editingFoodId), {
+    await updateDoc(doc(db,"menu",editingFoodId),{
       name:  document.getElementById("editName").value,
       price: Number(document.getElementById("editPrice").value),
       image: document.getElementById("editImage").value
     });
     closeEdit();
-    showBanner("✅ Food updated!", "green");
+    showBanner("✅ Food updated!","green");
   };
 
-  // ══════════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════
   // ORDERS LISTENER
-  // Status flow: Pending → Accepted → Ready → Out for Delivery
-  // ══════════════════════════════════════════════════════════
-  let knownOrders  = new Set();
-  let pendingCount = 0;
+  //
+  // Status flow:
+  // Pending → [Accept][Reject]
+  //    ↓ Accept
+  // Accepted → [Mark Ready]   ← all delivery boys see & can grab
+  //    ↓ Mark Ready
+  // Ready → customer sees "Food Ready"
+  //    ↓ delivery boy accepts
+  // Out for Delivery → only that delivery boy sees it
+  //    ↓ delivered
+  // Delivered
+  // ══════════════════════════════════════════════
+  let knownOrders = new Set();
 
   onSnapshot(
-    query(collection(db,"orders"), where("restaurantId","==",restaurantId)),
+    query(collection(db,"orders"),where("restaurantId","==",restaurantId)),
     snap => {
       let html = "";
-      pendingCount = 0;
+      let count = 0;
 
       snap.forEach(d => {
         const o = d.data();
-        // Hide fully done/rejected orders
         if (o.status === "Rejected" || o.status === "Delivered") return;
-
-        pendingCount++;
+        count++;
 
         // ── NEW ORDER ALERT ──
         if (!knownOrders.has(d.id) && knownOrders.size > 0) {
-          const itemList = (o.items||[]).map(i=>`${i.name} x${i.qty}`).join(", ");
-          showBanner(`🔔 New Order! ₹${o.total} from ${o.customerName||"Customer"}`);
-          playNotifSound();
-
-          // In-app / foreground notification
+          const items = (o.items||[]).map(i=>`${i.name} x${i.qty}`).join(", ");
+          showBanner(`🔔 New Order! ₹${o.total} from ${o.customerName||"Customer"}`,"green");
+          playChime();
+          // Show browser notification (works when tab is in background)
           if (Notification.permission === "granted") {
-            new Notification("🍔 New Order Received!", {
-              body:    `₹${o.total} • ${itemList}`,
-              icon:    "/restaurant/icons/icon-192.png",
-              vibrate: [300,100,300],
-              tag:     "new-order-" + d.id,   // prevent duplicates
-              renotify: true
+            new Notification("🍔 New Order!", {
+              body:     `₹${o.total} • ${items}`,
+              icon:     "/restaurant/icons/icon-192.png",
+              tag:      "order-" + d.id,
+              renotify: true,
+              requireInteraction: true  // stays until dismissed — doesn't auto-close
             });
           }
         }
         knownOrders.add(d.id);
 
-        // Build items HTML
-        const itemsHTML = (o.items||[]).map(i=>`
-          <div style="font-size:13px;color:#555;">
-            • ${i.name} × ${i.qty} — ₹${i.price * i.qty}
-          </div>`).join('');
+        const itemsHTML = (o.items||[]).map(i=>
+          `<div style="font-size:13px;color:#555;">• ${i.name} × ${i.qty} — ₹${i.price*i.qty}</div>`
+        ).join('');
 
-        // Status CSS class
-        const statusClass = "status-" + (o.status||"pending").toLowerCase().replace(/\s+/g,"-");
+        const sClass = {
+          "Pending":"s-pending","Accepted":"s-accepted",
+          "Ready":"s-ready","Out for Delivery":"s-out-for-delivery"
+        }[o.status] || "s-pending";
 
-        // ── BUTTONS BASED ON STATUS ──
-        // Pending  → [Accept] [Reject]
-        // Accepted → [Mark Ready]   (no reject)
-        // Ready    → [Mark Out for Delivery]
-        let buttonsHTML = "";
+        // ── BUTTONS: based on status ──
+        // Pending  → Accept + Reject
+        // Accepted → Ready button only (reject gone)
+        // Ready    → nothing (delivery boys handle it)
+        // Out for Delivery → show rider info only
+        let btns = "";
         if (o.status === "Pending") {
-          buttonsHTML = `
+          btns = `
             <button class="green" onclick="acceptOrder('${d.id}')">✅ Accept</button>
             <button class="red"   onclick="rejectOrder('${d.id}')">❌ Reject</button>`;
         } else if (o.status === "Accepted") {
-          buttonsHTML = `
-            <button class="blue" onclick="markReady('${d.id}')">🍽️ Mark Ready</button>`;
-        } else if (o.status === "Ready") {
-          buttonsHTML = `
-            <button class="orange" onclick="markOutForDelivery('${d.id}')">🛵 Mark Out for Delivery</button>`;
+          btns = `
+            <button class="blue" onclick="markReady('${d.id}')">🍽️ Ready</button>`;
         }
+        // Ready and beyond — no buttons needed from restaurant
 
         html += `
           <div class="order-box" id="order_${d.id}">
             <b>👤 ${o.customerName||"—"}</b>
-            &nbsp;<span class="status-badge ${statusClass}">${o.status}</span><br>
+            &nbsp;<span class="sbadge ${sClass}">${o.status}</span><br>
             📞 ${o.customerPhone||"—"}<br>
             📍 ${o.customerAddress||"—"}<br><br>
-            ${itemsHTML}<br>
+            ${itemsHTML}
+            <br>
             <b>Food: ₹${o.subtotal||o.total}</b><br>
-            <small>Delivery: ₹${o.deliveryFee||0} &nbsp;|&nbsp; Platform: ₹${o.platformFee||0}</small><br>
+            <small>Delivery: ₹${o.deliveryFee||0} | Platform: ₹${o.platformFee||0}</small><br>
             <b style="font-size:16px;">Total: ₹${o.total}</b>
-            ${o.deliveryBoyName ? `<hr><b>🛵 ${o.deliveryBoyName}</b> — ${o.deliveryBoyPhone||""}` : ""}
+            ${o.deliveryBoyName?`<br><br>🛵 <b>${o.deliveryBoyName}</b> — ${o.deliveryBoyPhone||""}`:""}
             <br><br>
-            ${buttonsHTML}
+            ${btns}
           </div>`;
       });
 
       document.getElementById("orders").innerHTML = html || "<p style='color:#999;'>No active orders</p>";
 
-      // Update badges
       const b1 = document.getElementById("order-badge");
       const b2 = document.getElementById("order-badge2");
-      if (pendingCount > 0) {
-        b1.innerText = pendingCount; b1.style.display = "inline";
-        b2.innerText = pendingCount; b2.style.display = "inline";
-      } else {
-        b1.style.display = "none";
-        b2.style.display = "none";
-      }
+      if (count > 0) { b1.innerText=count; b1.style.display="inline"; b2.innerText=count; b2.style.display="inline"; }
+      else           { b1.style.display="none"; b2.style.display="none"; }
     }
   );
 
-  // ══════════════════════════════════════════════════════════
+  // ══════════════════════════════════════════════
   // ACCEPT ORDER
-  // Sets status → "Accepted"
-  // Broadcasts push to ALL delivery boys (not assigning one)
-  // ══════════════════════════════════════════════════════════
+  // → status = "Accepted"
+  // → Push to ALL delivery boys via Webpushr
+  //   (they see it in their app, first one to tap gets it)
+  // ══════════════════════════════════════════════
   window.acceptOrder = async (orderId) => {
     try {
-      const orderSnap = await getDoc(doc(db,"orders",orderId));
-      if (!orderSnap.exists()) { alert("Order not found!"); return; }
-      const order = orderSnap.data();
+      const snap = await getDoc(doc(db,"orders",orderId));
+      if (!snap.exists()) return;
+      const order = snap.data();
 
-      // Set status to Accepted (no delivery boy assigned yet)
+      // Update status — delivery boys will see this order in their "Accepted" query
       await updateDoc(doc(db,"orders",orderId), {
-        status: "Accepted",
-        assignedDeliveryBoyId: ""   // clear any old assignment
+        status:                "Accepted",
+        deliveryBoyId:         "",     // no one assigned yet
+        deliveryBoyName:       "",
+        deliveryBoyPhone:      ""
       });
 
-      // Broadcast to ALL online delivery boys via Webpushr segment
-      await broadcastToDeliveryBoys(order, orderId);
+      // Push to ALL delivery boys — they'll see the popup and tap to accept
+      await pushToAllDeliveryBoys(order, orderId);
 
-      showBanner("✅ Order accepted! All delivery boys notified.", "green");
+      showBanner("✅ Accepted! Notifying all delivery boys…","green");
     } catch(e) {
-      console.error("Accept order error:", e);
+      console.error(e);
       alert("Error: " + e.message);
     }
   };
 
-  // ── BROADCAST TO ALL DELIVERY BOYS ──
-  // Uses Webpushr "delivery_partners" segment so every rider app gets the push
-  async function broadcastToDeliveryBoys(order, orderId) {
+  // ── PUSH TO ALL DELIVERY BOYS via Webpushr segment ──
+  async function pushToAllDeliveryBoys(order, orderId) {
     try {
-      const itemSummary = (order.items||[]).map(i=>`${i.name} x${i.qty}`).join(", ");
-
-      // Webpushr segment push — all riders subscribed to "delivery_partners" get this
-      const res = await fetch("https://api.webpushr.com/v1/notification/send/segment", {
+      const summary = (order.items||[]).map(i=>`${i.name} x${i.qty}`).join(", ");
+      await fetch("https://api.webpushr.com/v1/notification/send/segment", {
         method: "POST",
         headers: {
           "Content-Type":      "application/json",
@@ -535,90 +409,73 @@ onAuthStateChanged(auth, async (user) => {
           "webpushrAuthToken": WEBPUSHR_TOKEN
         },
         body: JSON.stringify({
-          title:     "🛵 New Delivery Available!",
-          message:   `${order.restaurantName||"Restaurant"} → ${order.customerAddress||"Customer"} • ₹${order.total}`,
-          url:       "/delivery/Home.html?orderId=" + orderId,
-          segment:   "delivery_partners",
-          auto_hide: 0,
-          expire_push: "1h"     // don't show after 1 hour if not seen
+          title:       "🛵 New Delivery Available!",
+          message:     `${order.restaurantName||"Restaurant"} → ${order.customerAddress||"Customer"} • ₹${order.total}`,
+          url:         "/delivery/Home.html",
+          segment:     "delivery_partners",
+          auto_hide:   0,
+          expire_push: "1h"
         })
       });
-
-      if (!res.ok) {
-        const err = await res.text();
-        console.warn("Webpushr segment push failed:", err);
-        // Fallback: also update Firestore so delivery app can poll
-        await updateDoc(doc(db,"orders",orderId), { broadcastedAt: Date.now() });
-      }
     } catch(e) {
-      console.warn("Broadcast error (non-critical):", e);
-      // Non-critical: the order is accepted in Firestore, delivery boys can still see it
+      // Non-critical — order is in Firestore, riders can still see it in their app
+      console.warn("Push to delivery boys failed (non-critical):", e);
     }
   }
 
   // ── MARK READY ──
-  // Customer sees "Food Ready" in their app
+  // Customer tracking will show "Food Ready"
+  // Delivery boys still see the order and can accept it
   window.markReady = async (orderId) => {
-    await updateDoc(doc(db,"orders",orderId), { status: "Ready" });
-    showBanner("🍽️ Order marked as Ready! Customer notified.", "green");
+    await updateDoc(doc(db,"orders",orderId), { status:"Ready" });
+    showBanner("🍽️ Marked Ready! Customer can see food is ready.","blue");
   };
 
-  // ── MARK OUT FOR DELIVERY ──
-  window.markOutForDelivery = async (orderId) => {
-    await updateDoc(doc(db,"orders",orderId), { status: "Out for Delivery" });
-    showBanner("🛵 Order is out for delivery!", "green");
-  };
-
-  // ── REJECT ORDER ──
+  // ── REJECT ──
   window.rejectOrder = async (orderId) => {
     if (!confirm("Reject this order?")) return;
-    await updateDoc(doc(db,"orders",orderId), { status: "Rejected" });
+    await updateDoc(doc(db,"orders",orderId), { status:"Rejected" });
     setTimeout(async () => {
-      try { await deleteDoc(doc(db,"orders",orderId)); } catch(e) {}
+      try { await deleteDoc(doc(db,"orders",orderId)); } catch(e){}
     }, 3000);
   };
 
-  window.resetToday = () => alert("Reset earnings from Admin Panel.");
-  window.resetTotal = () => alert("Reset earnings from Admin Panel.");
-
-  // ── BANNER HELPER ──
+  // ── BANNER ──
   window.showBanner = (msg, color="green") => {
     const b = document.getElementById("notif-banner");
-    const colors = { green:"#28a745", orange:"#ff9800", red:"#dc3545", blue:"#007bff" };
-    b.style.background = colors[color] || "#28a745";
+    const c = {green:"#28a745",orange:"#ff9800",red:"#dc3545",blue:"#007bff"};
+    b.style.background = c[color]||"#28a745";
     document.getElementById("notif-text").innerText = msg;
     b.style.display = "block";
-    clearTimeout(b._timer);
-    b._timer = setTimeout(() => b.style.display = "none", 5000);
+    clearTimeout(b._t);
+    b._t = setTimeout(()=>b.style.display="none", 6000);
   };
 
-  // ── SOUND: 3-beep chime ──
-  function playNotifSound() {
+  // ── CHIME ──
+  function playChime() {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      [880, 660, 880].forEach((freq, i) => {
-        const osc  = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.frequency.value = freq;
-        osc.type = "sine";
-        gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.18);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.16);
-        osc.start(ctx.currentTime + i * 0.18);
-        osc.stop(ctx.currentTime + i * 0.18 + 0.17);
+      const ctx = new(window.AudioContext||window.webkitAudioContext)();
+      [880,660,880].forEach((freq,i)=>{
+        const o=ctx.createOscillator(), g=ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        o.frequency.value=freq; o.type="sine";
+        g.gain.setValueAtTime(0.3, ctx.currentTime+i*0.18);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+i*0.18+0.16);
+        o.start(ctx.currentTime+i*0.18);
+        o.stop(ctx.currentTime+i*0.18+0.17);
       });
-    } catch(e) {}
+    } catch(e){}
   }
 
 });
 </script>
 
-<!-- ── WEBPUSHR SDK ── -->
+<!-- WEBPUSHR SDK -->
 <script>
 (function(w,d,s,id){
   if(typeof(w.webpushr)!=="undefined") return;
   w.webpushr=w.webpushr||function(){ (w.webpushr.q=w.webpushr.q||[]).push(arguments); };
-  var js, fjs=d.getElementsByTagName(s)[0];
+  var js,fjs=d.getElementsByTagName(s)[0];
   js=d.createElement(s); js.id=id; js.async=1;
   js.src="https://cdn.webpushr.com/app.min.js";
   fjs.parentNode.insertBefore(js,fjs);
@@ -629,12 +486,12 @@ webpushr("setup",{
 });
 </script>
 
-<!-- ── SERVICE WORKER REGISTRATION ── -->
+<!-- SERVICE WORKER -->
 <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/restaurant/sw.js", { scope:"/restaurant/" })
-    .then(reg => console.log("SW registered:", reg.scope))
-    .catch(err => console.log("SW error:", err));
+  navigator.serviceWorker.register("/restaurant/sw.js",{scope:"/restaurant/"})
+    .then(r=>console.log("SW:",r.scope))
+    .catch(e=>console.log("SW error:",e));
 }
 </script>
 

@@ -168,7 +168,8 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   // ── ORDERS LISTENER (original) ──
-  const orderQuery = query(collection(db,"orders"), where("status","in",["Ready","Out for Delivery"]));
+  // "Accepted" = restaurant accepted, broadcast to all riders to grab
+  const orderQuery = query(collection(db,"orders"), where("status","in",["Accepted","Out for Delivery"]));
   onSnapshot(orderQuery, (snap) => {
     let html = "";
     snap.forEach(docSnap => {
@@ -179,7 +180,10 @@ onAuthStateChanged(auth, async (user) => {
       }
       const deliveryEarning = order.deliveryFee || 30;
 
+      // Hide "Out for Delivery" orders that belong to someone else
       if (order.status === "Out for Delivery" && order.deliveryBoyId !== user.uid) return;
+      // Hide "Accepted" orders already taken by someone else
+      if (order.status === "Accepted" && order.deliveryBoyId && order.deliveryBoyId !== user.uid) return;
 
       html += `
         <div class="order-card">
@@ -204,11 +208,18 @@ onAuthStateChanged(auth, async (user) => {
           <b>Distance:</b> ${distance}<br><br>
           <b>Your Earning:</b> ₹${deliveryEarning}<br><br>
           <b>Status:</b> ${order.status}<br><br>
-          ${order.deliveryBoyId === user.uid
-            ? (order.pickedUp
-                ? `<button class="orange" onclick="deliverOrder('${docSnap.id}',${deliveryEarning})">Delivered</button>`
-                : `<button class="green"  onclick="pickupOrder('${docSnap.id}')">Picked Up</button>`)
-            : `<button class="green" onclick="acceptOrder('${docSnap.id}')">Accept Order</button>`}
+          ${
+            // If I already accepted this order
+            order.deliveryBoyId === user.uid
+              ? (order.pickedUp
+                  ? `<button class="orange" onclick="deliverOrder('${docSnap.id}',${deliveryEarning})">✅ Delivered</button>`
+                  : `<button class="green"  onclick="pickupOrder('${docSnap.id}')">📦 Picked Up from Restaurant</button>`)
+              // If no one has accepted yet - show Accept button
+              : (!order.deliveryBoyId
+                  ? `<button class="green" onclick="acceptOrder('${docSnap.id}')">🛵 Accept Order</button>`
+                  // Already taken by someone else - hide
+                  : `<p style="color:#999;font-size:12px;">Accepted by another rider</p>`)
+          }
         </div>`;
     });
     document.getElementById("orders").innerHTML = html || "<p>No orders available</p>";
@@ -220,18 +231,28 @@ onAuthStateChanged(auth, async (user) => {
     const snap      = await getDoc(orderRef);
     if (!snap.exists()) return;
     const order     = snap.data();
-    if (order.deliveryBoyId) { alert("Already accepted by another rider"); return; }
-    const fresh     = await getDoc(profileRef);
-    const rider     = fresh.data();
+
+    // Race condition check — someone else may have grabbed it
+    if (order.deliveryBoyId) {
+      alert("❌ Another rider already accepted this order!");
+      return;
+    }
+
+    const fresh = await getDoc(profileRef);
+    const rider = fresh.data();
+
+    // Assign to this delivery boy — disappears for all others instantly
     await updateDoc(orderRef, {
       deliveryBoyId:    user.uid,
       deliveryBoyName:  rider.name    || "",
       deliveryBoyPhone: rider.phone   || "",
       deliveryBoyLat:   rider.liveLat || null,
       deliveryBoyLng:   rider.liveLng || null,
-      status:           "Out for Delivery"
+      status:           "Out for Delivery",
+      pickedUp:         false
     });
-    alert("Order Accepted Successfully");
+
+    alert("✅ Order Accepted! Go pick it up from the restaurant.");
   };
 
   window.pickupOrder = async (id) => {
@@ -285,17 +306,21 @@ onAuthStateChanged(auth, async (user) => {
         alert("Webpushr not loaded yet, try again in a moment"); return;
       }
 
-      webpushr("subscribe", {}, async (response) => {
-        if (response && response.sid) {
-          // Save subscriber ID to this delivery boy's Firestore doc
-          await updateDoc(profileRef, {
-            webpushrSubId:        response.sid,
-            notificationsEnabled: true
-          });
-          document.getElementById("notif-prompt").style.display = "none";
-          showBanner("✅ Notifications enabled! You'll get new delivery alerts.");
-        }
-      });
+      webpushr("subscribe", {});
+
+      // Wait 2 seconds then get subscriber ID
+      setTimeout(() => {
+        webpushr("getAttribute", {}, async (sub) => {
+          if (sub && sub.sid) {
+            await updateDoc(profileRef, {
+              webpushrSubId:        sub.sid,
+              notificationsEnabled: true
+            });
+            document.getElementById("notif-prompt").style.display = "none";
+            showBanner("✅ Notifications enabled! You'll get new delivery alerts.");
+          }
+        });
+      }, 2000);
 
     } catch(e) {
       console.log("Notification setup error:", e);
@@ -338,7 +363,7 @@ if ("serviceWorker" in navigator) {
 })(window,document,"script","webpushr-jssdk");
 
 webpushr("setup",{
-  key:"BM2b-wTIlQiyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI"
+  key:"BM2b-wTIlQyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI"
 });
 </script>
 

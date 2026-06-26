@@ -397,7 +397,7 @@ onAuthStateChanged(auth, (user) => {
       // Status badge class
       const badgeClass = {
         "Pending":          "pending",
-        "Preparing":        "preparing",
+        "Accepted":         "preparing",
         "Ready":            "ready",
         "Out for Delivery": "out"
       }[data.status] || "";
@@ -438,7 +438,7 @@ onAuthStateChanged(auth, (user) => {
     document.querySelectorAll(".order-item").forEach(el => el.classList.remove("active-order"));
     element.classList.add("active-order");
 
-    const steps        = ["Pending", "Preparing", "Ready", "Out for Delivery", "Delivered"];
+    const steps        = ["Pending", "Accepted", "Ready", "Out for Delivery", "Delivered"];
     const currentIndex = steps.indexOf(order.status);
 
     const stepsHTML = steps.map((step, i) => `
