@@ -54,7 +54,7 @@ button { padding:8px 12px; border:none; border-radius:6px; color:white; margin:4
 
 </head>
 <body>
-
+<div id="notif-banner" onclick="this.style.display='none'">🔔 <span id="notif-text"></span></div>
 
 
 <div class="header">
@@ -64,10 +64,6 @@ button { padding:8px 12px; border:none; border-radius:6px; color:white; margin:4
 
 <div class="container">
 
-  <div id="notif-prompt">
-    <span>🔔 Enable notifications to get new order alerts even when app is closed!</span>
-    <button class="green" style="white-space:nowrap" onclick="enableNotifications()">Enable</button>
-  </div>
 
   <div class="card">
     <h3>Add Food</h3>
@@ -143,10 +139,6 @@ onAuthStateChanged(auth, async (user) => {
   });
 
   
-  if (typeof OneSignal !== "undefined" && Notification.permission === "granted") {
-    OneSignal.login(restaurantId);
-    document.getElementById("notif-prompt").style.display = "none";
-  }
 
   window.addFood = async () => {
     const name  = document.getElementById("fname").value.trim();
