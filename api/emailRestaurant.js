@@ -1,3 +1,6 @@
+const { db } = require("./_firebaseAdmin.js");
+const { transporter } = require("./_mailer.js");
+
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -9,12 +12,6 @@ module.exports = async function handler(req, res) {
 
   if (req.method !== "POST") return res.status(405).end();
 
-  // ... rest of existing code stays the same
-const { db } = require("./_firebaseAdmin.js");
-const { transporter } = require("./_mailer.js");
-
-module.exports = async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).end();
   const { orderId } = req.body;
   if (!orderId) return res.status(400).json({ error: "Missing orderId" });
 
