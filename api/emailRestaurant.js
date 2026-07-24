@@ -1,7 +1,7 @@
-import { db } from "./_firebaseAdmin.js";
-import { transporter } from "./_mailer.js";
+const { db } = require("./_firebaseAdmin.js");
+const { transporter } = require("./_mailer.js");
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
   const { orderId } = req.body;
   if (!orderId) return res.status(400).json({ error: "Missing orderId" });
@@ -29,4 +29,4 @@ export default async function handler(req, res) {
     console.error(e);
     res.status(500).json({ error: e.message });
   }
-}
+};

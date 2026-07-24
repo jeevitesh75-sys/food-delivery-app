@@ -449,12 +449,11 @@ onAuthStateChanged(auth, async (user) => {
 
       // ── EMAIL (fire-and-forget — never blocks the order) ──
       // FIX: removed duplicate "https://" from URL
-      fetch("https://www.elurufoods.shop/api/notifyRestaurant", {
+fetch("https://www.elurufoods.shop/api/emailRestaurant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId: orderRef.id })
-      }).catch(e => console.log("Email send failed (non-critical):", e));
-
+      })
       // ── NOTIFY RESTAURANT via OneSignal (fire-and-forget) ──
       
       // ── EMAIL restaurant (fire-and-forget) ──
