@@ -205,8 +205,6 @@ body {
   display: flex; align-items: center; justify-content: center;
   font-size: 18px; flex-shrink: 0;
 }
-
-/* Spinner inside button when loading */
 .btn-spinner {
   display: none;
   width: 20px; height: 20px;
@@ -215,7 +213,7 @@ body {
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
-.place-btn.loading .btn-spinner   { display: block; }
+.place-btn.loading .btn-spinner    { display: block; }
 .place-btn.loading .place-btn-icon { display: none; }
 
 /* ── BOTTOM NAV ── */
@@ -240,6 +238,7 @@ body {
 .nav-item .nav-icon { font-size: 19px; }
 .nav-item:hover { color: #D4AF37; }
 </style>
+  
 </head>
 
 <body>
@@ -262,14 +261,12 @@ body {
 <!-- ── CHECKOUT BODY ── -->
 <div class="checkout-box">
 
-  <!-- Delivery Address -->
   <div class="sec-h">📍 Delivery Address</div>
   <div class="glass-block">
     <span class="address-icon">🏠</span>
     <div id="userAddress">Loading…</div>
   </div>
 
-  <!-- Payment Method -->
   <div class="sec-h">💳 Payment Method</div>
   <div class="glass-block">
     <div class="payment-option">
@@ -281,11 +278,9 @@ body {
     </div>
   </div>
 
-  <!-- Order Items -->
   <div class="sec-h">🧾 Order Items</div>
   <div class="glass-block" id="orderItemsList"></div>
 
-  <!-- Order Summary -->
   <div class="sec-h">✦ Bill Summary</div>
   <div class="glass-block">
     <div class="summary-row">
@@ -306,7 +301,6 @@ body {
     </div>
   </div>
 
-  <!-- Place Order -->
   <button class="place-btn" id="placeBtn" onclick="placeOrder()">
     <span>Place Order</span>
     <span class="place-btn-icon">✅</span>
@@ -328,7 +322,6 @@ body {
   </a>
 </div>
 
-<!-- ══ ALL ORIGINAL FIREBASE LOGIC (UNTOUCHED) ══ -->
 <script type="module">
 import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -362,7 +355,6 @@ onAuthStateChanged(auth, async (user) => {
     platformFee = s.platformFee || 3;
   }
 
-  // ── LOAD USER ──
   async function loadUser() {
     const snap = await getDoc(doc(db, "users", auth.currentUser.uid));
     if (snap.exists()) {
@@ -374,10 +366,8 @@ onAuthStateChanged(auth, async (user) => {
     }
   }
 
-  // ── CART ──
   let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
 
-  // Render order items list
   const listEl = document.getElementById("orderItemsList");
   if (cartItems.length === 0) {
     listEl.innerHTML = `<div style="color:rgba(240,230,204,0.35);font-size:13px;">No items</div>`;
@@ -390,28 +380,23 @@ onAuthStateChanged(auth, async (user) => {
       </div>`).join('');
   }
 
-  // Totals (original logic)
-  let subtotal = cartItems.reduce(
-    (sum, item) => sum + ((item.restaurantPrice || item.price) * item.qty), 0);
-  let customerSubtotal = cartItems.reduce(
-    (sum, item) => sum + (item.price * item.qty), 0);
-  let total = customerSubtotal + deliveryFee + platformFee;
+  let subtotal         = cartItems.reduce((sum, item) => sum + ((item.restaurantPrice || item.price) * item.qty), 0);
+  let customerSubtotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  let total            = customerSubtotal + deliveryFee + platformFee;
 
   document.getElementById("subtotalDisplay").innerText = "₹" + customerSubtotal;
   document.getElementById("deliveryDisplay").innerText = "₹" + deliveryFee;
   document.getElementById("platformDisplay").innerText = "₹" + platformFee;
-  document.getElementById("total").innerText = total;
+  document.getElementById("total").innerText           = total;
 
   let restaurantId = cartItems.length > 0 ? cartItems[0].restaurantId : null;
 
-  // ── PLACE ORDER (original logic) ──
   window.placeOrder = async function () {
     if (cartItems.length === 0) { alert("Cart empty ❌"); return; }
     if (!restaurantId)          { alert("Restaurant missing ❌"); return; }
 
-    let payment = document.querySelector('input[name="payment"]:checked').value;
-
-    const btn = document.getElementById("placeBtn");
+    const payment = document.querySelector('input[name="payment"]:checked').value;
+    const btn     = document.getElementById("placeBtn");
     btn.classList.add("loading");
 
     try {
@@ -429,9 +414,10 @@ onAuthStateChanged(auth, async (user) => {
       let restaurantData   = {};
       if (restaurantSnap.exists()) restaurantData = restaurantSnap.data();
 
-      await addDoc(collection(db, "orders"), {
-        customerLat:      userData.lat  || null,
-        customerLng:      userData.lng  || null,
+      // ── PLACE ORDER IN FIRESTORE ──
+      const orderRef = await addDoc(collection(db, "orders"), {
+        customerLat:      userData.lat || null,
+        customerLng:      userData.lng || null,
         userId:           user.uid,
         customerName:     userData.name    || "",
         customerPhone:    userData.phone   || "",
@@ -457,62 +443,29 @@ onAuthStateChanged(auth, async (user) => {
         createdAt:        serverTimestamp()
       });
 
-      // ── NOTIFY RESTAURANT via Webpushr ──
-      try {
-        // Get restaurant's Webpushr subscriber ID from Firestore
-        const restSnap2 = await getDoc(doc(db, "restaurants", restaurantId));
-        const restData2 = restSnap2.exists() ? restSnap2.data() : {};
-        const restSubId = restData2.webpushrSubId || null;
-
-        // Build item summary
-        const itemSummary = cartItems
-          .map(i => `${i.name} x${i.qty}`)
-          .join(", ");
-
-        if (restSubId) {
-          // Send to specific restaurant subscriber
-          await fetch("https://api.webpushr.com/v1/notification/send/sid", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-"webpushrKey":       "af92463d3ee3a390fbef2ca6a2114f56",
-"webpushrAuthToken": "122215"
-            },
-            body: JSON.stringify({
-              title:   "🍔 New Order Received!",
-              message: `${userData.name} • ₹${total} • ${itemSummary}`,
-              url:     "/restaurant/Dashboard.html",
-              sid:     restSubId,
-              auto_hide: 0
-            })
-          });
-        } else {
-          // Fallback: broadcast to restaurant interest channel
-          await fetch("https://api.webpushr.com/v1/notification/send/segment", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "webpushrKey":  "0dda84e7a8c1a7a0c5f6b9d2e3f4a5b6",
-              "webpushrAuthToken": "YOUR_WEBPUSHR_AUTH_TOKEN"
-            },
-            body: JSON.stringify({
-              title:    "🍔 New Order Received!",
-              message:  `${userData.name} • ₹${total} • ${itemSummary}`,
-              url:      "/restaurant/Dashboard.html",
-              segment:  `restaurant_${restaurantId}`,
-              auto_hide: 0
-            })
-          });
-        }
-      } catch(e) { console.log("Restaurant notification failed", e); }
-
+      // ── ORDER PLACED SUCCESSFULLY ──
+      // Clear cart and go to tracking immediately
       localStorage.removeItem("cart");
+
+      // ── EMAIL (fire-and-forget — never blocks the order) ──
+      // FIX: removed duplicate "https://" from URL
+      fetch("https://www.elurufoods.shop/api/notifyRestaurant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: orderRef.id })
+      }).catch(e => console.log("Email send failed (non-critical):", e));
+
+      // ── NOTIFY RESTAURANT via OneSignal (fire-and-forget) ──
+      
+      // ── EMAIL restaurant (fire-and-forget) ──
+
+      // ── REDIRECT ──
       alert("Order placed ✅");
       window.location.href = "tracking.html";
 
     } catch (err) {
-      alert(err.message);
-      console.log(err);
+      console.error(err);
+      alert("Order failed: " + err.message);
       btn.classList.remove("loading");
     }
   };

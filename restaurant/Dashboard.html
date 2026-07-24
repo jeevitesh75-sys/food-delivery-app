@@ -31,15 +31,11 @@ button { padding:8px 12px; border:none; border-radius:6px; color:white; margin:4
 .food-scroll{ max-height:420px; overflow-y:auto; padding-right:6px; }
 .food-scroll::-webkit-scrollbar { width:6px; }
 .food-scroll::-webkit-scrollbar-thumb { background:#ff4d4d; border-radius:10px; }
-
-/* STATUS BADGES */
 .sbadge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:bold; }
 .s-pending  { background:#fff3cd; color:#856404; }
 .s-accepted { background:#cce5ff; color:#004085; }
 .s-ready    { background:#d1e7dd; color:#0a3622; }
 .s-out-for-delivery { background:#e2d9f3; color:#4a235a; }
-
-/* NOTIFICATION BANNER */
 #notif-banner {
   display:none; position:fixed; top:65px; left:10px; right:10px;
   color:white; padding:14px 16px; border-radius:12px;
@@ -48,21 +44,18 @@ button { padding:8px 12px; border:none; border-radius:6px; color:white; margin:4
   animation:slide-in 0.35s ease; cursor:pointer;
 }
 @keyframes slide-in { from{transform:translateY(-16px);opacity:0} to{transform:translateY(0);opacity:1} }
-
-/* NOTIF PROMPT */
 #notif-prompt {
   background:#fff3cd; border:1px solid #ffc107; border-radius:10px;
   padding:12px 14px; margin:10px;
   display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px;
 }
-
-/* EDIT MODAL */
 #editModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.5); justify-content:center; align-items:center; z-index:9999; }
 </style>
+
 </head>
 <body>
 
-<div id="notif-banner" onclick="this.style.display='none'">🔔 <span id="notif-text"></span></div>
+
 
 <div class="header">
   🍴 Dashboard
@@ -76,7 +69,6 @@ button { padding:8px 12px; border:none; border-radius:6px; color:white; margin:4
     <button class="green" style="white-space:nowrap" onclick="enableNotifications()">Enable</button>
   </div>
 
-  <!-- ADD FOOD -->
   <div class="card">
     <h3>Add Food</h3>
     <input id="fname"  placeholder="Food name">
@@ -85,20 +77,17 @@ button { padding:8px 12px; border:none; border-radius:6px; color:white; margin:4
     <button class="green" onclick="addFood()">Add Food</button>
   </div>
 
-  <!-- FOODS -->
   <div class="card">
     <h3>Your Foods</h3>
     <input id="searchFood" placeholder="Search food..." onkeyup="filterFoods()">
     <div id="foodList" class="food-scroll"></div>
   </div>
 
-  <!-- ORDERS -->
   <div class="card">
     <h3>Your Orders <span id="order-badge2" style="background:red;color:white;border-radius:50%;padding:2px 8px;font-size:12px;display:none;margin-left:6px;"></span></h3>
     <div id="orders"></div>
   </div>
 
-  <!-- EARNINGS -->
   <div class="card">
     <h3>Earnings</h3>
     <div class="earn-box"><div>Today: ₹<span id="todayEarn">0</span></div><button class="red" onclick="alert('Reset from Admin Panel.')">Reset</button></div>
@@ -111,7 +100,6 @@ button { padding:8px 12px; border:none; border-radius:6px; color:white; margin:4
   <div onclick="location.href='Profile.html'" style="cursor:pointer;font-size:14px;">👤 Profile</div>
 </div>
 
-<!-- EDIT MODAL -->
 <div id="editModal">
   <div style="background:white;padding:20px;border-radius:12px;width:90%;max-width:400px;">
     <h3>Edit Food</h3>
@@ -127,7 +115,7 @@ button { padding:8px 12px; border:none; border-radius:6px; color:white; margin:4
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore, collection, addDoc, query, where,
-  onSnapshot, deleteDoc, doc, updateDoc, getDocs, getDoc
+  onSnapshot, deleteDoc, doc, updateDoc, getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -139,16 +127,14 @@ const app = initializeApp({
 const db   = getFirestore(app);
 const auth = getAuth(app);
 
-// 🔴 Replace with your token from webpushr.com → REST API tab
-const WEBPUSHR_KEY   = "af92463d3ee3a390fbef2ca6a2114f56";
-const WEBPUSHR_TOKEN = "122215";
+
+
 onAuthStateChanged(auth, async (user) => {
   if (!user) { location.href = "login.html"; return; }
 
   const restaurantId  = user.uid;
   const restaurantRef = doc(db,"restaurants",restaurantId);
 
-  // EARNINGS
   onSnapshot(restaurantRef, snap => {
     if (!snap.exists()) return;
     const d = snap.data();
@@ -156,60 +142,12 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById("totalEarn").innerText = d.totalEarn || 0;
   });
 
-  // ══════════════════════════════════════════════
-  // ENABLE NOTIFICATIONS
-  // Registers SW + requests permission + saves subId
-  // Background push works even when app is closed
-  // ══════════════════════════════════════════════
-  window.enableNotifications = async () => {
-    try {
-      if (!("Notification" in window)) { alert("Notifications not supported."); return; }
-
-      // Register SW first — required for background push to work
-      if ("serviceWorker" in navigator) {
-        const reg = await navigator.serviceWorker.register("/restaurant/sw.js", { scope:"/restaurant/" });
-        await navigator.serviceWorker.ready;
-        console.log("✅ SW ready:", reg.scope);
-      }
-
-      const perm = await Notification.requestPermission();
-      if (perm !== "granted") {
-        alert("Please allow notifications in browser settings!");
-        return;
-      }
-
-      // Webpushr subscribe — it creates a push subscription and sends to its servers
-      // When Webpushr pushes a notification, sw.min.js inside sw.js handles showing it
-      if (typeof webpushr !== "undefined") {
-        webpushr("subscribe", {});
-        // Get subscriber ID and save to Firestore for targeting
-        setTimeout(() => {
-          webpushr("getAttribute", {}, async (sub) => {
-            if (sub && sub.sid) {
-              await updateDoc(restaurantRef, { webpushrSubId: sub.sid });
-              console.log("✅ Webpushr subId saved:", sub.sid);
-            }
-          });
-        }, 2000);
-      }
-
-      document.getElementById("notif-prompt").style.display = "none";
-      showBanner("✅ Notifications ON! You'll get popups even when app is closed.", "green");
-    } catch(e) {
-      console.error("Notification setup error:", e);
-      alert("Error enabling notifications: " + e.message);
-    }
-  };
-
-  // Auto-hide prompt + silent SW register if already granted
-  if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+  
+  if (typeof OneSignal !== "undefined" && Notification.permission === "granted") {
+    OneSignal.login(restaurantId);
     document.getElementById("notif-prompt").style.display = "none";
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/restaurant/sw.js",{scope:"/restaurant/"}).catch(()=>{});
-    }
   }
 
-  // ADD FOOD
   window.addFood = async () => {
     const name  = document.getElementById("fname").value.trim();
     const price = document.getElementById("price").value.trim();
@@ -221,7 +159,6 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById("img").value="";
   };
 
-  // FOOD LIST
   let allFoods = [];
   onSnapshot(query(collection(db,"menu"),where("restaurantId","==",restaurantId)), snap => {
     allFoods = snap.docs.map(d => ({id:d.id,...d.data()}));
@@ -273,17 +210,6 @@ onAuthStateChanged(auth, async (user) => {
 
   // ══════════════════════════════════════════════
   // ORDERS LISTENER
-  //
-  // Status flow:
-  // Pending → [Accept][Reject]
-  //    ↓ Accept
-  // Accepted → [Mark Ready]   ← all delivery boys see & can grab
-  //    ↓ Mark Ready
-  // Ready → customer sees "Food Ready"
-  //    ↓ delivery boy accepts
-  // Out for Delivery → only that delivery boy sees it
-  //    ↓ delivered
-  // Delivered
   // ══════════════════════════════════════════════
   let knownOrders = new Set();
 
@@ -298,19 +224,17 @@ onAuthStateChanged(auth, async (user) => {
         if (o.status === "Rejected" || o.status === "Delivered") return;
         count++;
 
-        // ── NEW ORDER ALERT ──
         if (!knownOrders.has(d.id) && knownOrders.size > 0) {
           const items = (o.items||[]).map(i=>`${i.name} x${i.qty}`).join(", ");
           showBanner(`🔔 New Order! ₹${o.total} from ${o.customerName||"Customer"}`,"green");
           playChime();
-          // Show browser notification (works when tab is in background)
           if (Notification.permission === "granted") {
             new Notification("🍔 New Order!", {
-              body:     `₹${o.total} • ${items}`,
-              icon:     "/restaurant/icons/icon-192.png",
-              tag:      "order-" + d.id,
+              body: `₹${o.total} • ${items}`,
+              icon: "/restaurant/icons/restaurant-192.png",
+              tag:  "order-" + d.id,
               renotify: true,
-              requireInteraction: true  // stays until dismissed — doesn't auto-close
+              requireInteraction: true
             });
           }
         }
@@ -325,21 +249,18 @@ onAuthStateChanged(auth, async (user) => {
           "Ready":"s-ready","Out for Delivery":"s-out-for-delivery"
         }[o.status] || "s-pending";
 
-        // ── BUTTONS: based on status ──
-        // Pending  → Accept + Reject
-        // Accepted → Ready button only (reject gone)
-        // Ready    → nothing (delivery boys handle it)
-        // Out for Delivery → show rider info only
+        // BUTTONS
+        // Pending  → [Accept] [Reject]
+        // Accepted → [Mark Ready]  (reject gone)
+        // Ready & beyond → no buttons needed
         let btns = "";
         if (o.status === "Pending") {
           btns = `
             <button class="green" onclick="acceptOrder('${d.id}')">✅ Accept</button>
             <button class="red"   onclick="rejectOrder('${d.id}')">❌ Reject</button>`;
         } else if (o.status === "Accepted") {
-          btns = `
-            <button class="blue" onclick="markReady('${d.id}')">🍽️ Ready</button>`;
+          btns = `<button class="blue" onclick="markReady('${d.id}')">🍽️ Mark Ready</button>`;
         }
-        // Ready and beyond — no buttons needed from restaurant
 
         html += `
           <div class="order-box" id="order_${d.id}">
@@ -353,13 +274,11 @@ onAuthStateChanged(auth, async (user) => {
             <small>Delivery: ₹${o.deliveryFee||0} | Platform: ₹${o.platformFee||0}</small><br>
             <b style="font-size:16px;">Total: ₹${o.total}</b>
             ${o.deliveryBoyName?`<br><br>🛵 <b>${o.deliveryBoyName}</b> — ${o.deliveryBoyPhone||""}`:""}
-            <br><br>
-            ${btns}
+            <br><br>${btns}
           </div>`;
       });
 
       document.getElementById("orders").innerHTML = html || "<p style='color:#999;'>No active orders</p>";
-
       const b1 = document.getElementById("order-badge");
       const b2 = document.getElementById("order-badge2");
       if (count > 0) { b1.innerText=count; b1.style.display="inline"; b2.innerText=count; b2.style.display="inline"; }
@@ -369,9 +288,8 @@ onAuthStateChanged(auth, async (user) => {
 
   // ══════════════════════════════════════════════
   // ACCEPT ORDER
-  // → status = "Accepted"
-  // → Push to ALL delivery boys via Webpushr
-  //   (they see it in their app, first one to tap gets it)
+  // Sets status = "Accepted", deliveryBoyId = ""
+  // ALL delivery boys can see it, first to tap wins
   // ══════════════════════════════════════════════
   window.acceptOrder = async (orderId) => {
     try {
@@ -379,59 +297,44 @@ onAuthStateChanged(auth, async (user) => {
       if (!snap.exists()) return;
       const order = snap.data();
 
-      // Update status — delivery boys will see this order in their "Accepted" query
+      // ✅ KEY FIX: deliveryBoyId must be "" (empty string) so ALL riders see it
       await updateDoc(doc(db,"orders",orderId), {
-        status:                "Accepted",
-        deliveryBoyId:         "",     // no one assigned yet
-        deliveryBoyName:       "",
-        deliveryBoyPhone:      ""
+        status:           "Accepted",
+        deliveryBoyId:    "",    // ← empty = open to ALL delivery boys
+        deliveryBoyName:  "",
+        deliveryBoyPhone: ""
       });
 
-      // Push to ALL delivery boys — they'll see the popup and tap to accept
+      // Push notification to ALL delivery boys via Webpushr segment
       await pushToAllDeliveryBoys(order, orderId);
-
-      showBanner("✅ Accepted! Notifying all delivery boys…","green");
+      showBanner("✅ Accepted! All delivery boys notified.","green");
     } catch(e) {
       console.error(e);
       alert("Error: " + e.message);
     }
   };
 
-  // ── PUSH TO ALL DELIVERY BOYS via Webpushr segment ──
-  async function pushToAllDeliveryBoys(order, orderId) {
+async function pushToAllDeliveryBoys(order, orderId) {
     try {
-      const summary = (order.items||[]).map(i=>`${i.name} x${i.qty}`).join(", ");
-      await fetch("https://api.webpushr.com/v1/notification/send/segment", {
+      await fetch("https://www.elurufoods.shop/api/emailDeliveryBoys", {
         method: "POST",
-        headers: {
-          "Content-Type":      "application/json",
-          "webpushrKey":       WEBPUSHR_KEY,
-          "webpushrAuthToken": WEBPUSHR_TOKEN
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title:       "🛵 New Delivery Available!",
-          message:     `${order.restaurantName||"Restaurant"} → ${order.customerAddress||"Customer"} • ₹${order.total}`,
-          url:         "/delivery/Home.html",
-          segment:     "delivery_partners",
-          auto_hide:   0,
-          expire_push: "1h"
+          restaurantName: order.restaurantName,
+          customerAddress: order.customerAddress,
+          total: order.total
         })
       });
     } catch(e) {
-      // Non-critical — order is in Firestore, riders can still see it in their app
-      console.warn("Push to delivery boys failed (non-critical):", e);
+      console.warn("Email notify failed (non-critical):", e);
     }
-  }
+}
 
-  // ── MARK READY ──
-  // Customer tracking will show "Food Ready"
-  // Delivery boys still see the order and can accept it
   window.markReady = async (orderId) => {
     await updateDoc(doc(db,"orders",orderId), { status:"Ready" });
     showBanner("🍽️ Marked Ready! Customer can see food is ready.","blue");
   };
 
-  // ── REJECT ──
   window.rejectOrder = async (orderId) => {
     if (!confirm("Reject this order?")) return;
     await updateDoc(doc(db,"orders",orderId), { status:"Rejected" });
@@ -440,7 +343,6 @@ onAuthStateChanged(auth, async (user) => {
     }, 3000);
   };
 
-  // ── BANNER ──
   window.showBanner = (msg, color="green") => {
     const b = document.getElementById("notif-banner");
     const c = {green:"#28a745",orange:"#ff9800",red:"#dc3545",blue:"#007bff"};
@@ -451,7 +353,6 @@ onAuthStateChanged(auth, async (user) => {
     b._t = setTimeout(()=>b.style.display="none", 6000);
   };
 
-  // ── CHIME ──
   function playChime() {
     try {
       const ctx = new(window.AudioContext||window.webkitAudioContext)();
@@ -470,28 +371,12 @@ onAuthStateChanged(auth, async (user) => {
 });
 </script>
 
-<!-- WEBPUSHR SDK -->
-<script>
-(function(w,d,s,id){
-  if(typeof(w.webpushr)!=="undefined") return;
-  w.webpushr=w.webpushr||function(){ (w.webpushr.q=w.webpushr.q||[]).push(arguments); };
-  var js,fjs=d.getElementsByTagName(s)[0];
-  js=d.createElement(s); js.id=id; js.async=1;
-  js.src="https://cdn.webpushr.com/app.min.js";
-  fjs.parentNode.insertBefore(js,fjs);
-})(window,document,"script","webpushr-jssdk");
 
-webpushr("setup",{
-  key:"BM2b-wTIlQyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI"
-});
-</script>
 
-<!-- SERVICE WORKER -->
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/restaurant/sw.js",{scope:"/restaurant/"})
-    .then(r=>console.log("SW:",r.scope))
-    .catch(e=>console.log("SW error:",e));
+    .then(r=>console.log("SW:",r.scope)).catch(e=>console.log("SW error:",e));
 }
 </script>
 

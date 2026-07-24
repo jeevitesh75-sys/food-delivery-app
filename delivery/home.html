@@ -20,58 +20,31 @@ button{ padding:10px; border:none; border-radius:8px; color:white; cursor:pointe
 .bottom-nav a{ text-decoration:none; color:black; font-weight:bold; }
 .online  { color:green; font-weight:bold; }
 .offline { color:red;   font-weight:bold; }
-
-/* ── NOTIFICATION BANNER ── */
 #notif-banner {
-  display:none;
-  position:fixed;
-  top:10px; left:10px; right:10px;
-  background:#28a745;
-  color:white;
-  padding:14px 16px;
-  border-radius:12px;
-  font-size:15px;
-  font-weight:bold;
-  z-index:9999;
-  box-shadow:0 4px 20px rgba(0,0,0,.25);
-  animation: slide-in 0.35s ease;
-  cursor:pointer;
+  display:none; position:fixed; top:10px; left:10px; right:10px;
+  background:#28a745; color:white; padding:14px 16px;
+  border-radius:12px; font-size:15px; font-weight:bold;
+  z-index:9999; box-shadow:0 4px 20px rgba(0,0,0,.25);
+  animation:slide-in 0.35s ease; cursor:pointer;
 }
-@keyframes slide-in {
-  from { transform:translateY(-16px); opacity:0; }
-  to   { transform:translateY(0);     opacity:1; }
-}
-
-/* ── NOTIF PERMISSION PROMPT ── */
+@keyframes slide-in { from{transform:translateY(-16px);opacity:0} to{transform:translateY(0);opacity:1} }
 #notif-prompt {
-  background:#fff3cd;
-  border:1px solid #ffc107;
-  border-radius:10px;
-  padding:12px 14px;
-  margin:10px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  font-size:13px;
+  background:#fff3cd; border:1px solid #ffc107; border-radius:10px;
+  padding:12px 14px; margin:10px;
+  display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:13px;
 }
 </style>
-</head>
 
+</head>
 <body>
 
-<!-- ── NOTIFICATION BANNER ── -->
 <div id="notif-banner" onclick="this.style.display='none'">
   🔔 <span id="notif-text">New delivery available!</span>
 </div>
 
 <div class="header">🚴 Delivery Partner</div>
 
-<!-- ── NOTIFICATION PERMISSION PROMPT ── -->
-<div id="notif-prompt">
-  <span>🔔 Enable notifications to get new delivery alerts!</span>
-  <button class="green" style="padding:7px 12px;margin:0;" onclick="enableNotifications()">Enable</button>
-</div>
+
 
 <div class="top-card">
   <h3 id="boyName">Loading...</h3><br>
@@ -91,12 +64,11 @@ button{ padding:10px; border:none; border-radius:8px; color:white; cursor:pointe
   <a href="Profile.html">👤 Profile</a>
 </div>
 
-<!-- ══ FIREBASE + LOGIC (ALL ORIGINAL UNTOUCHED) ══ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore, collection, query, where,
-  onSnapshot, doc, updateDoc, getDoc, deleteDoc, increment
+  onSnapshot, doc, updateDoc, getDoc, increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -117,32 +89,29 @@ onAuthStateChanged(auth, async (user) => {
 
   const profile = profileSnap.data();
 
-  // ── LIVE LOCATION UPDATE (original) ──
+  // LIVE LOCATION
   navigator.geolocation.watchPosition(
-    async (position) => {
+    async (pos) => {
       await updateDoc(profileRef, {
-        liveLat:   position.coords.latitude,
-        liveLng:   position.coords.longitude,
+        liveLat: pos.coords.latitude,
+        liveLng: pos.coords.longitude,
         updatedAt: Date.now()
       });
     },
-    (err) => console.log(err),
+    err => console.log(err),
     { enableHighAccuracy: true }
   );
 
-  // ── EARNINGS LIVE (original) ──
-  onSnapshot(profileRef, (snap) => {
-    const data = snap.data();
-    document.getElementById("todayEarn").innerText = data.todayEarn || 0;
-    document.getElementById("totalEarn").innerText = data.totalEarn || 0;
+  // EARNINGS LIVE
+  onSnapshot(profileRef, snap => {
+    const d = snap.data();
+    document.getElementById("todayEarn").innerText = d.todayEarn || 0;
+    document.getElementById("totalEarn").innerText = d.totalEarn || 0;
   });
 
-  document.getElementById("boyName").innerText   = "👋 " + profile.name;
-  document.getElementById("todayEarn").innerText = profile.todayEarn || 0;
-  document.getElementById("totalEarn").innerText = profile.totalEarn || 0;
+  document.getElementById("boyName").innerText = "👋 " + profile.name;
 
   let online = profile.online || false;
-
   function updateStatus() {
     document.getElementById("statusText").innerText = online ? "Online" : "Offline";
     document.getElementById("statusText").className = online ? "online" : "offline";
@@ -156,92 +125,111 @@ onAuthStateChanged(auth, async (user) => {
     updateStatus();
   };
 
-  // ── DISTANCE HELPER (original) ──
   function getDistance(lat1, lon1, lat2, lon2) {
-    const R    = 6371;
-    const dLat = (lat2-lat1) * Math.PI/180;
-    const dLon = (lon2-lon1) * Math.PI/180;
-    const a    = Math.sin(dLat/2)*Math.sin(dLat/2) +
-                 Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
-                 Math.sin(dLon/2)*Math.sin(dLon/2);
-    return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1);
+    const R=6371, dLat=(lat2-lat1)*Math.PI/180, dLon=(lon2-lon1)*Math.PI/180;
+    const a=Math.sin(dLat/2)*Math.sin(dLat/2)+
+            Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*
+            Math.sin(dLon/2)*Math.sin(dLon/2);
+    return (R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))).toFixed(1);
   }
 
-  // ── ORDERS LISTENER (original) ──
-  // "Accepted" = restaurant accepted, broadcast to all riders to grab
-  const orderQuery = query(collection(db,"orders"), where("status","in",["Accepted","Out for Delivery"]));
-  onSnapshot(orderQuery, (snap) => {
-    let html = "";
-    snap.forEach(docSnap => {
-      const order = docSnap.data();
-      let distance = "-";
-      if (order.restaurantLat && order.restaurantLng && order.customerLat && order.customerLng) {
-        distance = getDistance(order.restaurantLat, order.restaurantLng, order.customerLat, order.customerLng) + " km";
-      }
-      const deliveryEarning = order.deliveryFee || 30;
+  // ══════════════════════════════════════════════
+  // ORDERS LISTENER — KEY FIX
+  //
+  // Query: status in ["Accepted","Ready","Out for Delivery"]
+  //
+  // "Accepted" & "Ready" = open to ALL riders
+  //   → show if deliveryBoyId is "" (not yet taken)
+  //
+  // "Out for Delivery" = only show to the rider who accepted
+  //   → show if deliveryBoyId === user.uid
+  // ══════════════════════════════════════════════
+  onSnapshot(
+    query(collection(db,"orders"), where("status","in",["Accepted","Ready","Out for Delivery"])),
+    snap => {
+      let html = "";
 
-      // Hide "Out for Delivery" orders that belong to someone else
-      if (order.status === "Out for Delivery" && order.deliveryBoyId !== user.uid) return;
-      // Hide "Accepted" orders already taken by someone else
-      if (order.status === "Accepted" && order.deliveryBoyId && order.deliveryBoyId !== user.uid) return;
+      snap.forEach(docSnap => {
+        const order = docSnap.data();
 
-      html += `
-        <div class="order-card">
-          <b>🏪 Restaurant:</b> ${order.restaurantName||"-"}<br><br>
-          <b>📞 Restaurant Phone:</b> ${order.restaurantPhone||"-"}<br><br>
-          <b>📍 Restaurant Address:</b> ${order.restaurantAddress||"-"}<br><br>
-          ${order.restaurantLat && order.restaurantLng ? `
-            <a target="_blank" href="https://www.google.com/maps?q=${order.restaurantLat},${order.restaurantLng}">
-              <button class="orange">🏪 Open Restaurant</button>
-            </a>` : ""}
-          <br><br>
-          <b>Customer:</b> ${order.customerName||"-"}<br><br>
-          <b>Phone:</b> ${order.customerPhone||"-"}<br><br>
-          <b>Address:</b> ${order.customerAddress||"-"}<br><br>
-          <a href="tel:${order.customerPhone||''}"><button class="green">📞 Call Customer</button></a><br><br>
-          ${order.customerLat && order.customerLng ? `
-            <a target="_blank" href="https://www.google.com/maps?q=${order.customerLat},${order.customerLng}">
-              <button class="orange">🗺 Open Map</button>
-            </a>` : `<p>Location not available</p>`}
-          <br><br>
-          <b>Total:</b> ₹${order.total||0}<br><br>
-          <b>Distance:</b> ${distance}<br><br>
-          <b>Your Earning:</b> ₹${deliveryEarning}<br><br>
-          <b>Status:</b> ${order.status}<br><br>
-          ${
-            // If I already accepted this order
-            order.deliveryBoyId === user.uid
-              ? (order.pickedUp
-                  ? `<button class="orange" onclick="deliverOrder('${docSnap.id}',${deliveryEarning})">✅ Delivered</button>`
-                  : `<button class="green"  onclick="pickupOrder('${docSnap.id}')">📦 Picked Up from Restaurant</button>`)
-              // If no one has accepted yet - show Accept button
-              : (!order.deliveryBoyId
-                  ? `<button class="green" onclick="acceptOrder('${docSnap.id}')">🛵 Accept Order</button>`
-                  // Already taken by someone else - hide
-                  : `<p style="color:#999;font-size:12px;">Accepted by another rider</p>`)
+        // ── VISIBILITY RULES ──
+        if (order.status === "Out for Delivery") {
+          // Only the assigned rider sees this
+          if (order.deliveryBoyId !== user.uid) return;
+        } else {
+          // "Accepted" or "Ready" — open to all riders
+          // Hide if someone else already grabbed it
+          if (order.deliveryBoyId && order.deliveryBoyId !== user.uid) return;
+        }
+
+        let distance = "-";
+        if (order.restaurantLat && order.restaurantLng && order.customerLat && order.customerLng) {
+          distance = getDistance(order.restaurantLat, order.restaurantLng, order.customerLat, order.customerLng) + " km";
+        }
+        const deliveryEarning = order.deliveryFee || 30;
+
+        // ── BUTTONS ──
+        // Not yet taken → Accept button
+        // I accepted it, not picked up → Picked Up button
+        // I accepted, picked up → Delivered button
+        let actionBtn = "";
+        if (!order.deliveryBoyId || order.deliveryBoyId === "") {
+          // Order is open — any rider can accept
+          actionBtn = `<button class="green" onclick="acceptOrder('${docSnap.id}')">🛵 Accept Order</button>`;
+        } else if (order.deliveryBoyId === user.uid) {
+          if (!order.pickedUp) {
+            actionBtn = `<button class="green" onclick="pickupOrder('${docSnap.id}')">📦 Picked Up from Restaurant</button>`;
+          } else {
+            actionBtn = `<button class="orange" onclick="deliverOrder('${docSnap.id}',${deliveryEarning})">✅ Delivered</button>`;
           }
-        </div>`;
-    });
-    document.getElementById("orders").innerHTML = html || "<p>No orders available</p>";
-  });
+        }
 
-  // ── ORDER ACTIONS (original) ──
+        html += `
+          <div class="order-card">
+            <b>🏪 Restaurant:</b> ${order.restaurantName||"-"}<br><br>
+            <b>📞 Restaurant Phone:</b> ${order.restaurantPhone||"-"}<br><br>
+            <b>📍 Restaurant Address:</b> ${order.restaurantAddress||"-"}<br><br>
+            ${order.restaurantLat && order.restaurantLng ? `
+              <a target="_blank" href="https://www.google.com/maps?q=${order.restaurantLat},${order.restaurantLng}">
+                <button class="orange">🏪 Open Restaurant on Map</button>
+              </a><br><br>` : ""}
+            <b>Customer:</b> ${order.customerName||"-"}<br><br>
+            <b>Phone:</b> ${order.customerPhone||"-"}<br><br>
+            <b>Address:</b> ${order.customerAddress||"-"}<br><br>
+            <a href="tel:${order.customerPhone||''}"><button class="green">📞 Call Customer</button></a><br><br>
+            ${order.customerLat && order.customerLng ? `
+              <a target="_blank" href="https://www.google.com/maps?q=${order.customerLat},${order.customerLng}">
+                <button class="orange">🗺 Open Customer on Map</button>
+              </a><br><br>` : "<p>Customer location not available</p><br>"}
+            <b>Total:</b> ₹${order.total||0}<br><br>
+            <b>Distance:</b> ${distance}<br><br>
+            <b>Your Earning:</b> ₹${deliveryEarning}<br><br>
+            <b>Status:</b> ${order.status}<br><br>
+            ${actionBtn}
+          </div>`;
+      });
+
+      document.getElementById("orders").innerHTML = html || "<p style='color:#999;padding:10px;'>No orders available right now</p>";
+    }
+  );
+
+  // ── ACCEPT ORDER (first rider to tap wins) ──
   window.acceptOrder = async (id) => {
     const orderRef  = doc(db,"orders",id);
     const snap      = await getDoc(orderRef);
     if (!snap.exists()) return;
     const order     = snap.data();
 
-    // Race condition check — someone else may have grabbed it
-    if (order.deliveryBoyId) {
-      alert("❌ Another rider already accepted this order!");
+    // Race condition check — someone else may have grabbed it a split second ago
+    if (order.deliveryBoyId && order.deliveryBoyId !== "") {
+      alert("❌ Another rider just accepted this order!");
       return;
     }
 
     const fresh = await getDoc(profileRef);
     const rider = fresh.data();
 
-    // Assign to this delivery boy — disappears for all others instantly
+    // Lock the order to this rider — disappears for all others instantly via Firestore realtime
     await updateDoc(orderRef, {
       deliveryBoyId:    user.uid,
       deliveryBoyName:  rider.name    || "",
@@ -257,115 +245,58 @@ onAuthStateChanged(auth, async (user) => {
 
   window.pickupOrder = async (id) => {
     await updateDoc(doc(db,"orders",id), { pickedUp: true });
-    alert("Food Picked Up ✅");
+    alert("📦 Food Picked Up ✅");
   };
 
   window.deliverOrder = async (id, fee) => {
     const orderRef  = doc(db,"orders",id);
     const orderSnap = await getDoc(orderRef);
     if (!orderSnap.exists()) { alert("Order not found"); return; }
-    const order     = orderSnap.data();
+    const order = orderSnap.data();
 
     await updateDoc(orderRef, { status:"Delivered", deliveredAt: Date.now() });
     await updateDoc(profileRef, {
       todayEarn:       increment(fee),
       totalEarn:       increment(fee),
-      todayCollection: increment(Number(order.total || 0))
+      todayCollection: increment(Number(order.total||0))
     });
     if (order.restaurantId) {
       await updateDoc(doc(db,"restaurants",order.restaurantId), {
-        todayEarn: increment(Number(order.subtotal || 0)),
-        totalEarn: increment(Number(order.subtotal || 0))
+        todayEarn: increment(Number(order.subtotal||0)),
+        totalEarn: increment(Number(order.subtotal||0))
       });
     }
-    console.log("Delivery Fee =", fee);
-    const fresh = await getDoc(profileRef);
-    const data  = fresh.data();
-    document.getElementById("todayEarn").innerText = data.todayEarn || 0;
-    document.getElementById("totalEarn").innerText = data.totalEarn || 0;
-    alert("Order Delivered ✅");
+    alert("✅ Order Delivered!");
   };
 
-  // ══════════════════════════════════════════
-  // WEBPUSHR — Save subscriber ID to Firestore
-  // so restaurant dashboard can notify this boy
-  // ══════════════════════════════════════════
-  window.enableNotifications = async () => {
-    try {
-      if (!("Notification" in window)) {
-        alert("Notifications not supported on this browser"); return;
-      }
-      const perm = await Notification.requestPermission();
-      if (perm !== "granted") {
-        alert("Please allow notifications to receive delivery alerts!"); return;
-      }
+  // ── ENABLE NOTIFICATIONS ──
+  
+ 
 
-      // Webpushr handles subscription — we just need to grab the subscriber ID
-      // and save it to Firestore so restaurant can push directly to this device
-      if (typeof webpushr === "undefined") {
-        alert("Webpushr not loaded yet, try again in a moment"); return;
-      }
-
-      webpushr("subscribe", {});
-
-      // Wait 2 seconds then get subscriber ID
-      setTimeout(() => {
-        webpushr("getAttribute", {}, async (sub) => {
-          if (sub && sub.sid) {
-            await updateDoc(profileRef, {
-              webpushrSubId:        sub.sid,
-              notificationsEnabled: true
-            });
-            document.getElementById("notif-prompt").style.display = "none";
-            showBanner("✅ Notifications enabled! You'll get new delivery alerts.");
-          }
-        });
-      }, 2000);
-
-    } catch(e) {
-      console.log("Notification setup error:", e);
-    }
-  };
-
-  // Auto hide prompt if already subscribed
-  if (profile.webpushrSubId || Notification.permission === "granted") {
+  if (typeof OneSignal !== "undefined" && Notification.permission === "granted") {
+    OneSignal.login(user.uid);
+    OneSignal.User.addTag("role", "delivery_partner");
     document.getElementById("notif-prompt").style.display = "none";
   }
 
-  // ── BANNER HELPER ──
   window.showBanner = (msg, color) => {
     const b = document.getElementById("notif-banner");
     b.style.background = color === "orange" ? "#ff9800" : "#28a745";
     document.getElementById("notif-text").innerText = msg;
     b.style.display = "block";
-    setTimeout(() => b.style.display = "none", 5000);
+    clearTimeout(b._t);
+    b._t = setTimeout(()=>b.style.display="none", 5000);
   };
 
 });
 </script>
-
-<!-- ── SERVICE WORKER ── -->
 <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/delivery/sw.js", { scope:"/delivery/" });
+navigator.serviceWorker.register("/delivery/sw.js", { scope:"/delivery/" });
 }
 </script>
 
-<!-- ── WEBPUSHR ── -->
-<script>
-(function(w,d,s,id){
-  if(typeof(w.webpushr)!=="undefined") return;
-  w.webpushr=w.webpushr||function(){ (w.webpushr.q=w.webpushr.q||[]).push(arguments); };
-  var js, fjs=d.getElementsByTagName(s)[0];
-  js=d.createElement(s); js.id=id; js.async=1;
-  js.src="https://cdn.webpushr.com/app.min.js";
-  fjs.parentNode.appendChild(js);
-})(window,document,"script","webpushr-jssdk");
 
-webpushr("setup",{
-  key:"BM2b-wTIlQyAV4yLcblZj8CKObKtR1z9CfuKIBidQEffX-a5KuTgYX0MfDntGkBtZLRDsXlo7otiNZobvkdUWHI"
-});
-</script>
 
 </body>
 </html>

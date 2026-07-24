@@ -30,7 +30,8 @@ body{
 
 min-height:100vh;
 
-display:flex;
+/* FIX 1: start hidden to prevent flash, JS will show it */
+display:none;
 
 justify-content:center;
 
@@ -154,9 +155,9 @@ font-size:12px;
 color:#999;
 
 }
-body{
-display:none;
-}
+
+/* REMOVED the duplicate body{display:none} that was here — that was causing the blank page */
+
 </style>
 
 </head>
@@ -200,6 +201,7 @@ Powered by Eluru Foods
 </div>
 
 </div>
+
 <script type="module">
 
 import {
@@ -226,8 +228,6 @@ getDoc
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
 
 const firebaseConfig={
 
@@ -265,30 +265,38 @@ auth,
 browserLocalPersistence
 );
 
-
-
-// AUTO LOGIN
+// AUTO LOGIN — fires on every page load
+// If already logged in → redirect instantly, user never sees login page
+// If not logged in → show the login page
 onAuthStateChanged(
 auth,
 async(user)=>{
 
-document.body.style.display="flex";
+  if(!user){
+    // Not logged in — show the login page
+    document.body.style.display="flex";
+    return;
+  }
 
-if(!user) return;
+  // Already logged in — check if profile is complete
+  try {
+    const snap =
+      await getDoc(
+        doc(db,"restaurants",user.uid)
+      );
 
-const snap =
-await getDoc(
-doc(db,"restaurants",user.uid)
-);
-
-if(
-snap.exists() &&
-snap.data()?.name
-){
-location.href="Dashboard.html";
-}else{
-location.href="details.html";
-}
+    // FIX 2: only check snap.exists() — not snap.data()?.name
+    // Your old code checked for 'name' field, if it was missing
+    // it sent you to details.html even with a valid account
+    if( snap.exists() ){
+      location.replace("Dashboard.html");
+    } else {
+      location.replace("details.html");
+    }
+  } catch(e) {
+    // If Firestore fails (offline etc), still go to Dashboard
+    location.replace("Dashboard.html");
+  }
 
 }
 );
@@ -310,8 +318,6 @@ provider
 const user=
 result.user;
 
-
-
 const snap=
 await getDoc(
 doc(
@@ -321,34 +327,29 @@ user.uid
 )
 );
 
-if(
-snap.exists()
-&&
-snap.data()?.name
-){
+if( snap.exists() ){
 
-location.href=
-"Dashboard.html";
+location.replace(
+"Dashboard.html"
+);
 
 }else{
 
-location.href=
-"details.html";
+location.replace(
+"details.html"
+);
 
 }
 
 }catch(err){
 
-alert(
-err.message
-);
+if(err.code !== "auth/popup-closed-by-user"){
+  alert(err.message);
+}
 
 }
 
 };
-
-document.body.style.display=
-"flex";
 
 </script>
 
