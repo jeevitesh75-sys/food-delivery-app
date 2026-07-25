@@ -47,7 +47,7 @@ from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore,
   doc,
-  updateDoc
+  setDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -77,14 +77,14 @@ window.acceptPolicies = async () => {
       return;
     }
 
-    await updateDoc(
+    await setDoc(
       doc(db,"users",user.uid),
       {
         policyAccepted:true
-      }
+      },
+      { merge: true }
     );
 
-    alert("Policies accepted");
     location.href = "details.html";
 
   } catch(err) {
@@ -95,7 +95,7 @@ window.acceptPolicies = async () => {
 
 };
 
-</script>
+        </script>
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js");
