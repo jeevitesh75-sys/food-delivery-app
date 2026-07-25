@@ -3,357 +3,60 @@
 <head>
 <meta charset="UTF-8">
 <title>Order Tracking · Eluru Foods</title>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/liquid-glass.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#D4AF37">
+<meta name="theme-color" content="#ffffff">
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
 <style>
-/* ── PAGE ── */
-body {
-  padding-bottom: 110px;
-  opacity: 0;
-  animation: fade-in 0.55s ease 0.05s forwards;
-}
-@keyframes fade-in { to { opacity: 1; } }
-
-/* ── LOADER ── */
-#loader {
-  position: fixed; inset: 0; z-index: 9999;
-  background: #080808;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 22px;
-  transition: opacity 0.6s ease, visibility 0.6s ease;
-}
-#loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-.gold-ring {
-  width: 58px; height: 58px; border-radius: 50%;
-  border: 2px solid rgba(212,175,55,0.15);
-  border-top-color: #D4AF37; border-right-color: rgba(212,175,55,0.45);
-  animation: spin 1.3s linear infinite;
-  box-shadow: 0 0 22px rgba(212,175,55,0.2); position: relative;
-}
-.gold-ring::after {
-  content: '金'; position: absolute; inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Shippori Mincho', serif;
-  font-size: 20px; color: #D4AF37; opacity: 0.7;
-  animation: spin 1.3s linear infinite reverse;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-#loader h2 {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 16px; color: #D4AF37;
-  letter-spacing: 0.3em; text-shadow: 0 0 18px rgba(212,175,55,0.35);
-}
-
-/* ── HEADER ── */
-.header {
-  background: rgba(8,8,8,0.92);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(212,175,55,0.18);
-  color: #D4AF37; padding: 18px 20px;
-  display: flex; align-items: center; gap: 12px;
-  position: sticky; top: 0; z-index: 100;
-  box-shadow: 0 2px 20px rgba(0,0,0,0.5);
-  font-family: 'Shippori Mincho', serif;
-  font-size: 19px; font-weight: 600;
-  text-shadow: 0 0 14px rgba(212,175,55,0.3);
-}
-
-/* ── SECTION LABEL ── */
-.sec-label {
-  padding: 16px 18px 8px;
-  display: flex; align-items: center; gap: 10px;
-  position: relative; z-index: 1;
-}
-.sec-label span {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 13px; color: rgba(212,175,55,0.65);
-  letter-spacing: 0.2em; text-transform: uppercase;
-  white-space: nowrap;
-}
-.sec-label::after {
-  content: ''; flex: 1; height: 1px;
-  background: linear-gradient(90deg, rgba(212,175,55,0.2), transparent);
-}
-
-/* ── ORDER LIST ITEM ── */
-.order-item {
-  background: rgba(20,20,20,0.68);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(212,175,55,0.17);
-  margin: 8px 14px;
-  padding: 16px;
-  border-radius: 18px;
-  color: #F0E6CC;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  position: relative; overflow: hidden;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.4);
-  opacity: 0;
-  animation: card-in 0.4s ease forwards;
-}
-.order-item::after {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.18), transparent);
-}
-@keyframes card-in {
-  from { opacity:0; transform:translateY(10px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-.order-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 36px rgba(0,0,0,0.5), 0 0 20px rgba(212,175,55,0.12);
-  border-color: rgba(212,175,55,0.3);
-}
-.active-order {
-  border: 1.5px solid #D4AF37 !important;
-  box-shadow: 0 0 28px rgba(212,175,55,0.25) !important;
-  background: rgba(30,24,8,0.75) !important;
-}
-
-.order-num {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 15px; font-weight: 600; color: #D4AF37;
-  margin-bottom: 6px;
-}
-.order-meta {
-  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-  margin-top: 6px;
-}
-.order-total {
-  font-size: 14px; font-weight: 700; color: #F0E6CC;
-  font-family: 'Inter', sans-serif;
-}
-.order-status-badge {
-  font-size: 11px; padding: 3px 10px;
-  border-radius: 20px;
-  background: rgba(212,175,55,0.12);
-  border: 1px solid rgba(212,175,55,0.25);
-  color: #D4AF37; font-family: 'Inter', sans-serif;
-  letter-spacing: 0.06em;
-}
-.order-status-badge.pending   { background:rgba(255,180,0,0.1);  border-color:rgba(255,180,0,0.3);  color:#FFB800; }
-.order-status-badge.preparing { background:rgba(255,140,0,0.1);  border-color:rgba(255,140,0,0.3);  color:#FF8C00; }
-.order-status-badge.ready     { background:rgba(100,200,100,0.1);border-color:rgba(100,200,100,0.3);color:#64C864; }
-.order-status-badge.out       { background:rgba(80,160,255,0.1); border-color:rgba(80,160,255,0.3); color:#50A0FF; }
-
-/* ── ORDER DETAIL CARD ── */
-#orderBox {
-  position: relative; z-index: 1;
-  padding: 0 14px 14px;
-}
-#orderBox .card {
-  background: rgba(20,20,20,0.72);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(212,175,55,0.18);
-  border-radius: 20px;
-  padding: 20px;
-  color: #F0E6CC;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
-  position: relative; overflow: hidden;
-}
-#orderBox .card::after {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.25), transparent);
-}
-
-/* ── STATUS HEADING ── */
-.status-head {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 20px; color: #D4AF37;
-  text-shadow: 0 0 14px rgba(212,175,55,0.3);
-  margin-bottom: 18px;
-}
-
-/* ── TRACKING STEPS ── */
-.step {
-  display: flex; align-items: center;
-  margin: 10px 0; color: rgba(240,230,204,0.45);
-  font-size: 14px; font-family: 'Inter', sans-serif;
-  position: relative;
-}
-.step:not(:last-child)::after {
-  content: '';
-  position: absolute; left: 7px; top: 22px;
-  width: 2px; height: 18px;
-  background: linear-gradient(180deg, rgba(212,175,55,0.3), transparent);
-}
-
-.circle {
-  width: 16px; height: 16px; border-radius: 50%;
-  margin-right: 14px; flex-shrink: 0;
-  background: rgba(255,255,255,0.08);
-  border: 1.5px solid rgba(255,255,255,0.12);
-  transition: all 0.4s ease;
-}
-.circle.active {
-  background: #D4AF37;
-  border-color: #F0C93A;
-  box-shadow: 0 0 14px rgba(212,175,55,0.6);
-  animation: pulse-step 2s ease-in-out infinite;
-}
-@keyframes pulse-step {
-  0%,100% { box-shadow: 0 0 10px rgba(212,175,55,0.4); }
-  50%      { box-shadow: 0 0 22px rgba(212,175,55,0.8); }
-}
-.step.done { color: rgba(240,230,204,0.8); }
-
-/* ── GOLD DIVIDER ── */
-.gold-hr {
-  border: none; border-top: 1px solid rgba(212,175,55,0.12);
-  margin: 16px 0;
-}
-
-/* ── ORDER ITEMS LIST ── */
-.track-items {
-  font-size: 13px; color: rgba(240,230,204,0.6);
-  font-family: 'Inter', sans-serif; line-height: 2;
-}
-.track-total {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 17px; color: #D4AF37; margin-top: 6px;
-}
-
-/* ── DELIVERY PARTNER ── */
-.delivery-section { margin-top: 14px; }
-.delivery-title {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 15px; color: #D4AF37; margin-bottom: 10px;
-}
-.delivery-row {
-  font-size: 13px; color: rgba(240,230,204,0.6);
-  font-family: 'Inter', sans-serif; margin-bottom: 5px;
-}
-.delivery-row b { color: rgba(240,230,204,0.85); }
-
-.call-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  margin-top: 12px;
-  padding: 11px 20px;
-  background: linear-gradient(135deg, #1a4a1a, #2d8a2d);
-  color: #fff;
-  border: 1px solid rgba(100,200,100,0.3);
-  border-radius: 12px;
-  font-size: 13px; font-weight: 600;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer; text-decoration: none;
-  transition: 0.3s ease;
-  box-shadow: 0 4px 16px rgba(0,128,0,0.25);
-}
-.call-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,128,0,0.4);
-}
-
-.waiting-text {
-  font-size: 13px; color: rgba(240,230,204,0.35);
-  font-style: italic; font-family: 'Inter', sans-serif;
-  margin-top: 8px;
-}
-
-/* ── MAP ── */
-#map {
-  height: 220px; border-radius: 14px;
-  overflow: hidden; margin-top: 16px;
-  border: 1px solid rgba(212,175,55,0.2);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  filter: brightness(0.85) saturate(0.85);
-}
-
-/* ── EMPTY STATE ── */
-.empty-orders {
-  text-align: center; padding: 80px 30px;
-  color: rgba(240,230,204,0.3);
-}
-.empty-orders .ei { font-size: 52px; margin-bottom: 16px; opacity: 0.35; }
-.empty-orders p {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 17px; margin-bottom: 8px;
-}
-.empty-orders small {
-  font-size: 13px; color: rgba(240,230,204,0.2);
-}
-.empty-orders a {
-  display: inline-block; margin-top: 24px;
-  padding: 12px 28px;
-  background: linear-gradient(135deg, #A07D1C, #D4AF37);
-  color: #080808; border-radius: 30px;
-  font-weight: 700; font-size: 13px;
-  font-family: 'Inter', sans-serif;
-  text-decoration: none; letter-spacing: 0.06em;
-  transition: 0.3s ease;
-  box-shadow: 0 4px 18px rgba(212,175,55,0.35);
-}
-.empty-orders a:hover { transform: translateY(-2px); }
-
-/* ── BOTTOM NAV ── */
-.bottom-nav {
-  position: fixed;
-  left: 14px; right: 14px; bottom: 14px;
-  border-radius: 22px;
-  background: rgba(10,10,10,0.92);
-  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
-  border: 1px solid rgba(212,175,55,0.15);
-  display: flex; justify-content: space-around;
-  padding: 10px 0 12px; z-index: 300;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.55);
-}
-.nav-item {
-  text-align: center; font-size: 11px;
-  color: rgba(240,230,204,0.45); text-decoration: none;
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  padding: 4px 16px; border-radius: 10px;
-  transition: 0.3s ease; font-family: 'Inter', sans-serif;
-}
-.nav-item .nav-icon { font-size: 19px; }
-.nav-item:hover { color: #D4AF37; }
+body { padding-bottom: 110px; }
+.header-title { font-size: 17px; font-weight: 800; color: var(--ink); display: flex; align-items: center; gap: 10px; }
+.sec-label { padding: 16px 20px 8px; display: flex; align-items: center; gap: 10px; }
+.sec-label span { font-size: 11px; font-weight: 700; color: var(--ink-muted); letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap; }
+.sec-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--ink-faint), transparent); }
+.empty-orders { text-align: center; padding: 80px 30px; color: var(--ink-muted); }
+.empty-orders svg.icon { width: 46px; height: 46px; margin: 0 auto 16px; opacity: 0.35; }
+.empty-orders p { font-size: 16px; font-weight: 700; margin-bottom: 6px; color: var(--ink); }
+.empty-orders small { font-size: 12.5px; color: var(--ink-faint); }
+.empty-orders a { display: inline-block; margin-top: 22px; padding: 12px 28px; background: var(--ink); color: #fff; border-radius: 30px; font-weight: 700; font-size: 13px; text-decoration: none; }
 </style>
 </head>
 
 <body>
 
-<!-- ── LOADER ── -->
 <div id="loader">
-  <div class="gold-ring"></div>
-  <h2>ELURU FOODS</h2>
+  <div class="load-ring"></div>
+  <h2>Eluru Foods</h2>
 </div>
 
-<!-- ── PARTICLES ── -->
-<canvas id="particles-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.3;"></canvas>
-
-<!-- ── HEADER ── -->
-<div class="header" style="position:relative;z-index:1;">
-  🚚 Your Orders
+<div class="page-header">
+  <div class="header-title">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M3 16V6a1 1 0 0 1 1-1h9v11"/><path d="M14 9h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+    Your Orders
+  </div>
 </div>
 
-<!-- ── ACTIVE ORDERS LABEL ── -->
-<div class="sec-label" style="position:relative;z-index:1;">
-  <span>Active Orders</span>
-</div>
+<div class="sec-label"><span>Active Orders</span></div>
 
-<!-- ── ORDER LIST ── -->
-<div id="orderList" style="position:relative;z-index:1;"></div>
+<div id="orderList"></div>
 
-<!-- ── ORDER DETAIL ── -->
 <div id="orderBox"></div>
 
-<!-- ── BOTTOM NAV ── -->
 <div class="bottom-nav">
   <a href="home.html" class="nav-item">
-    <span class="nav-icon">🏠</span>Home
+    <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    Home
   </a>
   <a href="cart.html" class="nav-item">
-    <span class="nav-icon">🛒</span>Cart
+    <span class="nav-icon-wrap">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2.5l2.5 12.5h10L20 7H6"/></svg>
+    </span>
+    Cart
   </a>
   <a href="profile.html" class="nav-item active">
-    <span class="nav-icon">👤</span>Profile
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+    Profile
   </a>
 </div>
 
@@ -394,7 +97,6 @@ onAuthStateChanged(auth, (user) => {
 
       activeOrders++;
 
-      // Status badge class
       const badgeClass = {
         "Pending":          "pending",
         "Accepted":         "preparing",
@@ -404,15 +106,14 @@ onAuthStateChanged(auth, (user) => {
 
       const div       = document.createElement("div");
       div.className   = "order-item";
-      div.style.animationDelay = `${(activeOrders - 1) * 0.08}s`;
 
       div.innerHTML = `
-        <div class="order-num">✦ Order #${index + 1}</div>
+        <div class="order-num">Order #${index + 1}</div>
         <div class="order-meta">
           <span class="order-total">₹${data.total}</span>
           <span class="order-status-badge ${badgeClass}">${data.status}</span>
         </div>
-        ${data.restaurantName ? `<div style="font-size:12px;color:rgba(240,230,204,0.35);margin-top:5px;font-family:'Inter',sans-serif;">${data.restaurantName}</div>` : ''}
+        ${data.restaurantName ? `<div style="font-size:12px;color:var(--ink-muted);margin-top:5px;">${data.restaurantName}</div>` : ''}
       `;
 
       div.onclick = () => showOrder(data, div);
@@ -424,17 +125,16 @@ onAuthStateChanged(auth, (user) => {
     if (activeOrders === 0) {
       orderListDiv.innerHTML = `
         <div class="empty-orders">
-          <div class="ei">✅</div>
+          <svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
           <p>No active orders</p>
           <small>All your orders have been delivered</small>
-          <br><a href="home.html">✦ Order Again</a>
+          <br><a href="home.html">Order Again</a>
         </div>`;
       orderBox.innerHTML = "";
     }
   });
 
   function showOrder(order, element) {
-    // Highlight selected
     document.querySelectorAll(".order-item").forEach(el => el.classList.remove("active-order"));
     element.classList.add("active-order");
 
@@ -448,25 +148,26 @@ onAuthStateChanged(auth, (user) => {
       </div>`).join("");
 
     const itemsHTML = order.items.map(i =>
-      `<div>${i.name} <span style="color:rgba(212,175,55,0.6)">×${i.qty}</span></div>`
+      `<div>${i.name} <span style="color:var(--ink-muted);">×${i.qty}</span></div>`
     ).join("");
 
     const deliveryHTML = order.deliveryBoyName
       ? `<div class="delivery-section">
-           <div class="delivery-title">🛵 Delivery Partner</div>
+           <div class="delivery-title">Delivery Partner</div>
            <div class="delivery-row"><b>Name:</b> ${order.deliveryBoyName}</div>
            <div class="delivery-row"><b>Phone:</b> ${order.deliveryBoyPhone || "—"}</div>
            <a href="tel:${order.deliveryBoyPhone || ''}" class="call-btn">
-             📞 Call Delivery Partner
+             <svg class="icon" style="width:14px;height:14px;stroke:#fff;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+             Call Delivery Partner
            </a>
          </div>`
-      : `<div class="waiting-text">⏳ Waiting for delivery partner…</div>`;
+      : `<div class="waiting-text">Waiting for a delivery partner…</div>`;
 
     orderBox.innerHTML = `
       <div class="sec-label" style="padding-top:8px;">
         <span>Order Details</span>
       </div>
-      <div class="card">
+      <div class="card" style="cursor:default;">
         <div class="status-head">Status: ${order.status}</div>
         ${stepsHTML}
         <hr class="gold-hr">
@@ -477,7 +178,6 @@ onAuthStateChanged(auth, (user) => {
         <div id="map"></div>
       </div>`;
 
-    // MAP (original logic)
     setTimeout(() => {
       const mapDiv = document.getElementById("map");
       if (!mapDiv) return;
@@ -492,10 +192,10 @@ onAuthStateChanged(auth, (user) => {
       }).addTo(map);
 
       if (order.customerLat && order.customerLng) {
-        L.marker([order.customerLat, order.customerLng]).addTo(map).bindPopup("🏠 Customer");
+        L.marker([order.customerLat, order.customerLng]).addTo(map).bindPopup("Customer");
       }
       if (order.restaurantLat && order.restaurantLng) {
-        L.marker([order.restaurantLat, order.restaurantLng]).addTo(map).bindPopup("🍔 Restaurant");
+        L.marker([order.restaurantLat, order.restaurantLng]).addTo(map).bindPopup("Restaurant");
       }
 
       if (order.deliveryBoyId) {
@@ -507,7 +207,7 @@ onAuthStateChanged(auth, (user) => {
             riderMarker.setLatLng([rider.liveLat, rider.liveLng]);
           } else {
             riderMarker = L.marker([rider.liveLat, rider.liveLng])
-              .addTo(map).bindPopup("🛵 Delivery Partner");
+              .addTo(map).bindPopup("Delivery Partner");
           }
         });
       }
@@ -524,45 +224,10 @@ if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js"); 
 <!-- ── LOADER HIDE ── -->
 <script>
 window.addEventListener("load", () => {
-  setTimeout(() => { document.getElementById("loader").classList.add("hidden"); }, 1000);
+  setTimeout(() => { document.getElementById("loader").classList.add("hidden"); }, 600);
 });
-</script>
-
-<!-- ── GOLD PARTICLES ── -->
-<script>
-(function () {
-  const canvas = document.getElementById('particles-canvas');
-  const ctx    = canvas.getContext('2d');
-  let W, H, particles = [];
-  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-  function P() { this.reset(); }
-  P.prototype.reset = function () {
-    this.x = Math.random()*W; this.y = Math.random()*H;
-    this.r = 0.5 + Math.random()*1.2;
-    this.vx = (Math.random()-0.5)*0.2; this.vy = -0.1 - Math.random()*0.2;
-    this.life = 0; this.max = 180 + Math.random()*200;
-    this.gold = Math.random() > 0.38;
-  };
-  function init() {
-    resize();
-    for (let i = 0; i < 48; i++) { const p = new P(); p.life = Math.random()*p.max; particles.push(p); }
-    loop();
-  }
-  function loop() {
-    ctx.clearRect(0,0,W,H);
-    particles.forEach(p => {
-      p.life++; if (p.life > p.max) p.reset();
-      const a = Math.sin((p.life/p.max)*Math.PI)*0.5;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fillStyle = p.gold ? `rgba(212,175,55,${a})` : `rgba(240,230,204,${a*0.3})`;
-      ctx.fill(); p.x += p.vx; p.y += p.vy;
-    });
-    requestAnimationFrame(loop);
-  }
-  window.addEventListener('resize', resize);
-  init();
-})();
 </script>
 
 </body>
 </html>
+

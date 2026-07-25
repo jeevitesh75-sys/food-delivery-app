@@ -2,88 +2,189 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>User Details</title>
+<title>Complete Profile · Eluru Foods</title>
 
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/liquid-glass.css">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff4d4d">
-<style>
-.box {
-  background: white;
-  padding: 20px;
-  border-radius: 15px;
-  max-width: 400px;
-  margin: 40px auto;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-h2 {
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-input {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 10px;
-  font-weight: bold;
-}
-
-.location-btn {
-  background: #2196F3;
-  color: white;
-}
-
-.save-btn {
-  background: #d4af37;
-  color: white;
-}
-
-iframe {
-  width: 100%;
-  height: 200px;
-  border: none;
-  margin-top: 10px;
-  border-radius: 10px;
-}
-</style>
+<meta name="theme-color" content="#ffffff">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<style>
+body { display: flex; align-items: center; min-height: 100vh; padding-bottom: 24px; padding: 24px; }
+
+.details-card {
+  width: 100%; max-width: 420px; margin: auto;
+  background: var(--glass);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 30px 26px 28px;
+  box-shadow: var(--shadow-float), inset 0 1px 0 rgba(255,255,255,0.7);
+}
+
+.details-icon {
+  width: 64px; height: 64px; margin: 0 auto 18px;
+  border-radius: 50%;
+  background: var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.2);
+}
+.details-icon svg.icon { width: 28px; height: 28px; stroke: #fff; }
+
+.details-title { font-size: 21px; font-weight: 800; color: var(--ink); text-align: center; letter-spacing: -0.01em; margin-bottom: 4px; }
+.details-sub { font-size: 12.5px; color: var(--ink-muted); text-align: center; margin-bottom: 26px; line-height: 1.5; }
+
+.field-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-muted); margin: 16px 0 6px; display: block; }
+.field-label:first-of-type { margin-top: 0; }
+
+.address-display {
+  min-height: 54px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--paper-deep);
+  border: 1.5px dashed var(--ink-faint);
+  font-size: 13.5px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.25s var(--ease);
+}
+.address-display.filled {
+  background: rgba(31,146,84,0.06);
+  border: 1.5px solid rgba(31,146,84,0.35);
+  color: var(--ink);
+}
+.address-display svg.icon { flex-shrink: 0; width: 18px; height: 18px; }
+
+.locate-btn {
+  width: 100%; margin-top: 18px; padding: 15px 20px;
+  background: var(--ink); color: #fff;
+  border: none; border-radius: var(--radius-md);
+  font-size: 14.5px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+  transition: transform 0.2s var(--ease);
+}
+.locate-btn:active { transform: scale(0.98); }
+.locate-btn.loading { opacity: 0.65; pointer-events: none; }
+.locate-btn .spin { display: none; width: 17px; height: 17px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: dspin 0.7s linear infinite; }
+.locate-btn.loading .spin { display: block; }
+.locate-btn.loading .locate-icon, .locate-btn.loading .locate-text { display: none; }
+@keyframes dspin { to { transform: rotate(360deg); } }
+
+.save-btn {
+  width: 100%; margin-top: 12px; padding: 16px 20px;
+  background: var(--ink-faint); color: #fff;
+  border: none; border-radius: var(--radius-md);
+  font-size: 15px; font-weight: 700; cursor: not-allowed;
+  transition: background 0.25s var(--ease), transform 0.2s var(--ease);
+}
+.save-btn.ready { background: var(--ink); cursor: pointer; box-shadow: 0 10px 28px rgba(0,0,0,0.18); }
+.save-btn.ready:active { transform: scale(0.98); }
+
+.map-frame {
+  width: 100%; height: 170px; border: none; margin-top: 16px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--glass-border);
+  display: none;
+}
+.map-frame.show { display: block; }
+
+.perm-hint {
+  display: none;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: rgba(217,44,44,0.07);
+  border: 1px solid rgba(217,44,44,0.2);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  color: var(--danger);
+  line-height: 1.5;
+}
+.perm-hint.show { display: block; }
+
+/* ── PERMISSION MODAL ── */
+#permModal {
+  display: none;
+  position: fixed; inset: 0; z-index: 9000;
+  background: rgba(10,10,10,0.4);
+  align-items: center; justify-content: center;
+  padding: 24px;
+}
+#permModal.show { display: flex; }
+.perm-modal-box {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  max-width: 340px;
+  text-align: center;
+  box-shadow: var(--shadow-float);
+}
+.perm-modal-icon {
+  width: 56px; height: 56px; margin: 0 auto 16px;
+  border-radius: 50%; background: rgba(217,44,44,0.08);
+  display: flex; align-items: center; justify-content: center;
+}
+.perm-modal-icon svg.icon { width: 26px; height: 26px; stroke: var(--danger); }
+.perm-modal-box h3 { font-size: 17px; font-weight: 800; color: var(--ink); margin-bottom: 8px; }
+.perm-modal-box p { font-size: 13px; color: var(--ink-muted); line-height: 1.6; margin-bottom: 20px; }
+.perm-modal-box button {
+  width: 100%; padding: 13px; background: var(--ink); color: #fff;
+  border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; cursor: pointer;
+}
+</style>
 </head>
 
 <body>
 
-<div class="box">
+<div class="details-card">
 
-<h2>📍 Complete Profile</h2>
+  <div class="details-icon">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+  </div>
 
-<input type="text" id="name" placeholder="Full Name">
-<input type="text" id="phone" placeholder="Phone Number">
-<input type="text" id="address" placeholder="Enter Address">
+  <div class="details-title">Complete Your Profile</div>
+  <div class="details-sub">Just a couple of details so we can get your orders to the right place</div>
 
-<button class="location-btn" onclick="getLocation()">
-📍 Use Live Location
-</button>
+  <label class="field-label">Full Name</label>
+  <input type="text" id="name" placeholder="Enter your name">
 
-<!-- ✅ MAP -->
-<iframe id="map"
-  src="https://www.openstreetmap.org/export/embed.html?bbox=78,17,79,18&layer=mapnik">
-</iframe>
+  <label class="field-label">Phone Number</label>
+  <input type="text" id="phone" placeholder="Enter your phone number">
 
-<button class="save-btn" onclick="saveUser()">
-Save & Continue
-</button>
+  <label class="field-label">Delivery Location</label>
+  <div class="address-display" id="addressDisplay">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+    <span id="addressText">No location set yet</span>
+  </div>
 
+  <button class="locate-btn" id="locateBtn" onclick="getLocation()">
+    <svg class="icon locate-icon" style="width:17px;height:17px;stroke:#fff;" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+    <span class="locate-text">Use My Live Location</span>
+    <div class="spin"></div>
+  </button>
+
+  <div class="perm-hint" id="permHint">Location access is off. Please enable it below to continue.</div>
+
+  <iframe class="map-frame" id="map"></iframe>
+
+  <button class="save-btn" id="saveBtn" onclick="saveUser()">Save &amp; Continue</button>
+
+</div>
+
+<!-- ── LOCATION PERMISSION MODAL ── -->
+<div id="permModal">
+  <div class="perm-modal-box">
+    <div class="perm-modal-icon">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/><path d="m4 4 16 16"/></svg>
+    </div>
+    <h3>Turn On Location</h3>
+    <p>To auto-detect your delivery address, please allow location access for this site in your browser settings, then try again.</p>
+    <button onclick="document.getElementById('permModal').classList.remove('show')">Got It</button>
+  </div>
 </div>
 
 <script type="module">
@@ -98,7 +199,6 @@ import {
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// 🔥 FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
   authDomain: "food-delivery-app-97300.firebaseapp.com",
@@ -115,59 +215,116 @@ if(!user){
   return;
 }
 
-// 🌍 STORE LAT LNG
 let userLat = null;
 let userLng = null;
+let addressReady = false;
 
-// 📍 GET LOCATION
+const locateBtn      = document.getElementById("locateBtn");
+const addressDisplay  = document.getElementById("addressDisplay");
+const addressText     = document.getElementById("addressText");
+const saveBtn         = document.getElementById("saveBtn");
+const permHint        = document.getElementById("permHint");
+const permModal       = document.getElementById("permModal");
+const mapFrame        = document.getElementById("map");
+
+function setSaveReady(ready) {
+  addressReady = ready;
+  saveBtn.classList.toggle("ready", ready);
+}
+
 window.getLocation = function(){
 
   if(!navigator.geolocation){
-    alert("Geolocation not supported ❌");
+    alert("Geolocation is not supported on this device");
     return;
   }
 
-  navigator.geolocation.getCurrentPosition(async (position)=>{
+  locateBtn.classList.add("loading");
+  permHint.classList.remove("show");
 
-    userLat = position.coords.latitude;
-    userLng = position.coords.longitude;
+  function tryGetLocation(options, isRetry) {
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
 
-    // 🔥 REVERSE GEO
-    let url = `https://nominatim.openstreetmap.org/reverse?lat=${userLat}&lon=${userLng}&format=json`;
+        userLat = position.coords.latitude;
+        userLng = position.coords.longitude;
 
-    try {
-      let res = await fetch(url);
-      let data = await res.json();
+        let url = `https://nominatim.openstreetmap.org/reverse?lat=${userLat}&lon=${userLng}&format=json`;
 
-      let address = data.display_name || "Location found";
+        try {
+          let res = await fetch(url);
+          let data = await res.json();
+          let address = data.display_name || `${userLat.toFixed(5)}, ${userLng.toFixed(5)}`;
 
-      document.getElementById("address").value = address;
+          addressText.textContent = address;
+          addressDisplay.classList.add("filled");
 
-      // ✅ UPDATE MAP
-      document.getElementById("map").src =
-        `https://www.openstreetmap.org/export/embed.html?bbox=${userLng-0.01},${userLat-0.01},${userLng+0.01},${userLat+0.01}&layer=mapnik&marker=${userLat},${userLng}`;
+          mapFrame.src =
+            `https://www.openstreetmap.org/export/embed.html?bbox=${userLng-0.01},${userLat-0.01},${userLng+0.01},${userLat+0.01}&layer=mapnik&marker=${userLat},${userLng}`;
+          mapFrame.classList.add("show");
 
-    } catch(err){
-      alert("Address fetch failed ❌");
-      console.log(err);
-    }
+          setSaveReady(true);
 
-  }, ()=>{
-    alert("Allow location permission ❌");
-  });
+        } catch(err){
+          addressText.textContent = `${userLat.toFixed(5)}, ${userLng.toFixed(5)} (address lookup failed, location still saved)`;
+          addressDisplay.classList.add("filled");
+          setSaveReady(true);
+          console.log(err);
+        }
+
+        locateBtn.classList.remove("loading");
+      },
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED) {
+          locateBtn.classList.remove("loading");
+          permModal.classList.add("show");
+          permHint.classList.add("show");
+          return;
+        }
+
+        if (!isRetry) {
+          // First attempt failed (fast/low-accuracy) — retry with GPS
+          tryGetLocation({ enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }, true);
+        } else {
+          // Retry also failed
+          locateBtn.classList.remove("loading");
+          permHint.textContent = "Could not get your location. Please try again, or check that Location is turned on.";
+          permHint.classList.add("show");
+        }
+      },
+      options
+    );
+  }
+
+  tryGetLocation({ enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }, false);
 };
 
-// 💾 SAVE USER
+if (navigator.permissions && navigator.permissions.query) {
+  navigator.permissions.query({ name: "geolocation" }).then((status) => {
+    if (status.state === "denied") {
+      permHint.classList.add("show");
+    }
+  }).catch(() => {});
+}
+
 window.saveUser = async function(){
 
-  let name = document.getElementById("name").value.trim();
-  let phone = document.getElementById("phone").value.trim();
-  let address = document.getElementById("address").value.trim();
-
-  if(!name || !phone || !address){
-    alert("Fill all details ❌");
+  if (!addressReady) {
+    permHint.textContent = "Please tap \"Use My Live Location\" to set your delivery address first.";
+    permHint.classList.add("show");
     return;
   }
+
+  let name  = document.getElementById("name").value.trim();
+  let phone = document.getElementById("phone").value.trim();
+  let address = addressText.textContent.trim();
+
+  if(!name || !phone){
+    alert("Please fill your name and phone number");
+    return;
+  }
+
+  saveBtn.textContent = "Saving...";
 
   try {
 
@@ -194,24 +351,16 @@ window.saveUser = async function(){
 
 },{ merge:true });
 
-    alert("Saved ✅");
-
     window.location.href = "home.html";
 
   } catch(err){
     alert(err.message);
     console.log(err);
+    saveBtn.textContent = "Save & Continue";
   }
 };
 
-
-// getLocation()
-// saveUser()
-// all existing code
-
 });
-
-
 
 </script>
 <script>
@@ -221,3 +370,4 @@ if ("serviceWorker" in navigator) {
 </script>
 </body>
 </html>
+

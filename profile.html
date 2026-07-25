@@ -4,362 +4,81 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Profile · Eluru Foods</title>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/liquid-glass.css">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#D4AF37">
-
-<style>
-/* ── PAGE ── */
-body {
-  padding-bottom: 110px;
-  opacity: 0;
-  animation: fade-in 0.55s ease 0.05s forwards;
-}
-@keyframes fade-in { to { opacity: 1; } }
-
-/* ── PROFILE HERO ── */
-.profile-hero {
-  position: relative; z-index: 1;
-  text-align: center;
-  padding: 32px 20px 24px;
-  background: linear-gradient(180deg, rgba(20,16,4,0.95) 0%, transparent 100%);
-  border-bottom: 1px solid rgba(212,175,55,0.1);
-}
-.avatar-ring {
-  width: 86px; height: 86px;
-  border-radius: 50%;
-  border: 2px solid rgba(212,175,55,0.45);
-  box-shadow: 0 0 28px rgba(212,175,55,0.3);
-  object-fit: cover;
-  margin: 0 auto 14px;
-  display: block;
-  background: rgba(20,20,20,0.8);
-  font-size: 42px;
-  line-height: 86px;
-}
-.avatar-placeholder {
-  width: 86px; height: 86px; border-radius: 50%;
-  border: 2px solid rgba(212,175,55,0.45);
-  box-shadow: 0 0 28px rgba(212,175,55,0.3);
-  background: rgba(20,18,8,0.9);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 36px; margin: 0 auto 14px;
-  animation: emblem-glow 3s ease-in-out infinite alternate;
-}
-@keyframes emblem-glow {
-  from { box-shadow: 0 0 16px rgba(212,175,55,0.2); }
-  to   { box-shadow: 0 0 36px rgba(212,175,55,0.45); }
-}
-#userName {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 22px; color: #F0E6CC; margin-bottom: 4px;
-}
-#userEmail {
-  font-size: 13px; color: rgba(240,230,204,0.38);
-  font-family: 'Inter', sans-serif;
-}
-.profile-gold-line {
-  width: 36px; height: 1.5px;
-  background: linear-gradient(90deg, transparent, #D4AF37, transparent);
-  margin: 12px auto 0; border-radius: 2px;
-}
-
-/* ── SECTION LABEL ── */
-.sec-label {
-  padding: 18px 18px 8px;
-  display: flex; align-items: center; gap: 10px;
-  position: relative; z-index: 1;
-}
-.sec-label span {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 13px; color: rgba(212,175,55,0.65);
-  letter-spacing: 0.2em; text-transform: uppercase;
-  white-space: nowrap;
-}
-.sec-label::after {
-  content: ''; flex: 1; height: 1px;
-  background: linear-gradient(90deg, rgba(212,175,55,0.2), transparent);
-}
-
-/* ── GLASS SECTION ── */
-.section {
-  background: rgba(20,20,20,0.68);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(212,175,55,0.16);
-  margin: 0 14px 12px;
-  padding: 18px;
-  border-radius: 18px;
-  position: relative; overflow: hidden;
-  box-shadow: 0 6px 28px rgba(0,0,0,0.4);
-  animation: block-in 0.4s ease both;
-  z-index: 1;
-}
-.section::after {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(212,175,55,0.18), transparent);
-}
-@keyframes block-in {
-  from { opacity:0; transform:translateY(10px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-.section:nth-child(2) { animation-delay:0.05s; }
-.section:nth-child(3) { animation-delay:0.10s; }
-.section:nth-child(4) { animation-delay:0.15s; }
-.section:nth-child(5) { animation-delay:0.20s; }
-
-.section h3 {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 16px; color: #D4AF37; margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(212,175,55,0.1);
-}
-
-/* ── PROFILE INFO ROWS ── */
-.info-row {
-  font-size: 14px; color: rgba(240,230,204,0.6);
-  font-family: 'Inter', sans-serif;
-  padding: 7px 0;
-  border-bottom: 1px solid rgba(212,175,55,0.05);
-  display: flex; gap: 8px;
-}
-.info-row:last-of-type { border-bottom: none; }
-.info-row b { color: rgba(240,230,204,0.85); min-width: 60px; }
-
-/* ── INPUTS ── */
-input[type="text"],
-input:not([type="submit"]):not([type="button"]):not([type="radio"]):not([type="checkbox"]) {
-  width: 100%; padding: 13px 16px;
-  margin-top: 10px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.05);
-  color: #F0E6CC;
-  border: 1px solid rgba(212,175,55,0.2);
-  font-family: 'Inter', sans-serif; font-size: 14px;
-  outline: none; transition: 0.3s ease;
-  -webkit-appearance: none;
-}
-input::placeholder { color: rgba(240,230,204,0.25); }
-input:focus {
-  border-color: rgba(212,175,55,0.5);
-  background: rgba(255,255,255,0.08);
-  box-shadow: 0 0 0 3px rgba(212,175,55,0.08);
-}
-
-/* ── BUTTONS ── */
-.btn-gold {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 10px 18px; margin: 8px 6px 0 0;
-  background: linear-gradient(135deg, #A07D1C, #D4AF37);
-  color: #080808; border: none; border-radius: 10px;
-  font-size: 13px; font-weight: 700;
-  font-family: 'Inter', sans-serif; cursor: pointer;
-  transition: 0.25s ease; letter-spacing: 0.04em;
-  box-shadow: 0 2px 12px rgba(212,175,55,0.3);
-}
-.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212,175,55,0.45); }
-.btn-gold:active { transform: scale(0.97); }
-
-.btn-ghost-sm {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 9px 16px; margin: 8px 6px 0 0;
-  background: transparent;
-  color: rgba(240,230,204,0.55);
-  border: 1px solid rgba(240,230,204,0.15);
-  border-radius: 10px; font-size: 13px;
-  font-family: 'Inter', sans-serif; cursor: pointer;
-  transition: 0.25s ease;
-}
-.btn-ghost-sm:hover { color: #F0E6CC; border-color: rgba(240,230,204,0.3); }
-
-.btn-danger {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 9px 16px; margin: 5px 5px 0 0;
-  background: rgba(180,30,30,0.2);
-  color: #ff8888; border: 1px solid rgba(255,80,80,0.2);
-  border-radius: 10px; font-size: 12px;
-  font-family: 'Inter', sans-serif; cursor: pointer;
-  transition: 0.25s ease;
-}
-.btn-danger:hover { background: rgba(180,30,30,0.35); border-color: rgba(255,80,80,0.4); }
-
-.btn-green {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 10px 18px; margin: 8px 6px 0 0;
-  background: linear-gradient(135deg, #1a4a1a, #2a7a2a);
-  color: #fff; border: 1px solid rgba(80,180,80,0.25);
-  border-radius: 10px; font-size: 13px; font-weight: 600;
-  font-family: 'Inter', sans-serif; cursor: pointer;
-  transition: 0.25s ease;
-  box-shadow: 0 2px 12px rgba(0,128,0,0.2);
-}
-.btn-green:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,128,0,0.35); }
-
-/* ── ADDRESS CARD ── */
-.address {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(212,175,55,0.12);
-  padding: 13px 14px; margin: 8px 0;
-  border-radius: 12px;
-  font-size: 13px; color: rgba(240,230,204,0.6);
-  font-family: 'Inter', sans-serif; line-height: 1.6;
-  transition: border-color 0.3s ease;
-}
-.address.active {
-  border: 1.5px solid #D4AF37 !important;
-  background: rgba(30,24,8,0.5) !important;
-  color: rgba(240,230,204,0.85);
-  box-shadow: 0 0 16px rgba(212,175,55,0.15);
-}
-.address-actions { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
-
-/* ── ORDER ROW ── */
-.order-row {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(212,175,55,0.1);
-  padding: 12px 14px; margin: 8px 0;
-  border-radius: 12px;
-  font-size: 13px; color: rgba(240,230,204,0.6);
-  font-family: 'Inter', sans-serif;
-  transition: 0.3s ease;
-}
-.order-row.clickable { cursor: pointer; }
-.order-row.clickable:hover {
-  border-color: rgba(212,175,55,0.3);
-  background: rgba(212,175,55,0.06);
-  transform: translateY(-1px);
-}
-.order-row-status {
-  font-size: 11px; padding: 2px 9px;
-  border-radius: 20px; display: inline-block; margin-top: 5px;
-  background: rgba(212,175,55,0.1);
-  border: 1px solid rgba(212,175,55,0.2);
-  color: #D4AF37; font-family: 'Inter', sans-serif;
-}
-
-/* ── SUPPORT BUTTONS ── */
-.support-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
-
-/* ── LOGOUT ── */
-.logout-btn {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  margin: 4px 14px 14px;
-  padding: 15px;
-  background: rgba(180,30,30,0.18);
-  border: 1px solid rgba(255,80,80,0.2);
-  border-radius: 16px;
-  color: #ff8888; font-size: 15px; font-weight: 600;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer; transition: 0.3s ease;
-  position: relative; z-index: 1;
-}
-.logout-btn:hover {
-  background: rgba(180,30,30,0.32);
-  border-color: rgba(255,80,80,0.4);
-  transform: translateY(-1px);
-}
-
-/* ── BOTTOM NAV ── */
-.bottom-nav {
-  position: fixed;
-  left: 14px; right: 14px; bottom: 14px;
-  border-radius: 22px;
-  background: rgba(10,10,10,0.92);
-  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
-  border: 1px solid rgba(212,175,55,0.15);
-  display: flex; justify-content: space-around;
-  padding: 10px 0 12px; z-index: 300;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.55);
-}
-.nav-item {
-  text-align: center; font-size: 11px;
-  color: rgba(240,230,204,0.45); text-decoration: none;
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  padding: 4px 16px; border-radius: 10px;
-  transition: 0.3s ease; font-family: 'Inter', sans-serif;
-}
-.nav-item .nav-icon { font-size: 19px; }
-.nav-item:hover, .nav-item.active { color: #D4AF37; }
-.nav-item.active .nav-icon { filter: drop-shadow(0 0 5px rgba(212,175,55,0.5)); }
-</style>
+<meta name="theme-color" content="#ffffff">
 </head>
 
 <body>
 
-<!-- ── PARTICLES ── -->
-<canvas id="particles-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.3;"></canvas>
-
-<!-- ── PROFILE HERO ── -->
 <div class="profile-hero">
-  <div class="avatar-placeholder">👤</div>
+  <div class="avatar-placeholder">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+  </div>
   <div id="userName">Loading…</div>
   <div id="userEmail"></div>
-  <div class="profile-gold-line"></div>
 </div>
 
-<!-- ── VIEW PROFILE ── -->
-<div class="sec-label"><span>My Profile</span></div>
 <div class="section" id="viewBox">
-  <h3>Profile Details</h3>
+  <h3><svg class="icon" style="width:16px;height:16px;" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>Profile Details</h3>
   <div class="info-row"><b>Name</b> <span id="vName">—</span></div>
   <div class="info-row"><b>Email</b> <span id="vEmail">—</span></div>
   <div class="info-row"><b>Phone</b> <span id="vPhone">—</span></div>
-  <button class="btn-gold" onclick="openEdit()">✏️ Edit Profile</button>
+  <button class="btn-outline" onclick="openEdit()" style="margin-top:10px;">Edit Profile</button>
 </div>
 
-<!-- ── EDIT PROFILE ── -->
 <div class="section" id="editBox" style="display:none;">
-  <h3>Edit Profile</h3>
+  <h3><svg class="icon" style="width:16px;height:16px;" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"/></svg>Edit Profile</h3>
   <input id="editName" placeholder="Full Name">
   <input id="editPhone" placeholder="Phone Number" type="tel">
-  <div style="margin-top:4px;">
-    <button class="btn-gold" onclick="saveProfile()">💾 Save</button>
-    <button class="btn-ghost-sm" onclick="closeEdit()">Cancel</button>
+  <div style="margin-top:10px; display:flex; gap:8px;">
+    <button class="glass-btn" style="background:var(--ink);color:#fff;" onclick="saveProfile()">Save</button>
+    <button class="btn-outline" onclick="closeEdit()">Cancel</button>
   </div>
 </div>
 
-<!-- ── ORDERS ── -->
-<div class="sec-label"><span>My Orders</span></div>
 <div class="section">
-  <h3>Recent Orders</h3>
+  <h3><svg class="icon" style="width:16px;height:16px;" viewBox="0 0 24 24"><path d="M3 16V6a1 1 0 0 1 1-1h9v11"/><path d="M14 9h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>Recent Orders</h3>
   <div id="orders"></div>
 </div>
 
-<!-- ── ADDRESSES ── -->
-<div class="sec-label"><span>Saved Addresses</span></div>
 <div class="section">
-  <h3>Delivery Addresses</h3>
+  <h3><svg class="icon" style="width:16px;height:16px;" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Delivery Addresses</h3>
   <div id="addressList"></div>
   <input type="text" id="newAddress" placeholder="Enter new address…">
-  <div style="margin-top:4px;">
-    <button class="btn-green" onclick="getLocation()">📍 Use My Location</button>
-    <button class="btn-gold" onclick="addAddress()">+ Add Address</button>
+  <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+    <button class="glass-btn" style="background:var(--ink);color:#fff;" onclick="getLocation()">Use My Location</button>
+    <button class="btn-outline" onclick="addAddress()">+ Add Address</button>
   </div>
 </div>
 
-<!-- ── SUPPORT ── -->
-<div class="sec-label"><span>Help & Support</span></div>
 <div class="section">
-  <h3>Customer Care</h3>
-  <div class="support-row">
-    <button class="btn-gold" onclick="openFeedback()">📝 Feedback Form</button>
-    <button class="btn-green" onclick="contactSupport()">💬 WhatsApp Support</button>
+  <h3><svg class="icon" style="width:16px;height:16px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>Customer Care</h3>
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <button class="glass-btn" style="background:var(--ink);color:#fff;" onclick="openFeedback()">Feedback Form</button>
+    <button class="btn-outline" onclick="contactSupport()">WhatsApp Support</button>
   </div>
 </div>
 
-<!-- ── LOGOUT ── -->
-<div class="logout-btn" onclick="logout()">🚪 Sign Out</div>
+<div class="logout-btn" onclick="logout()">
+  <svg class="icon" style="width:17px;height:17px;" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+  Sign Out
+</div>
 
-<!-- ── BOTTOM NAV ── -->
 <div class="bottom-nav">
   <a href="home.html" class="nav-item">
-    <span class="nav-icon">🏠</span>Home
+    <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    Home
   </a>
   <a href="cart.html" class="nav-item">
-    <span class="nav-icon">🛒</span>Cart
+    <span class="nav-icon-wrap">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2.5l2.5 12.5h10L20 7H6"/></svg>
+    </span>
+    Cart
   </a>
   <a href="profile.html" class="nav-item active">
-    <span class="nav-icon">👤</span>Profile
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+    Profile
   </a>
 </div>
 
@@ -382,43 +101,38 @@ const auth = getAuth(app);
 onAuthStateChanged(auth, async (user) => {
   if (!user) { location.href = "login.html"; return; }
 
-  // HEADER
   document.getElementById("userName").innerText = user.displayName || "User";
   document.getElementById("userEmail").innerText = user.email;
 
-  // FIRESTORE
   const userRef = doc(db, "users", user.uid);
   const snap    = await getDoc(userRef);
   let data      = snap.data() || {};
   if (!data.addresses)      data.addresses      = [];
   if (data.defaultAddress === undefined) data.defaultAddress = 0;
 
-  // LOAD PROFILE
   document.getElementById("vName").innerText  = user.displayName || "User";
   document.getElementById("vEmail").innerText = user.email;
   document.getElementById("vPhone").innerText = data.phone || "—";
   document.getElementById("editName").value   = user.displayName || "";
   document.getElementById("editPhone").value  = data.phone || "";
 
-  // EDIT
   window.openEdit  = () => { document.getElementById("viewBox").style.display="none"; document.getElementById("editBox").style.display="block"; };
   window.closeEdit = () => { document.getElementById("editBox").style.display="none"; document.getElementById("viewBox").style.display="block"; };
 
   window.saveProfile = async () => {
     const name  = document.getElementById("editName").value.trim();
     const phone = document.getElementById("editPhone").value.trim();
-    if (!name || !phone) { alert("Enter name and phone ❌"); return; }
+    if (!name || !phone) { alert("Enter name and phone"); return; }
     await updateDoc(userRef, { name, phone });
     user.displayName = name;
     localStorage.setItem("user", JSON.stringify(user));
     document.getElementById("vName").innerText   = name;
     document.getElementById("vPhone").innerText  = phone;
     document.getElementById("userName").innerText = name;
-    alert("Updated ✅");
+    alert("Updated");
     closeEdit();
   };
 
-  // ADDRESSES
   let addresses     = data.addresses || [];
   let currentLat    = null;
   let currentLng    = null;
@@ -434,9 +148,9 @@ onAuthStateChanged(auth, async (user) => {
       div.innerHTML   = `
         <div>${addr.address}</div>
         <div class="address-actions">
-          <button class="btn-gold" onclick="setDefault(${i})">✓ Use</button>
-          <button class="btn-ghost-sm" onclick="editAddress(${i})">✏️ Edit</button>
-          <button class="btn-danger" onclick="deleteAddress(${i})">🗑 Delete</button>
+          <button class="glass-btn" style="background:var(--ink);color:#fff;padding:8px 14px;font-size:12px;" onclick="setDefault(${i})">Use</button>
+          <button class="btn-outline" style="padding:8px 14px;font-size:12px;" onclick="editAddress(${i})">Edit</button>
+          <button class="btn-danger-ghost" onclick="deleteAddress(${i})">Delete</button>
         </div>`;
       list.appendChild(div);
     });
@@ -475,10 +189,9 @@ onAuthStateChanged(auth, async (user) => {
       lng: addresses[i].lng
     });
     renderAddresses();
-    alert("Address selected ✅");
+    alert("Address selected");
   };
 
-  // LOCATION
   window.getLocation = () => {
     navigator.geolocation.getCurrentPosition(async (pos) => {
       currentLat = pos.coords.latitude;
@@ -491,13 +204,12 @@ onAuthStateChanged(auth, async (user) => {
     }, () => alert("Permission denied"));
   };
 
-  // ORDERS
   const q          = query(collection(db, "orders"), where("userId", "==", user.uid));
   const ordersSnap = await getDocs(q);
   const ordersEl   = document.getElementById("orders");
 
   if (ordersSnap.empty) {
-    ordersEl.innerHTML = `<div style="font-size:13px;color:rgba(240,230,204,0.3);font-family:'Inter',sans-serif;padding:8px 0;">No orders yet</div>`;
+    ordersEl.innerHTML = `<div style="font-size:13px;color:var(--ink-faint);padding:8px 0;">No orders yet</div>`;
   } else {
     ordersSnap.forEach(d => {
       const o = d.data();
@@ -506,9 +218,9 @@ onAuthStateChanged(auth, async (user) => {
       const div     = document.createElement("div");
       div.className = "order-row" + (o.status !== "Delivered" ? " clickable" : "");
       div.innerHTML = `
-        <div style="font-family:'Shippori Mincho',serif;font-size:14px;color:#D4AF37;">
+        <div style="font-size:14px;font-weight:700;color:var(--ink);">
           ₹${o.total}
-          ${o.restaurantName ? `<span style="font-size:12px;color:rgba(240,230,204,0.4);font-family:'Inter',sans-serif;margin-left:8px;">${o.restaurantName}</span>` : ''}
+          ${o.restaurantName ? `<span style="font-size:12px;color:var(--ink-muted);font-weight:500;margin-left:8px;">${o.restaurantName}</span>` : ''}
         </div>
         <span class="order-row-status">${o.status}</span>`;
 
@@ -519,14 +231,11 @@ onAuthStateChanged(auth, async (user) => {
     });
   }
 
-  // SUPPORT
   window.openFeedback    = () => window.open("https://docs.google.com/forms/d/e/1FAIpQLSfQoy70FjiDd_CwUJArWp6RFHnrReimgu2uknDL64G7KlY-xg/viewform?usp=header", "_blank");
   window.contactSupport  = () => window.open("https://wa.me/9494837377", "_blank");
 
-  // LOGOUT
   window.logout = async () => { await signOut(auth); localStorage.clear(); location.href = "login.html"; };
 
-  // INIT
   renderAddresses();
 });
 </script>
@@ -536,41 +245,6 @@ onAuthStateChanged(auth, async (user) => {
 if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js"); }
 </script>
 
-<!-- ── GOLD PARTICLES ── -->
-<script>
-(function () {
-  const canvas = document.getElementById('particles-canvas');
-  const ctx    = canvas.getContext('2d');
-  let W, H, particles = [];
-  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-  function P() { this.reset(); }
-  P.prototype.reset = function () {
-    this.x = Math.random()*W; this.y = Math.random()*H;
-    this.r = 0.5 + Math.random()*1.2;
-    this.vx = (Math.random()-0.5)*0.2; this.vy = -0.1 - Math.random()*0.2;
-    this.life = 0; this.max = 180 + Math.random()*200;
-    this.gold = Math.random() > 0.38;
-  };
-  function init() {
-    resize();
-    for (let i = 0; i < 48; i++) { const p = new P(); p.life = Math.random()*p.max; particles.push(p); }
-    loop();
-  }
-  function loop() {
-    ctx.clearRect(0,0,W,H);
-    particles.forEach(p => {
-      p.life++; if (p.life > p.max) p.reset();
-      const a = Math.sin((p.life/p.max)*Math.PI)*0.5;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fillStyle = p.gold ? `rgba(212,175,55,${a})` : `rgba(240,230,204,${a*0.3})`;
-      ctx.fill(); p.x += p.vx; p.y += p.vy;
-    });
-    requestAnimationFrame(loop);
-  }
-  window.addEventListener('resize', resize);
-  init();
-})();
-</script>
-
 </body>
 </html>
+

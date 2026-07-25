@@ -4,427 +4,92 @@
 <meta charset="UTF-8">
 <title>Menu · Eluru Foods</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/liquid-glass.css">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#D4AF37">
+<meta name="theme-color" content="#ffffff">
 
 <style>
-/* ── PAGE ENTRY ── */
-body {
-  opacity: 0;
-  animation: page-fade-in 0.3s ease forwards;
-  padding-bottom: 200px;
-}
-@keyframes page-fade-in {
-  to { opacity: 1; }
-}
+body { padding-bottom: 200px; }
 
-/* ── FOG OVERLAY ── */
-#menuFog {
-  position: fixed;
-  inset: 0;
-  z-index: 7000;
-  pointer-events: none;
-  opacity: 0;
-  background: radial-gradient(ellipse at center,
-    rgba(212,175,55,0.07) 0%,
-    rgba(8,8,8,0.96) 70%);
-  transition: opacity 0.5s ease;
-  overflow: hidden;
-}
-#menuFog.show { opacity: 1; pointer-events: all; }
-#menuFog .steam {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(20px);
-  animation: steam-rise 1.1s ease-out forwards;
-  background: radial-gradient(circle,
-    rgba(255,255,255,0.13) 0%,
-    rgba(212,175,55,0.07) 50%,
-    transparent 70%);
-}
-@keyframes steam-rise {
-  0%   { transform: translateY(0) scale(0.5); opacity: 0; }
-  30%  { opacity: 0.9; }
-  100% { transform: translateY(-65vh) scale(2.8); opacity: 0; }
-}
-
-/* ── RESTAURANT HERO HEADER ── */
-.res-hero {
-  position: relative;
-  height: 200px;
-  overflow: hidden;
-  z-index: 1;
-}
-.res-hero-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.45) saturate(0.8);
-  transition: transform 0.6s ease;
-}
-.res-hero:hover .res-hero-img {
-  transform: scale(1.04);
-}
+.res-hero { position: relative; height: 190px; overflow: hidden; border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+.res-hero-img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.72); }
 .res-hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(8,8,8,0.2) 0%,
-    rgba(8,8,8,0.85) 100%
-  );
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 20px;
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.55) 100%);
+  display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
 }
-.res-hero-name {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 24px;
-  font-weight: 700;
-  color: #D4AF37;
-  text-shadow: 0 0 20px rgba(212,175,55,0.5);
-  margin-bottom: 4px;
-}
-.res-hero-meta {
-  font-size: 12px;
-  color: rgba(240,230,204,0.5);
-  letter-spacing: 0.1em;
-  font-family: 'Inter', sans-serif;
-}
+.res-hero-name { font-size: 22px; font-weight: 800; color: #fff; margin-bottom: 4px; letter-spacing: -0.01em; }
+.res-hero-meta { font-size: 12px; color: rgba(255,255,255,0.75); letter-spacing: 0.04em; }
 .res-back-btn {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(8,8,8,0.7);
-  border: 1px solid rgba(212,175,55,0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  transition: 0.3s ease;
-  z-index: 5;
-  text-decoration: none;
-}
-.res-back-btn:hover {
-  background: rgba(212,175,55,0.15);
-  border-color: rgba(212,175,55,0.5);
+  position: absolute; top: 16px; left: 16px;
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--glass-strong); backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 5; color: var(--ink); text-decoration: none;
 }
 
-/* ── SECTION LABEL ── */
-.menu-section-head {
-  padding: 18px 20px 8px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  position: relative;
-  z-index: 1;
-}
-.menu-section-title {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 18px;
-  color: #F0E6CC;
-  white-space: nowrap;
-}
-.menu-section-line {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(212,175,55,0.3), transparent);
-}
-.menu-section-count {
-  font-size: 11px;
-  color: rgba(212,175,55,0.5);
-  font-family: 'Inter', sans-serif;
-  letter-spacing: 0.1em;
-}
+.menu-section-head { padding: 18px 20px 8px; display: flex; align-items: center; gap: 12px; }
+.menu-section-title { font-size: 17px; font-weight: 800; color: var(--ink); white-space: nowrap; }
+.menu-section-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--ink-faint), transparent); }
+.menu-section-count { font-size: 11.5px; color: var(--ink-muted); font-weight: 600; white-space: nowrap; }
 
-/* ── FOOD CARD ── */
-.food-card {
-  display: flex;
-  align-items: center;
-  margin: 10px 14px;
-  padding: 14px;
-  border-radius: 18px;
-  background: #161410;
-  border: 1px solid rgba(212,175,55,0.16);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.22s ease, border-color 0.22s ease;
-  gap: 14px;
-  will-change: transform;
-  contain: layout style;
-}
-@keyframes card-rise {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* shimmer removed for scroll perf */
-.food-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(212,175,55,0.36);
-}
-
-/* Food image */
-.food-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 14px;
-  object-fit: cover;
-  flex-shrink: 0;
-  border: 1px solid rgba(212,175,55,0.15);
-  box-shadow: 0 0 18px rgba(212,175,55,0.12);
-  transition: transform 0.25s ease;
-}
-.food-card:hover .food-image {
-  transform: scale(1.05);
-}
-
-/* Food info */
-.food-info { flex: 1; min-width: 0; }
-
-.food-name {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 16px;
-  font-weight: 600;
-  color: #D4AF37;
-  margin-bottom: 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.food-desc {
-  font-size: 12px;
-  color: rgba(240,230,204,0.38);
-  margin-bottom: 8px;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.food-price {
-  font-size: 16px;
-  font-weight: 700;
-  color: #F0E6CC;
-  font-family: 'Inter', sans-serif;
-  margin-bottom: 10px;
-}
-
-/* Qty controls */
-.qty-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.qty-box button {
-  width: 34px;
-  height: 34px;
-  border: none;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #A07D1C, #D4AF37);
-  color: #080808;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.25s ease;
-  box-shadow: 0 2px 10px rgba(212,175,55,0.3);
-  flex-shrink: 0;
-  line-height: 1;
-}
-.qty-box button:hover {
-  transform: scale(1.12);
-  box-shadow: 0 4px 18px rgba(212,175,55,0.5);
-}
-.qty-box button:active {
-  transform: scale(0.95);
-}
-
-.qty-val {
-  font-size: 16px;
-  font-weight: 700;
-  color: #F0E6CC;
-  min-width: 22px;
-  text-align: center;
-  font-family: 'Inter', sans-serif;
-  transition: 0.2s ease;
-}
-.qty-val.bump {
-  animation: qty-bump 0.2s ease;
-}
-@keyframes qty-bump {
-  0%   { transform: scale(1); }
-  50%  { transform: scale(1.4); color: #D4AF37; }
-  100% { transform: scale(1); }
-}
-
-/* Add-to-cart button (when qty = 0) */
-.add-btn-kintsugi {
-  padding: 8px 18px;
-  background: linear-gradient(135deg, #A07D1C, #D4AF37);
-  color: #080808;
-  border: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer;
-  transition: 0.25s ease;
-  box-shadow: 0 2px 12px rgba(212,175,55,0.3);
-  letter-spacing: 0.04em;
-}
-.add-btn-kintsugi:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(212,175,55,0.45);
-}
-
-/* ── CART BAR ── */
-.cart-bar {
-  position: fixed;
-  bottom: 84px;
-  left: 14px;
-  right: 14px;
-  background: linear-gradient(135deg, #A07D1C 0%, #D4AF37 50%, #F0C93A 100%);
-  color: #080808;
-  font-weight: 700;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  letter-spacing: 0.05em;
-  border-radius: 16px;
-  padding: 15px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  box-shadow: 0 8px 32px rgba(212,175,55,0.45);
-  z-index: 200;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  text-decoration: none;
-}
-.cart-bar:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(212,175,55,0.55);
-}
-.cart-bar-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-#cart-count {
-  background: #080808;
-  color: #D4AF37;
-  font-size: 12px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 20px;
-  display: none;
-  font-family: 'Inter', sans-serif;
-}
-
-/* ── LOAD MORE ── */
 #loadMore {
-  display: none;
-  margin: 16px auto;
-  padding: 12px 32px;
-  background: transparent;
-  border: 1px solid rgba(212,175,55,0.35);
-  border-radius: 30px;
-  color: #D4AF37;
-  font-size: 13px;
-  font-family: 'Inter', sans-serif;
-  cursor: pointer;
-  letter-spacing: 0.1em;
-  transition: 0.3s ease;
+  display: none; margin: 16px auto; padding: 12px 32px;
+  background: var(--glass); backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border); border-radius: 30px;
+  color: var(--ink); font-size: 13px; font-weight: 700; cursor: pointer;
   width: 90%;
 }
-#loadMore:hover {
-  background: rgba(212,175,55,0.1);
-  box-shadow: 0 0 20px rgba(212,175,55,0.2);
-}
-
-/* ── EMPTY STATE ── */
-.empty-menu {
-  text-align: center;
-  padding: 60px 30px;
-  color: rgba(240,230,204,0.28);
-}
-.empty-menu .ei { font-size: 48px; margin-bottom: 14px; opacity: 0.4; }
-.empty-menu p {
-  font-family: 'Shippori Mincho', serif;
-  font-size: 16px;
-}
-
-/* ── BOTTOM NAV override ── */
-.bottom-nav {
-  background: rgba(8,8,8,0.96);
-  border-top: 1px solid rgba(212,175,55,0.15);
-}
+.empty-menu { text-align: center; padding: 60px 30px; color: var(--ink-muted); }
+.empty-menu svg.icon { width: 42px; height: 42px; margin: 0 auto 14px; opacity: 0.4; }
+.empty-menu p { font-size: 15px; font-weight: 600; }
 </style>
 </head>
 
 <body>
 
-<!-- ── FOG OVERLAY ── -->
-<div id="menuFog"></div>
-
-<!-- ── PARTICLES CANVAS ── -->
-<canvas id="particles-canvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.3;"></canvas>
-
-<!-- ── RESTAURANT HERO ── -->
-<div class="res-hero" id="resHero" style="position:relative;z-index:1;">
-  <a class="res-back-btn" href="home.html" onclick="goBack(event)">←</a>
+<div class="res-hero" id="resHero">
+  <a class="res-back-btn" href="home.html">
+    <svg class="icon" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+  </a>
   <img class="res-hero-img" id="resHeroImg" src="" alt="Restaurant">
   <div class="res-hero-overlay">
     <div class="res-hero-name" id="resHeroName">Loading…</div>
-    <div class="res-hero-meta" id="resHeroMeta">🍴 Menu</div>
+    <div class="res-hero-meta" id="resHeroMeta">Menu</div>
   </div>
 </div>
 
-<!-- ── MENU SECTION LABEL ── -->
-<div class="menu-section-head" style="position:relative;z-index:1;">
+<div class="menu-section-head">
   <div class="menu-section-title">Our Menu</div>
   <div class="menu-section-line"></div>
   <div class="menu-section-count" id="menuCount"></div>
 </div>
 
-<!-- ── MENU ITEMS ── -->
-<div id="menuContainer" style="position:relative;z-index:1;"></div>
+<div id="menuContainer"></div>
 
-<!-- LOAD MORE -->
-<button id="loadMore">✦ Load More</button>
+<button id="loadMore">Load More</button>
 
-<!-- ── CART BAR ── -->
 <a href="cart.html" class="cart-bar" id="cartBar" style="display:none;">
-  <span>🛒 View Cart</span>
+  <span>View Cart</span>
   <div class="cart-bar-right">
     <span id="cart-total-text"></span>
     <span id="cart-count"></span>
   </div>
 </a>
 
-<!-- ── BOTTOM NAV ── -->
 <div class="bottom-nav">
   <a href="home.html" class="nav-item">
-    <span class="nav-icon">🏠</span>Home
+    <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    Home
   </a>
   <a href="cart.html" class="nav-item">
-    <span class="nav-icon">🛒</span>Cart
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2.5l2.5 12.5h10L20 7H6"/></svg>
+    Cart
   </a>
   <a href="profile.html" class="nav-item">
-    <span class="nav-icon">👤</span>Profile
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+    Profile
   </a>
 </div>
 
@@ -458,31 +123,28 @@ onAuthStateChanged(auth, async (user) => {
 
   let restaurantId = localStorage.getItem("selectedRestaurant");
   if (!restaurantId) {
-    alert("No restaurant selected ❌");
+    alert("No restaurant selected");
     window.location.href = "home.html";
     return;
   }
 
-  // ── Load restaurant info for hero ──
   try {
     const resSnap = await getDoc(doc(db, "restaurants", restaurantId));
     if (resSnap.exists()) {
       const rd = resSnap.data();
       document.getElementById("resHeroName").textContent = rd.name || "Restaurant";
       document.getElementById("resHeroMeta").textContent =
-        (rd.cuisine ? rd.cuisine + " · " : "") + "🍴 Menu";
+        (rd.cuisine ? rd.cuisine + " · " : "") + "Menu";
       if (rd.image) document.getElementById("resHeroImg").src = rd.image;
     }
   } catch(e) {}
 
   let container = document.getElementById("menuContainer");
 
-  // ── GET CART ──
   function getCart() {
     return JSON.parse(localStorage.getItem("cart")) || [];
   }
 
-  // ── UPDATE CART BAR ──
   function updateCartCount() {
     const cart  = getCart();
     const count = cart.reduce((s, i) => s + i.qty, 0);
@@ -502,7 +164,6 @@ onAuthStateChanged(auth, async (user) => {
     }
   }
 
-  // ── CHANGE QTY (original logic) ──
   window.changeQty = function (name, restaurantPrice, finalPrice, image, delta) {
     let cart = getCart();
     let item = cart.find(i => i.name === name);
@@ -527,8 +188,6 @@ onAuthStateChanged(auth, async (user) => {
     updateCartCount();
   };
 
-  // ── LOAD MENU (original logic + Kintsugi render) ──
-  let firstMenuLoad = true;
   async function loadMenu() {
     const q        = query(collection(db, "menu"), where("restaurantId","==",restaurantId), limit(MENU_LIMIT));
     const snapshot = await getDocs(q);
@@ -558,10 +217,8 @@ onAuthStateChanged(auth, async (user) => {
              + Add
            </button>`;
 
-      const animClass = firstMenuLoad ? 'animate-in' : '';
-      const animDelay = firstMenuLoad ? `animation-delay:${count * 0.04}s` : '';
       html += `
-        <div class="food-card ${animClass}" style="${animDelay}">
+        <div class="food-card">
           <img class="food-image" loading="lazy"
                src="${imgSrc}" alt="${food.name}">
           <div class="food-info">
@@ -575,13 +232,12 @@ onAuthStateChanged(auth, async (user) => {
 
     if (count === 0) {
       html = `<div class="empty-menu">
-                <div class="ei">🍽️</div>
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14v4"/><path d="M12 10v8"/><path d="M17 6v12"/></svg>
                 <p>No items available</p>
               </div>`;
     }
 
     container.innerHTML = html;
-    firstMenuLoad = false;
     document.getElementById("menuCount").textContent = count > 0 ? count + " items" : "";
     document.getElementById("loadMore").style.display = snapshot.size >= MENU_LIMIT ? "block" : "none";
     updateCartCount();
@@ -596,84 +252,13 @@ onAuthStateChanged(auth, async (user) => {
 });
 </script>
 
-<!-- ── BACK WITH FOG ── -->
-<script>
-window.goBack = function (e) {
-  e.preventDefault();
-  const fog = document.getElementById('menuFog');
-  for (let i = 0; i < 8; i++) {
-    const s    = document.createElement('div');
-    s.className = 'steam';
-    const size  = 70 + Math.random() * 120;
-    s.style.cssText = `width:${size}px;height:${size}px;
-      left:${Math.random()*85}%;bottom:${Math.random()*25}%;
-      animation-delay:${Math.random()*0.3}s;
-      animation-duration:${0.8+Math.random()*0.5}s;`;
-    fog.appendChild(s);
-  }
-  fog.classList.add('show');
-  setTimeout(() => { window.location.href = "home.html"; }, 700);
-};
-</script>
-
 <!-- ── SERVICE WORKER ── -->
 <script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js");
 }
-// Reset fog on every load — prevents stuck fog on back navigation
-(function(){
-  const f = document.getElementById('menuFog');
-  if(f){ f.classList.remove('show'); f.innerHTML=''; f.style.opacity='0'; }
-})();
-</script>
-
-<!-- ── GOLD PARTICLES ── -->
-<script>
-(function () {
-  const canvas = document.getElementById('particles-canvas');
-  const ctx    = canvas.getContext('2d');
-  let W, H, particles = [], last = 0;
-  const FPS = 20, INTERVAL = 1000 / FPS;  // throttle to 20fps
-
-  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-
-  function P() { this.reset(); }
-  P.prototype.reset = function () {
-    this.x = Math.random()*W; this.y = Math.random()*H;
-    this.r = 0.7 + Math.random()*1.1;
-    this.vx = (Math.random()-0.5)*0.18; this.vy = -0.1 - Math.random()*0.18;
-    this.life = 0; this.max = 220 + Math.random()*180;
-    this.gold = Math.random() > 0.35;
-  };
-
-  // Pause when tab hidden — saves CPU
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) last = 0; });
-
-  function init() {
-    resize();
-    for (let i = 0; i < 28; i++) { const p = new P(); p.life = Math.random()*p.max; particles.push(p); }
-    requestAnimationFrame(loop);
-  }
-
-  function loop(ts) {
-    requestAnimationFrame(loop);
-    if (ts - last < INTERVAL) return;  // skip frames
-    last = ts;
-    ctx.clearRect(0,0,W,H);
-    particles.forEach(p => {
-      p.life++; if (p.life > p.max) p.reset();
-      const a = Math.sin((p.life/p.max)*Math.PI)*0.5;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fillStyle = p.gold ? `rgba(212,175,55,${a})` : `rgba(240,230,204,${a*0.25})`;
-      ctx.fill(); p.x += p.vx; p.y += p.vy;
-    });
-  }
-
-  window.addEventListener('resize', resize);
-  init();
-})();
 </script>
 
 </body>
 </html>
+
