@@ -2,23 +2,32 @@
   position: fixed;
   top: -420px;
   left: 50%;
-  transform: translateX(-50%);
+  transform-origin: top center;
+  transform: translateX(-50%) rotate(0deg);
   z-index: 5000;
   pointer-events: none;
-  animation: hero-cycle 14s ease-in-out 1.2s 1 forwards;
+  animation: hero-drop 14s ease-in-out 1.2s 1 forwards;
 }
 
 #hero-figure {
   width: 200px;
   height: auto;
   filter: drop-shadow(0 6px 14px rgba(0,0,0,0.25));
+  animation: hero-swing 2.2s ease-in-out 2.4s infinite;
+  transform-origin: top center;
 }
 
-@keyframes hero-cycle {
+@keyframes hero-drop {
   0%   { top: -420px; }
   12%  { top: 20px; }
   82%  { top: 20px; }
   100% { top: -420px; }
+}
+
+@keyframes hero-swing {
+  0%   { transform: rotate(-12deg); }
+  50%  { transform: rotate(12deg); }
+  100% { transform: rotate(-12deg); }
 }
 
 @media (max-width: 480px) {
