@@ -1,4 +1,22 @@
+import { initializeApp, getApps, cert } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+
+if (!getApps().length) {
+  initializeApp({
+    credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT))
+  });
+}
+
 export default async function handler(req, res) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: "No auth token" });
+
+  try {
+    await getAuth().verifyIdToken(authHeader.split("Bearer ")[1]);
+  } catch (e) {
+    return res.status(401).json({ error: "Invalid token" });
+  }
+
   const { restaurantId, title, message, url } = req.body;
   const r = await fetch("https://onesignal.com/api/v1/notifications", {
     method: "POST",
@@ -17,3 +35,6 @@ export default async function handler(req, res) {
   });
   res.status(200).json(await r.json());
 }
+
+
+

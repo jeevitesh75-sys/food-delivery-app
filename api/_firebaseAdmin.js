@@ -1,5 +1,6 @@
 const { initializeApp, getApps, cert } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
+const { getAuth } = require("firebase-admin/auth");
 
 if (!getApps().length) {
   initializeApp({
@@ -12,4 +13,12 @@ if (!getApps().length) {
 }
 
 const db = getFirestore();
-module.exports = { db };
+
+async function verifyAuth(req) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) throw new Error("No auth token");
+  const idToken = authHeader.split("Bearer ")[1];
+  return await getAuth().verifyIdToken(idToken);
+}
+
+module.exports = { db, verifyAuth };
