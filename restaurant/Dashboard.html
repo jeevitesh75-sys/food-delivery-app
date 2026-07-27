@@ -308,16 +308,16 @@ onAuthStateChanged(auth, async (user) => {
 
 async function pushToAllDeliveryBoys(order, orderId) {
     try {
-      const idToken = await auth.currentUser.getIdToken();
       await fetch("https://www.elurufoods.shop/api/emailDeliveryBoys", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${idToken}` },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           restaurantName: order.restaurantName,
           customerAddress: order.customerAddress,
           total: order.total
         })
-      });    } catch(e) {
+      });
+         } catch(e) {
       console.warn("Email notify failed (non-critical):", e);
     }
 }

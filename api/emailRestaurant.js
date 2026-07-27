@@ -1,22 +1,16 @@
-const { db, verifyAuth } = require("./_firebaseAdmin.js");
+const { db } = require("./_firebaseAdmin.js");
 const { transporter } = require("./_mailer.js");
 
 module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
   if (req.method !== "POST") return res.status(405).end();
-
-  try {
-    await verifyAuth(req);
-  } catch (e) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
 
   const { orderId } = req.body;
   if (!orderId) return res.status(400).json({ error: "Missing orderId" });
@@ -45,3 +39,4 @@ module.exports = async function handler(req, res) {
     res.status(500).json({ error: e.message });
   }
 };
+

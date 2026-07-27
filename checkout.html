@@ -210,10 +210,9 @@ onAuthStateChanged(auth, async (user) => {
 
       localStorage.removeItem("cart");
 
-const idToken = await user.getIdToken();
 fetch("https://www.elurufoods.shop/api/emailRestaurant", {
   method: "POST",
-  headers: { "Content-Type": "application/json", "Authorization": `Bearer ${idToken}` },
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ orderId: orderRef.id })
 }).catch(e => console.log("Email send failed (non-critical):", e));
       alert("Order placed successfully");
