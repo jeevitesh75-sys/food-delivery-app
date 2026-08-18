@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Menu Management · Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif; }
+  body { background:#111; color:#eee; padding-bottom:60px; }
+  .header { background:#1a1a1a; padding:18px 20px; font-size:19px; font-weight:700; border-bottom:1px solid #2a2a2a; position:sticky; top:0; z-index:10; }
+  .container { max-width:900px; margin:20px auto; padding:0 16px; }
+
+  .rest-row {
+    background:#1a1a1a; border:1px solid #2a2a2a; border-radius:10px;
+    padding:16px 18px; margin-bottom:10px; cursor:pointer;
+    display:flex; justify-content:space-between; align-items:center;
+    transition:0.2s;
+  }
+  .rest-row:hover { background:#222; }
+  .rest-name { font-size:15px; font-weight:600; }
+  .rest-meta { font-size:12px; color:#888; margin-top:3px; }
+  .chevron { transition:0.2s; color:#888; }
+  .chevron.open { transform:rotate(90deg); }
+
+  .menu-panel {
+    display:none; background:#161616; border:1px solid #2a2a2a; border-top:none;
+    border-radius:0 0 10px 10px; margin-top:-10px; margin-bottom:10px; padding:16px 18px;
+  }
+  .menu-panel.show { display:block; }
+
+  .add-food-row { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+  .add-food-row input {
+    flex:1; min-width:100px; padding:9px 12px; border-radius:6px; border:1px solid #333;
+    background:#0d0d0d; color:#eee; font-size:13px;
+  }
+  .add-food-row button {
+    padding:9px 16px; border:none; border-radius:6px; background:#2e7d32; color:#fff;
+    font-size:13px; cursor:pointer; white-space:nowrap;
+  }
+
+  .food-item {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 0; border-bottom:1px solid #222;
+  }
+  .food-item:last-child { border-bottom:none; }
+  .food-left { display:flex; align-items:center; gap:12px; }
+  .food-img { width:42px; height:42px; border-radius:6px; object-fit:cover; background:#222; }
+  .food-name { font-size:14px; font-weight:600; }
+  .food-price { font-size:12px; color:#999; }
+  .food-status { font-size:11px; margin-top:2px; }
+  .status-on { color:#4caf50; }
+  .status-off { color:#e53935; }
+
+  .food-actions { display:flex; gap:6px; }
+  .food-actions button {
+    padding:6px 10px; border:none; border-radius:5px; font-size:11px; cursor:pointer; color:#fff;
+  }
+  .btn-toggle-on { background:#e65100; }
+  .btn-toggle-off { background:#2e7d32; }
+  .btn-edit { background:#1565c0; }
+  .btn-delete { background:#c62828; }
+
+  .empty-state { color:#666; font-size:13px; text-align:center; padding:20px 0; }
+  .loading-state { color:#888; font-size:13px; text-align:center; padding:20px 0; }
+
+  #editModal {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6);
+    align-items:center; justify-content:center; z-index:999; padding:20px;
+  }
+  #editModal.show { display:flex; }
+  .modal-box {
+    background:#1a1a1a; border-radius:12px; padding:22px; width:100%; max-width:360px;
+    border:1px solid #2a2a2a;
+  }
+  .modal-box h3 { font-size:16px; margin-bottom:14px; }
+  .modal-box input {
+    width:100%; padding:10px 12px; margin-bottom:10px; border-radius:6px;
+    border:1px solid #333; background:#0d0d0d; color:#eee; font-size:13px;
+  }
+  .modal-actions { display:flex; gap:8px; margin-top:6px; }
+  .modal-actions button {
+    flex:1; padding:10px; border:none; border-radius:6px; font-size:13px; cursor:pointer; color:#fff;
+  }
+  .btn-save { background:#2e7d32; }
+  .btn-cancel { background:#444; }
+</style>
+</head>
+<body>
+
+<div class="header">🍽 Menu Management</div>
+
+<div class="container" id="restaurantList">
+  <div class="loading-state">Loading restaurants...</div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal">
+  <div class="modal-box">
+    <h3>Edit Food Item</h3>
+    <input id="editName" placeholder="Food name">
+    <input id="editPrice" placeholder="Price" type="number">
+    <input id="editImage" placeholder="Image URL">
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveEdit()">Save</button>
+      <button class="btn-cancel" onclick="closeEdit()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, query, where, getDocs,
+  addDoc, updateDoc, deleteDoc, doc, onSnapshot
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+});
+const db = getFirestore(app);
+
+const listEl = document.getElementById("restaurantList");
+let editingFoodId = null;
+let currentRestaurantId = null;
+let menuUnsubscribers = {};
+
+// ── LOAD ALL RESTAURANTS ──
+async function loadRestaurants() {
+  const snap = await getDocs(collection(db, "restaurants"));
+  if (snap.empty) {
+    listEl.innerHTML = `<div class="empty-state">No restaurants found</div>`;
+    return;
+  }
+
+  listEl.innerHTML = "";
+  snap.forEach(docSnap => {
+    const r = docSnap.data();
+    const restId = docSnap.id;
+
+    const row = document.createElement("div");
+    row.className = "rest-row";
+    row.innerHTML = `
+      <div>
+        <div class="rest-name">${r.name || "Unnamed Restaurant"}</div>
+        <div class="rest-meta">${r.address || r.phone || restId}</div>
+      </div>
+      <div class="chevron" id="chev-${restId}">›</div>
+    `;
+
+    const panel = document.createElement("div");
+    panel.className = "menu-panel";
+    panel.id = "panel-" + restId;
+    panel.innerHTML = `
+      <div class="add-food-row">
+        <input id="fname-${restId}" placeholder="Food name">
+        <input id="fprice-${restId}" placeholder="Price" type="number">
+        <input id="fimg-${restId}" placeholder="Image URL">
+        <button onclick="window.addFood('${restId}')">Add</button>
+      </div>
+      <div id="foodlist-${restId}">
+        <div class="loading-state">Loading menu...</div>
+      </div>
+    `;
+
+    row.onclick = () => togglePanel(restId);
+
+    listEl.appendChild(row);
+    listEl.appendChild(panel);
+  });
+}
+
+function togglePanel(restId) {
+  const panel = document.getElementById("panel-" + restId);
+  const chev = document.getElementById("chev-" + restId);
+  const isOpen = panel.classList.contains("show");
+
+  // close all other panels
+  document.querySelectorAll(".menu-panel.show").forEach(p => p.classList.remove("show"));
+  document.querySelectorAll(".chevron.open").forEach(c => c.classList.remove("open"));
+
+  if (!isOpen) {
+    panel.classList.add("show");
+    chev.classList.add("open");
+    listenToMenu(restId);
+  }
+}
+
+function listenToMenu(restId) {
+  if (menuUnsubscribers[restId]) return; // already listening
+
+  const q = query(collection(db, "menu"), where("restaurantId", "==", restId));
+  menuUnsubscribers[restId] = onSnapshot(q, snap => {
+    const foodListEl = document.getElementById("foodlist-" + restId);
+    if (!foodListEl) return;
+
+    if (snap.empty) {
+      foodListEl.innerHTML = `<div class="empty-state">No food items yet</div>`;
+      return;
+    }
+
+    let html = "";
+    snap.forEach(docSnap => {
+      const f = docSnap.data();
+      const id = docSnap.id;
+      html += `
+        <div class="food-item">
+          <div class="food-left">
+            <img class="food-img" src="${f.image || 'https://via.placeholder.com/42'}" onerror="this.src='https://via.placeholder.com/42'">
+            <div>
+              <div class="food-name">${f.name}</div>
+              <div class="food-price">₹${f.price}</div>
+              <div class="food-status ${f.enabled ? 'status-on' : 'status-off'}">${f.enabled ? 'Enabled' : 'Disabled'}</div>
+            </div>
+          </div>
+          <div class="food-actions">
+            <button class="${f.enabled ? 'btn-toggle-on' : 'btn-toggle-off'}" onclick="window.toggleFood('${id}', ${f.enabled})">${f.enabled ? 'Disable' : 'Enable'}</button>
+            <button class="btn-edit" onclick="window.openEdit('${id}', '${(f.name||'').replace(/'/g,"\\'")}', ${f.price}, '${(f.image||'').replace(/'/g,"\\'")}')">Edit</button>
+            <button class="btn-delete" onclick="window.deleteFood('${id}')">Delete</button>
+          </div>
+        </div>
+      `;
+    });
+    foodListEl.innerHTML = html;
+  });
+}
+
+// ── ADD FOOD ──
+window.addFood = async (restId) => {
+  const name = document.getElementById(`fname-${restId}`).value.trim();
+  const price = document.getElementById(`fprice-${restId}`).value.trim();
+  const image = document.getElementById(`fimg-${restId}`).value.trim();
+
+  if (!name || !price) { alert("Enter food name and price"); return; }
+
+  await addDoc(collection(db, "menu"), {
+    name, price: Number(price), image, restaurantId: restId, enabled: true
+  });
+
+  document.getElementById(`fname-${restId}`).value = "";
+  document.getElementById(`fprice-${restId}`).value = "";
+  document.getElementById(`fimg-${restId}`).value = "";
+};
+
+// ── TOGGLE ENABLE/DISABLE ──
+window.toggleFood = async (id, current) => {
+  await updateDoc(doc(db, "menu", id), { enabled: !current });
+};
+
+// ── DELETE ──
+window.deleteFood = async (id) => {
+  if (!confirm("Delete this food item?")) return;
+  await deleteDoc(doc(db, "menu", id));
+};
+
+// ── EDIT ──
+window.openEdit = (id, name, price, image) => {
+  editingFoodId = id;
+  document.getElementById("editName").value = name;
+  document.getElementById("editPrice").value = price;
+  document.getElementById("editImage").value = image;
+  document.getElementById("editModal").classList.add("show");
+};
+
+window.closeEdit = () => {
+  document.getElementById("editModal").classList.remove("show");
+  editingFoodId = null;
+};
+
+window.saveEdit = async () => {
+  if (!editingFoodId) return;
+  await updateDoc(doc(db, "menu", editingFoodId), {
+    name: document.getElementById("editName").value.trim(),
+    price: Number(document.getElementById("editPrice").value),
+    image: document.getElementById("editImage").value.trim()
+  });
+  window.closeEdit();
+};
+
+loadRestaurants();
+</script>
+
+</body>
+</html>
