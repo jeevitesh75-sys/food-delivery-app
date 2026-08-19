@@ -28,6 +28,14 @@
   }
   .menu-panel.show { display:block; }
 
+  .rest-img-row {
+    display:flex; align-items:center; gap:10px; margin-bottom:16px;
+    padding-bottom:16px; border-bottom:1px solid #2a2a2a; flex-wrap:wrap;
+  }
+  .rest-img-preview { width:60px; height:60px; border-radius:8px; object-fit:cover; background:#222; }
+  .rest-img-row input { flex:1; min-width:140px; padding:9px 12px; border-radius:6px; border:1px solid #333; background:#0d0d0d; color:#eee; font-size:13px; }
+  .rest-img-row button { padding:9px 16px; border:none; border-radius:6px; background:#1565c0; color:#fff; font-size:13px; cursor:pointer; white-space:nowrap; }
+
   .add-food-row { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
   .add-food-row input {
     flex:1; min-width:100px; padding:9px 12px; border-radius:6px; border:1px solid #333;
@@ -130,6 +138,7 @@ onAuthStateChanged(auth, (user) => {
   }
   loadRestaurants();
 });
+
 const listEl = document.getElementById("restaurantList");
 let editingFoodId = null;
 let currentRestaurantId = null;
@@ -162,6 +171,12 @@ async function loadRestaurants() {
     panel.className = "menu-panel";
     panel.id = "panel-" + restId;
     panel.innerHTML = `
+      <div class="rest-img-row">
+        <img id="restimg-preview-${restId}" class="rest-img-preview" src="${r.image || 'https://via.placeholder.com/60'}" onerror="this.src='https://via.placeholder.com/60'">
+        <input id="restimg-${restId}" placeholder="Restaurant image URL" value="${r.image || ''}">
+        <button onclick="window.updateRestaurantImage('${restId}')">Update Image</button>
+      </div>
+
       <div class="add-food-row">
         <input id="fname-${restId}" placeholder="Food name">
         <input id="fprice-${restId}" placeholder="Price" type="number">
@@ -235,6 +250,16 @@ function listenToMenu(restId) {
   });
 }
 
+// ── UPDATE RESTAURANT IMAGE ──
+window.updateRestaurantImage = async (restId) => {
+  const newImg = document.getElementById(`restimg-${restId}`).value.trim();
+  if (!newImg) { alert("Enter an image URL first"); return; }
+
+  await updateDoc(doc(db, "restaurants", restId), { image: newImg });
+  document.getElementById(`restimg-preview-${restId}`).src = newImg;
+  alert("Restaurant image updated!");
+};
+
 // ── ADD FOOD ──
 window.addFood = async (restId) => {
   const name = document.getElementById(`fname-${restId}`).value.trim();
@@ -286,8 +311,8 @@ window.saveEdit = async () => {
   });
   window.closeEdit();
 };
-
 </script>
 
 </body>
 </html>
+
