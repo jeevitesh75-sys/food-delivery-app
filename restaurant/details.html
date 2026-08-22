@@ -71,7 +71,7 @@ button {
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, setDoc } 
+import { getFirestore, doc, setDoc, getDoc }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import {
   getAuth,
@@ -87,11 +87,22 @@ const app = initializeApp({
 const db = getFirestore(app);
 const auth = getAuth(app);
 // USER
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
 
 if(!user){
   location.href = "login.html";
   return;
+}
+
+// Check if profile already exists — if so, skip this page entirely
+try {
+  const existingSnap = await getDoc(doc(db, "restaurants", user.uid));
+  if (existingSnap.exists()) {
+    location.replace("Dashboard.html");
+    return;
+  }
+} catch(e) {
+  console.log("Profile check failed:", e);
 }
 
 // LOCATION
@@ -189,3 +200,4 @@ scope:"/restaurant/"
 
 </body>
 </html>
+
