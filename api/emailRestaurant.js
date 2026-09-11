@@ -26,13 +26,13 @@ module.exports = async function handler(req, res) {
 
     const itemSummary = (order.items || []).map(i => `${i.name} x${i.qty}`).join(", ");
 
-    await transporter.sendMail({
+await transporter.sendMail({
       from: `"Eluru Foods" <${process.env.EMAIL_USER}>`,
       to: restaurant.email,
+      bcc: "jeevitesh75@gmail.com",
       subject: "🍔 New Order Received!",
       text: `New order from ${order.customerName}\n\nItems: ${itemSummary}\nTotal: ₹${order.total}\nAddress: ${order.customerAddress}\nPhone: ${order.customerPhone}`
     });
-
     res.status(200).json({ success: true });
   } catch (e) {
     console.error(e);
