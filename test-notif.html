@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({ appId: "f6c24c6d-30ed-496e-a1ad-3b1f2e3a4a03" });
+  });
+</script>
+<link rel="stylesheet" href="/css/hero-drop.css">
+<script src="/js/hero-drop.js" defer></script>
+</head>
+<body>
+<h1>Test Page</h1>
+<button onclick="OneSignal.Notifications.requestPermission()">Subscribe</button>
+</body>
+</html>
