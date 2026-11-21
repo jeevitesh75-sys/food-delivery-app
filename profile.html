@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile · Eluru Foods</title>
+<link rel="stylesheet" href="css/liquid-glass.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="/css/hero-drop.css">
+<script src="/js/hero-drop.js" defer></script>
+</head>
+
+<body>
+
+<div class="profile-hero">
+  <div class="avatar-placeholder">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+  </div>
+  <div id="userName">Loading…</div>
+  <div id="userEmail"></div>
+</div>
+
+<div class="section" id="viewBox">
+  <h3><svg class="icon" style="width:16px;height:16px;" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>Profile Details</h3>
+  <div class="info-row"><b>Name</b> <span id="vName">—</span></div>
+  <div class="info-row"><b>Email</b> <span id="vEmail">—</span></div>
+  <div class="info-row"><b>Phone</b> <span id="vPhone">—</span></div>
+  <button class="btn-outline" onclick="openEdit()" style="margin-top:10px;">Edit Profile</button>
+</div>
+
+<div class="section" id="editBox" style="display:none;">
+  <h3><svg class="icon" style="width:16px;height:16px;" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5Z"/></svg>Edit Profile</h3>
+  <input id="editName" placeholder="Full Name">
+  <input id="editPhone" placeholder="Phone Number" type="tel">
+  <div style="margin-top:10px; display:flex; gap:8px;">
+    <button class="glass-btn" style="background:var(--ink);color:#fff;" onclick="saveProfile()">Save</button>
+    <button class="btn-outline" onclick="closeEdit()">Cancel</button>
+  </div>
+</div>
+
+<div class="section">
+  <h3><svg class="icon" style="width:16px;height:16px;" viewBox="0 0 24 24"><path d="M3 16V6a1 1 0 0 1 1-1h9v11"/><path d="M14 9h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>Recent Orders</h3>
+  <div id="orders"></div>
+</div>
+
+<div class="section">
+  <h3><svg class="icon" style="width:16px;height:16px;" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Delivery Addresses</h3>
+  <div id="addressList"></div>
+  <input type="text" id="newAddress" placeholder="Enter new address…">
+  <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+    <button class="glass-btn" style="background:var(--ink);color:#fff;" onclick="getLocation()">Use My Location</button>
+    <button class="btn-outline" onclick="addAddress()">+ Add Address</button>
+  </div>
+</div>
+
+<div class="section">
+  <h3><svg class="icon" style="width:16px;height:16px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>Customer Care</h3>
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <button class="glass-btn" style="background:var(--ink);color:#fff;" onclick="openFeedback()">Feedback Form</button>
+    <button class="btn-outline" onclick="contactSupport()">WhatsApp Support</button>
+  </div>
+</div>
+
+<div class="logout-btn" onclick="logout()">
+  <svg class="icon" style="width:17px;height:17px;" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+  Sign Out
+</div>
+
+<div class="bottom-nav">
+  <a href="home.html" class="nav-item">
+    <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    Home
+  </a>
+  <a href="cart.html" class="nav-item">
+    <span class="nav-icon-wrap">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2.5l2.5 12.5h10L20 7H6"/></svg>
+    </span>
+    Cart
+  </a>
+  <a href="profile.html" class="nav-item active">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+    Profile
+  </a>
+</div>
+
+<!-- ══ ALL ORIGINAL FIREBASE LOGIC (UNTOUCHED) ══ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, updateDoc, collection, query, where, getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const app = initializeApp({
+  apiKey:    "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain:"food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+});
+const db   = getFirestore(app);
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { location.href = "login.html"; return; }
+
+  document.getElementById("userName").innerText = user.displayName || "User";
+  document.getElementById("userEmail").innerText = user.email;
+
+  const userRef = doc(db, "users", user.uid);
+  const snap    = await getDoc(userRef);
+  let data      = snap.data() || {};
+  if (!data.addresses)      data.addresses      = [];
+  if (data.defaultAddress === undefined) data.defaultAddress = 0;
+
+  document.getElementById("vName").innerText  = user.displayName || "User";
+  document.getElementById("vEmail").innerText = user.email;
+  document.getElementById("vPhone").innerText = data.phone || "—";
+  document.getElementById("editName").value   = user.displayName || "";
+  document.getElementById("editPhone").value  = data.phone || "";
+
+  window.openEdit  = () => { document.getElementById("viewBox").style.display="none"; document.getElementById("editBox").style.display="block"; };
+  window.closeEdit = () => { document.getElementById("editBox").style.display="none"; document.getElementById("viewBox").style.display="block"; };
+
+  window.saveProfile = async () => {
+    const name  = document.getElementById("editName").value.trim();
+    const phone = document.getElementById("editPhone").value.trim();
+    if (!name || !phone) { alert("Enter name and phone"); return; }
+    await updateDoc(userRef, { name, phone });
+    user.displayName = name;
+    localStorage.setItem("user", JSON.stringify(user));
+    document.getElementById("vName").innerText   = name;
+    document.getElementById("vPhone").innerText  = phone;
+    document.getElementById("userName").innerText = name;
+    alert("Updated");
+    closeEdit();
+  };
+
+  let addresses     = data.addresses || [];
+  let currentLat    = null;
+  let currentLng    = null;
+  let defaultIndex  = data.defaultAddress || 0;
+
+  function renderAddresses() {
+    const list = document.getElementById("addressList");
+    list.innerHTML = "";
+    addresses.forEach((addr, i) => {
+      if (!addr) return;
+      const div       = document.createElement("div");
+      div.className   = "address " + (i === defaultIndex ? "active" : "");
+      div.innerHTML   = `
+        <div>${addr.address}</div>
+        <div class="address-actions">
+          <button class="glass-btn" style="background:var(--ink);color:#fff;padding:8px 14px;font-size:12px;" onclick="setDefault(${i})">Use</button>
+          <button class="btn-outline" style="padding:8px 14px;font-size:12px;" onclick="editAddress(${i})">Edit</button>
+          <button class="btn-danger-ghost" onclick="deleteAddress(${i})">Delete</button>
+        </div>`;
+      list.appendChild(div);
+    });
+  }
+
+  window.addAddress = async () => {
+    const val = document.getElementById("newAddress").value.trim();
+    if (!val) { alert("Enter address"); return; }
+    addresses.push({ address: val, lat: currentLat, lng: currentLng });
+    await updateDoc(userRef, { addresses });
+    document.getElementById("newAddress").value = "";
+    renderAddresses();
+  };
+
+  window.deleteAddress = async (i) => {
+    addresses.splice(i, 1);
+    await updateDoc(userRef, { addresses });
+    renderAddresses();
+  };
+
+  window.editAddress = async (i) => {
+    const updated = prompt("Edit address:", addresses[i].address);
+    if (updated) {
+      addresses[i].address = updated;
+      await updateDoc(userRef, { addresses });
+      renderAddresses();
+    }
+  };
+
+  window.setDefault = async (i) => {
+    defaultIndex = i;
+    await updateDoc(userRef, {
+      defaultAddress: i,
+      address: addresses[i].address,
+      lat: addresses[i].lat,
+      lng: addresses[i].lng
+    });
+    renderAddresses();
+    alert("Address selected");
+  };
+
+  window.getLocation = () => {
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      currentLat = pos.coords.latitude;
+      currentLng = pos.coords.longitude;
+      const res  = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${currentLat}&lon=${currentLng}&format=json`
+      );
+      const d    = await res.json();
+      document.getElementById("newAddress").value = d.display_name || "Address not found";
+    }, () => alert("Permission denied"));
+  };
+
+  const q          = query(collection(db, "orders"), where("userId", "==", user.uid));
+  const ordersSnap = await getDocs(q);
+  const ordersEl   = document.getElementById("orders");
+
+  if (ordersSnap.empty) {
+    ordersEl.innerHTML = `<div style="font-size:13px;color:var(--ink-faint);padding:8px 0;">No orders yet</div>`;
+  } else {
+    ordersSnap.forEach(d => {
+      const o = d.data();
+      if (o.status === "Delivered" && o.deliveredAt && (Date.now() - o.deliveredAt) > 300000) return;
+
+      const div     = document.createElement("div");
+      div.className = "order-row" + (o.status !== "Delivered" ? " clickable" : "");
+      div.innerHTML = `
+        <div style="font-size:14px;font-weight:700;color:var(--ink);">
+          ₹${o.total}
+          ${o.restaurantName ? `<span style="font-size:12px;color:var(--ink-muted);font-weight:500;margin-left:8px;">${o.restaurantName}</span>` : ''}
+        </div>
+        <span class="order-row-status">${o.status}</span>`;
+
+      if (o.status !== "Delivered") {
+        div.onclick = () => { localStorage.setItem("trackingOrderId", d.id); window.location.href = "tracking.html"; };
+      }
+      ordersEl.appendChild(div);
+    });
+  }
+
+  window.openFeedback    = () => window.open("https://docs.google.com/forms/d/e/1FAIpQLSfQoy70FjiDd_CwUJArWp6RFHnrReimgu2uknDL64G7KlY-xg/viewform?usp=header", "_blank");
+  window.contactSupport  = () => window.open("https://wa.me/9494837377", "_blank");
+
+  window.logout = async () => { await signOut(auth); localStorage.clear(); location.href = "login.html"; };
+
+  renderAddresses();
+});
+</script>
+
+<!-- ── SERVICE WORKER ── -->
+<script>
+if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js"); }
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accept Policies · Eluru Foods</title>
+<meta name="theme-color" content="#ffffff">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+    background:#f7f7f7;
+    color:#111;
+    padding-bottom:60px;
+  }
+
+  .page-header {
+    display:flex; align-items:center; gap:14px;
+    padding:22px 20px 18px; background:#fff;
+    position:sticky; top:0; z-index:10;
+    border-bottom:1px solid #eee;
+  }
+  .back-btn {
+    width:38px; height:38px; border-radius:50%; background:#f2f2f2;
+    display:flex; align-items:center; justify-content:center;
+    font-size:18px; text-decoration:none; color:#111; flex-shrink:0;
+  }
+  .page-header h1 { font-size:19px; font-weight:800; }
+
+  .doc-card {
+    max-width:680px; margin:24px auto 0; background:#fff;
+    border-radius:20px; padding:32px 28px 40px;
+    box-shadow:0 4px 24px rgba(0,0,0,0.04);
+  }
+
+  .doc-updated {
+    font-size:12.5px; color:#999; margin-bottom:28px;
+  }
+
+  .doc-card h2 {
+    font-size:15.5px; font-weight:800; margin:26px 0 10px;
+    letter-spacing:-0.01em;
+  }
+  .doc-card h2:first-of-type { margin-top:0; }
+
+  .doc-card p {
+    font-size:14px; line-height:1.7; color:#444; margin-bottom:4px;
+  }
+
+  .doc-card ul {
+    margin:8px 0 4px 20px;
+  }
+  .doc-card li {
+    font-size:14px; line-height:1.7; color:#444; margin-bottom:4px;
+  }
+
+  .doc-footer {
+    max-width:680px; margin:24px auto 0; padding:0 28px;
+    font-size:12px; color:#aaa; text-align:center;
+  }
+
+  /* ── ACCEPT BAR ── */
+  .accept-spacer { height:120px; }
+
+  .accept-bar {
+    position:fixed; left:0; right:0; bottom:0;
+    background:#fff; border-top:1px solid #eee;
+    padding:16px 20px calc(16px + env(safe-area-inset-bottom));
+    box-shadow:0 -4px 24px rgba(0,0,0,0.06);
+    z-index:20;
+  }
+
+  .accept-check-row {
+    display:flex; align-items:flex-start; gap:12px;
+    margin-bottom:14px; max-width:680px; margin-left:auto; margin-right:auto;
+  }
+  .accept-check-row input[type="checkbox"] {
+    width:22px; height:22px; flex-shrink:0; margin-top:1px;
+    accent-color:#111; cursor:pointer;
+  }
+  .accept-check-row label {
+    font-size:13.5px; line-height:1.5; color:#333; cursor:pointer;
+  }
+
+  .accept-btn {
+    display:block; width:100%; max-width:680px; margin:0 auto;
+    padding:16px; border:none; border-radius:14px;
+    background:#ccc; color:#fff;
+    font-size:15.5px; font-weight:700;
+    cursor:not-allowed; transition:background 0.2s ease, transform 0.15s ease;
+  }
+  .accept-btn.ready {
+    background:#111; cursor:pointer;
+    box-shadow:0 10px 26px -10px rgba(0,0,0,0.4);
+  }
+  .accept-btn.ready:active { transform:scale(0.98); }
+
+  @media (max-width:480px) {
+    .doc-card { margin:16px 12px 0; padding:24px 20px 32px; border-radius:16px; }
+    .doc-footer { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <a class="back-btn" href="javascript:history.back()">‹</a>
+  <h1>Terms & Conditions</h1></div>
+
+<div class="doc-card">
+
+  <div class="doc-updated">Last updated: September 2026</div>
+
+  <p>Welcome to Eluru Foods. By accessing or using our website and placing an order, you agree to be bound by these Terms & Conditions. Please read them carefully before using our services.</p>
+
+  <h2>1. About Us</h2>
+  <p>Eluru Foods is an independently operated food ordering and delivery platform connecting customers with local restaurants in Eluru, Andhra Pradesh. We are not currently a registered company; these Terms govern your use of our website regardless of our business registration status.</p>
+
+  <h2>2. Eligibility</h2>
+  <p>There is no minimum age requirement to use this service. If you are using this platform on behalf of a minor or if a minor is placing orders, a parent or guardian should supervise the transaction and payment.</p>
+
+  <h2>3. Orders</h2>
+  <p>All orders placed through Eluru Foods are subject to acceptance by the relevant restaurant. A restaurant may decline an order due to unavailability of items, closing hours, or other operational reasons, in which case you will be notified and no charge will apply.</p>
+
+  <h2>4. Payment</h2>
+  <p>Currently, Cash on Delivery (COD) is the only payment method accepted. Full payment for your order is due directly to the delivery partner at the time of delivery. We do not process or store any payment card or banking information through this platform.</p>
+
+  <h2>5. Cancellations and Refunds</h2>
+  <p>Orders cannot be cancelled once placed. Eluru Foods does not offer refunds for completed or in-progress orders. If an order is not delivered due to a fault on our part or the restaurant's part (e.g., the order was never dispatched), please contact us so we can review the matter on a case-by-case basis.</p>
+
+  <h2>6. Delivery</h2>
+  <p>Delivery times are estimates only and may vary due to traffic, weather, restaurant preparation time, or delivery partner availability. Eluru Foods is not liable for delays outside our reasonable control.</p>
+
+  <h2>7. Food Quality and Safety</h2>
+  <p>Food is prepared by independent third-party restaurants listed on our platform. Eluru Foods is not the manufacturer or preparer of any food item and disclaims liability for the quality, safety, or fitness of food beyond what applicable consumer protection law requires. If you have concerns about a specific order, please contact us and we will pass on feedback to the relevant restaurant.</p>
+
+  <h2>8. User Conduct</h2>
+  <p>You agree to provide accurate name, phone number, and delivery address information when placing an order. Providing false information to obtain deliveries fraudulently, or abusive behaviour toward restaurant staff or delivery partners, may result in your access being restricted.</p>
+
+  <h2>9. Limitation of Liability</h2>
+  <p>To the fullest extent permitted by law, Eluru Foods shall not be liable for any indirect, incidental, or consequential damages arising from your use of this platform, including but not limited to delayed deliveries, incorrect orders, or food-related issues arising from restaurant preparation.</p>
+
+  <h2>10. Changes to These Terms</h2>
+  <p>We may update these Terms from time to time. Continued use of the platform after changes are posted constitutes acceptance of the revised Terms.</p>
+
+  <h2>11. Governing Law</h2>
+  <p>These Terms are governed by the laws of India. Any disputes arising from these Terms or your use of Eluru Foods shall be subject to the jurisdiction of the courts in Eluru, Andhra Pradesh.</p>
+
+  <h2>12. Contact Us</h2>
+  <p>For any questions regarding these Terms, please reach out to us through the contact details provided on our website.</p>
+
+</div>
+
+<div class="doc-footer">© 2026 Eluru Foods. All rights reserved.</div>
+
+<div class="accept-spacer"></div>
+
+<div class="accept-bar">
+  <div class="accept-check-row">
+    <input type="checkbox" id="acceptCheck" onchange="toggleAcceptBtn()">
+    <label for="acceptCheck">I have read and agree to the Terms & Conditions</label>
+  </div>
+  <button class="accept-btn" id="acceptBtn" onclick="acceptPolicies()" disabled>Accept &amp; Continue</button>
+</div>
+
+<script type="module">
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getFirestore,
+  doc,
+  setDoc
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+  getAuth
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain:"food-delivery-app-97300.firebaseapp.com",
+  projectId:"food-delivery-app-97300"
+});
+
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+window.toggleAcceptBtn = function() {
+  const checked = document.getElementById('acceptCheck').checked;
+  const btn = document.getElementById('acceptBtn');
+  btn.disabled = !checked;
+  btn.classList.toggle('ready', checked);
+};
+
+window.acceptPolicies = async () => {
+
+  const btn = document.getElementById('acceptBtn');
+  if (btn.disabled) return;
+
+  try {
+
+    const user = auth.currentUser;
+
+    if(!user){
+      alert("Please login again");
+      location.href = "login.html";
+      return;
+    }
+
+    await setDoc(
+      doc(db,"users",user.uid),
+      {
+        policyAccepted:true
+      },
+      { merge: true }
+    );
+
+    location.href = "details.html";
+
+  } catch(err) {
+
+    alert(err.message);
+
+  }
+
+};
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+
+</body>
+</html>

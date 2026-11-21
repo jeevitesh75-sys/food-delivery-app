@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Order Tracking · Eluru Foods</title>
+<link rel="stylesheet" href="css/liquid-glass.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<style>
+body { padding-bottom: 110px; }
+.header-title { font-size: 17px; font-weight: 800; color: var(--ink); display: flex; align-items: center; gap: 10px; }
+.sec-label { padding: 16px 20px 8px; display: flex; align-items: center; gap: 10px; }
+.sec-label span { font-size: 11px; font-weight: 700; color: var(--ink-muted); letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap; }
+.sec-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--ink-faint), transparent); }
+.empty-orders { text-align: center; padding: 80px 30px; color: var(--ink-muted); }
+.empty-orders svg.icon { width: 46px; height: 46px; margin: 0 auto 16px; opacity: 0.35; }
+.empty-orders p { font-size: 16px; font-weight: 700; margin-bottom: 6px; color: var(--ink); }
+.empty-orders small { font-size: 12.5px; color: var(--ink-faint); }
+.empty-orders a { display: inline-block; margin-top: 22px; padding: 12px 28px; background: var(--ink); color: #fff; border-radius: 30px; font-weight: 700; font-size: 13px; text-decoration: none; }
+</style>
+<link rel="stylesheet" href="/css/hero-drop.css">
+<script src="/js/hero-drop.js" defer></script>
+</head>
+
+<body>
+
+<div id="loader">
+  <div class="load-ring"></div>
+  <h2>Eluru Foods</h2>
+</div>
+
+<div class="page-header">
+  <div class="header-title">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M3 16V6a1 1 0 0 1 1-1h9v11"/><path d="M14 9h4l3 3v4h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+    Your Orders
+  </div>
+</div>
+
+<div class="sec-label"><span>Active Orders</span></div>
+
+<div id="orderList"></div>
+
+<div id="orderBox"></div>
+
+<div class="bottom-nav">
+  <a href="home.html" class="nav-item">
+    <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    Home
+  </a>
+  <a href="cart.html" class="nav-item">
+    <span class="nav-icon-wrap">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2.5l2.5 12.5h10L20 7H6"/></svg>
+    </span>
+    Cart
+  </a>
+  <a href="profile.html" class="nav-item active">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+    Profile
+  </a>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<!-- ══ ALL ORIGINAL FIREBASE LOGIC (UNTOUCHED) ══ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, onSnapshot, query, where, doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const app = initializeApp({
+  apiKey:    "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain:"food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+});
+const db   = getFirestore(app);
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) { location.href = "login.html"; return; }
+
+  const orderListDiv = document.getElementById("orderList");
+  const orderBox     = document.getElementById("orderBox");
+
+  const q = query(collection(db, "orders"), where("userId", "==", user.uid));
+
+  onSnapshot(q, (snapshot) => {
+    orderListDiv.innerHTML = "";
+    orderBox.innerHTML     = "";
+    let activeOrders       = 0;
+
+    snapshot.docs.forEach((docSnap, index) => {
+      const data = docSnap.data();
+      if (data.status === "Delivered") return;
+
+      activeOrders++;
+
+      const badgeClass = {
+        "Pending":          "pending",
+        "Accepted":         "preparing",
+        "Ready":            "ready",
+        "Out for Delivery": "out"
+      }[data.status] || "";
+
+      const div       = document.createElement("div");
+      div.className   = "order-item";
+
+      div.innerHTML = `
+        <div class="order-num">Order #${index + 1}</div>
+        <div class="order-meta">
+          <span class="order-total">₹${data.total}</span>
+          <span class="order-status-badge ${badgeClass}">${data.status}</span>
+        </div>
+        ${data.restaurantName ? `<div style="font-size:12px;color:var(--ink-muted);margin-top:5px;">${data.restaurantName}</div>` : ''}
+      `;
+
+      div.onclick = () => showOrder(data, div);
+      orderListDiv.appendChild(div);
+
+      if (activeOrders === 1) showOrder(data, div);
+    });
+
+    if (activeOrders === 0) {
+      orderListDiv.innerHTML = `
+        <div class="empty-orders">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+          <p>No active orders</p>
+          <small>All your orders have been delivered</small>
+          <br><a href="home.html">Order Again</a>
+        </div>`;
+      orderBox.innerHTML = "";
+    }
+  });
+
+  function showOrder(order, element) {
+    document.querySelectorAll(".order-item").forEach(el => el.classList.remove("active-order"));
+    element.classList.add("active-order");
+
+    const steps        = ["Pending", "Accepted", "Ready", "Out for Delivery", "Delivered"];
+    const currentIndex = steps.indexOf(order.status);
+
+    const stepsHTML = steps.map((step, i) => `
+      <div class="step ${i <= currentIndex ? 'done' : ''}">
+        <div class="circle ${i <= currentIndex ? 'active' : ''}"></div>
+        ${step}
+      </div>`).join("");
+
+    const itemsHTML = order.items.map(i =>
+      `<div>${i.name} <span style="color:var(--ink-muted);">×${i.qty}</span></div>`
+    ).join("");
+
+    const deliveryHTML = order.deliveryBoyName
+      ? `<div class="delivery-section">
+           <div class="delivery-title">Delivery Partner</div>
+           <div class="delivery-row"><b>Name:</b> ${order.deliveryBoyName}</div>
+           <div class="delivery-row"><b>Phone:</b> ${order.deliveryBoyPhone || "—"}</div>
+           <a href="tel:${order.deliveryBoyPhone || ''}" class="call-btn">
+             <svg class="icon" style="width:14px;height:14px;stroke:#fff;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+             Call Delivery Partner
+           </a>
+         </div>`
+      : `<div class="waiting-text">Waiting for a delivery partner…</div>`;
+
+    orderBox.innerHTML = `
+      <div class="sec-label" style="padding-top:8px;">
+        <span>Order Details</span>
+      </div>
+      <div class="card" style="cursor:default;">
+        <div class="status-head">Status: ${order.status}</div>
+        ${stepsHTML}
+        <hr class="gold-hr">
+        <div class="track-items">${itemsHTML}</div>
+        <div class="track-total">Total: ₹${order.total}</div>
+        <hr class="gold-hr">
+        ${deliveryHTML}
+        <div id="map"></div>
+      </div>`;
+
+    setTimeout(() => {
+      const mapDiv = document.getElementById("map");
+      if (!mapDiv) return;
+      mapDiv.innerHTML = "";
+
+      const map = L.map("map").setView(
+        [order.customerLat || order.restaurantLat, order.customerLng || order.restaurantLng], 15
+      );
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap"
+      }).addTo(map);
+
+      if (order.customerLat && order.customerLng) {
+        L.marker([order.customerLat, order.customerLng]).addTo(map).bindPopup("Customer");
+      }
+      if (order.restaurantLat && order.restaurantLng) {
+        L.marker([order.restaurantLat, order.restaurantLng]).addTo(map).bindPopup("Restaurant");
+      }
+
+      if (order.deliveryBoyId) {
+        let riderMarker = null;
+        onSnapshot(doc(db, "deliveryPartners", order.deliveryBoyId), (snap) => {
+          const rider = snap.data();
+          if (!rider || !rider.liveLat || !rider.liveLng) return;
+          if (riderMarker) {
+            riderMarker.setLatLng([rider.liveLat, rider.liveLng]);
+          } else {
+            riderMarker = L.marker([rider.liveLat, rider.liveLng])
+              .addTo(map).bindPopup("Delivery Partner");
+          }
+        });
+      }
+    }, 300);
+  }
+});
+</script>
+
+<!-- ── SERVICE WORKER ── -->
+<script>
+if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js"); }
+</script>
+
+<!-- ── LOADER HIDE ── -->
+<script>
+window.addEventListener("load", () => {
+  setTimeout(() => { document.getElementById("loader").classList.add("hidden"); }, 600);
+});
+</script>
+
+</body>
+</html>
+

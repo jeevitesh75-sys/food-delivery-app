@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Eluru Foods</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/liquid-glass.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ffffff">
+
+<style>
+.home-hero {
+  margin: 14px 16px 4px;
+  border-radius: var(--radius-lg);
+  background: var(--glass);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  padding: 24px 22px;
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.hero-greeting { font-size: 11px; font-weight: 700; color: var(--ink-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px; }
+.hero-title { font-size: 25px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; line-height: 1.2; }
+.hero-sub { font-size: 13px; color: var(--ink-muted); margin-top: 6px; }
+.hero-line { width: 34px; height: 2px; background: var(--ink); margin-top: 12px; border-radius: 2px; }
+</style>
+<link rel="stylesheet" href="/css/hero-drop.css">
+<script src="/js/hero-drop.js" defer></script>
+</head>
+
+<body>
+
+<!-- ── PAGE LOADER ── -->
+<div id="loader">
+  <div class="load-ring"></div>
+  <h2>Eluru Foods</h2>
+</div>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-brand">
+    Eluru Foods
+    <span>Delivered With Care</span>
+  </div>
+  <a class="header-icon-btn" href="profile.html" title="Profile">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+  </a>
+</div>
+
+<!-- ── SEARCH ── -->
+<div class="search-box">
+  <div class="search-wrapper">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" placeholder="Search food or restaurants..." id="search">
+  </div>
+</div>
+
+<!-- ── HERO BANNER ── -->
+<div class="home-hero">
+  <div class="hero-greeting">Welcome</div>
+  <div class="hero-title">What shall we<br>get for you today?</div>
+  <div class="hero-sub">Order from the finest kitchens near you</div>
+  <div class="hero-line"></div>
+</div>
+
+<!-- ── CATEGORIES ── -->
+<div class="category-row">
+  <div class="chip active" onclick="filterChip(this,'all')">All</div>
+  <div class="chip" onclick="filterChip(this,'biryani')">Biryani</div>
+  <div class="chip" onclick="filterChip(this,'chinese')">Chinese</div>
+  <div class="chip" onclick="filterChip(this,'pizza')">Pizza</div>
+  <div class="chip" onclick="filterChip(this,'burger')">Burger</div>
+  <div class="chip" onclick="filterChip(this,'dessert')">Dessert</div>
+  <div class="chip" onclick="filterChip(this,'drinks')">Drinks</div>
+</div>
+
+<!-- ── SECTION HEADING ── -->
+<div class="sec-head">
+  <div class="sec-head-label">Nearby Restaurants</div>
+  <div class="sec-head-line"></div>
+</div>
+
+<!-- ── RESTAURANT LIST ── -->
+<div id="restaurantList" class="restaurants"></div>
+
+<!-- ── BOTTOM NAV ── -->
+<div class="bottom-nav">
+  <a href="home.html" class="nav-item active">
+    <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    Home
+  </a>
+  <a href="cart.html" class="nav-item">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2.5l2.5 12.5h10L20 7H6"/></svg>
+    Cart
+  </a>
+  <a href="profile.html" class="nav-item">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+    Profile
+  </a>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- ══ ALL ORIGINAL FIREBASE LOGIC (UNTOUCHED) ══ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, getDocs, doc, getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+});
+
+const db   = getFirestore(app);
+const auth = getAuth(app);
+let foodMarkup = 0;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    const cachedUser = localStorage.getItem("user");
+    if (!cachedUser) {
+      location.href = "login.html";
+    }
+    return;
+  }
+  localStorage.setItem("user", JSON.stringify({ uid: user.uid, email: user.email }));
+
+  const settingsSnap = await getDoc(doc(db, "settings", "appConfig"));
+  if (settingsSnap.exists()) {
+    foodMarkup = settingsSnap.data().foodMarkup || 0;
+  }
+
+  let container      = document.getElementById("restaurantList");
+  let allRestaurants = [];
+  let menuMap        = {};
+  let activeCategory = 'all';
+
+  let userLat = null, userLng = null;
+  const userDoc = await getDoc(doc(db, "users", user.uid));
+  if (userDoc.exists()) {
+    userLat = userDoc.data().lat;
+    userLng = userDoc.data().lng;
+  }
+
+  function getDistance(lat1, lon1, lat2, lon2) {
+    let R    = 6371;
+    let dLat = (lat2 - lat1) * Math.PI / 180;
+    let dLon = (lon2 - lon1) * Math.PI / 180;
+    let a    = Math.sin(dLat/2)**2 +
+               Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+               Math.sin(dLon/2)**2;
+    let c    = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return (R * c).toFixed(1) + " km";
+  }
+
+  async function init() {
+    const resSnap  = await getDocs(collection(db, "restaurants"));
+    allRestaurants = resSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    const menuSnap = await getDocs(collection(db, "menu"));
+    menuSnap.forEach(doc => {
+      let m = doc.data();
+      if (m.enabled === false) return;
+      if (!menuMap[m.restaurantId]) menuMap[m.restaurantId] = [];
+      menuMap[m.restaurantId].push(m.name.toLowerCase());
+    });
+
+    render(allRestaurants);
+  }
+
+  function render(list) {
+    container.innerHTML = "";
+
+    if (list.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1;">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <p>No restaurants found</p>
+        </div>`;
+      return;
+    }
+
+    list.forEach((res, i) => {
+      let isOpen = res.isOpen !== false;
+      let dist   = "--";
+      if (userLat && res.lat && res.lng) {
+        dist = getDistance(userLat, userLng, res.lat, res.lng);
+      }
+
+      const card = document.createElement('div');
+      card.className = `card${!isOpen ? ' closed' : ''}`;
+
+      if (isOpen) {
+        card.addEventListener('click', () => openRes(res.id));
+      }
+
+      card.innerHTML = `
+        <img src="${res.image || 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80'}"
+             alt="${res.name}" loading="lazy">
+        <div class="card-content">
+          <div class="restaurant-name">${res.name}</div>
+          <div class="card-meta">
+            <span class="card-rating"><svg class="icon" style="width:13px;height:13px;" viewBox="0 0 24 24"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21.1 7 14.2l-5-4.9 6.9-1L12 2Z"/></svg>${res.rating || '4.2'}</span>
+            <span class="distance"><svg class="icon" style="width:13px;height:13px;" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>${dist}</span>
+            <span class="card-badge">${isOpen ? 'Open' : 'Closed'}</span>
+          </div>
+          ${res.cuisine ? `<div class="distance" style="margin-top:4px;">${res.cuisine}</div>` : ''}
+        </div>`;
+
+      container.appendChild(card);
+    });
+  }
+
+  document.getElementById("search").addEventListener("input", function () {
+    let value    = this.value.toLowerCase();
+    let filtered = allRestaurants.filter(res => {
+      let nameMatch = res.name.toLowerCase().includes(value);
+      let foods     = menuMap[res.id] || [];
+      let foodMatch = foods.some(f => f.includes(value));
+      return nameMatch || foodMatch;
+    });
+    render(filtered);
+  });
+
+  window.openRes = function (id) {
+    const res = allRestaurants.find(r => r.id === id);
+
+    if (userLat && userLng && res.lat && res.lng) {
+      const distance = parseFloat(getDistance(userLat, userLng, res.lat, res.lng));
+      localStorage.setItem("restaurantDistance", distance);
+    }
+    localStorage.setItem("selectedRestaurant", id);
+    window.location.href = "restaurant.html";
+  };
+
+  window.filterChip = function (el, cat) {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    activeCategory = cat;
+
+    if (cat === 'all') {
+      render(allRestaurants);
+    } else {
+      const filtered = allRestaurants.filter(res => {
+        const foods = menuMap[res.id] || [];
+        return foods.some(f => f.includes(cat));
+      });
+      render(filtered);
+    }
+  };
+
+  init();
+});
+</script>
+
+<!-- ── SERVICE WORKER ── -->
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+</script>
+
+<!-- ── LOADER HIDE ── -->
+<script>
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    document.getElementById("loader").classList.add("hidden");
+  }, 500);
+});
+</script>
+
+</body>
+</html>
+

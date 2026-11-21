@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Order History</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/restaurant/manifest.json">
+<meta name="theme-color" content="#ff4d4d">
+<style>
+body { font-family:Arial; background:#f5f5f5; margin:0; padding-bottom:80px; }
+.header {
+  background:#ff4d4d; color:white; padding:15px;
+  text-align:center; font-size:18px; font-weight:bold;
+  position:sticky; top:0; z-index:100;
+}
+.container { max-width:700px; margin:auto; }
+.card { background:white; margin:10px; padding:15px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+
+.info-note {
+  background:#fff3cd; border:1px solid #ffc107; border-radius:10px;
+  padding:12px 14px; margin:10px; font-size:12.5px; color:#856404; line-height:1.5;
+}
+
+.date-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 0; border-bottom:1px solid #f0f0f0; cursor:pointer;
+}
+.date-row:last-child { border-bottom:none; }
+.date-left { display:flex; flex-direction:column; }
+.date-main { font-size:15px; font-weight:bold; color:#333; }
+.date-day  { font-size:12px; color:#999; margin-top:2px; }
+.date-right { display:flex; align-items:center; gap:10px; }
+.date-earn { font-size:14px; font-weight:bold; color:#28a745; }
+.date-count { font-size:11px; color:#999; }
+.chevron { color:#999; transition:0.2s; font-size:18px; }
+.chevron.open { transform:rotate(90deg); }
+
+.day-orders {
+  display:none; padding:6px 0 10px;
+}
+.day-orders.show { display:block; }
+
+.order-box {
+  border-bottom:1px solid #eee; padding:12px 0;
+}
+.order-box:last-child { border-bottom:none; }
+.order-top { display:flex; justify-content:space-between; align-items:center; }
+.order-earn { font-weight:bold; color:#28a745; font-size:14px; }
+.sbadge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:bold; margin-left:6px; }
+.s-delivered { background:#d1e7dd; color:#0a3622; }
+.s-pending   { background:#fff3cd; color:#856404; }
+.s-accepted  { background:#cce5ff; color:#004085; }
+.s-ready     { background:#d1e7dd; color:#0a3622; }
+.s-out-for-delivery { background:#e2d9f3; color:#4a235a; }
+.s-rejected  { background:#f8d7da; color:#721c24; }
+
+.day-total-row {
+  display:flex; justify-content:space-between; align-items:center;
+  margin-top:8px; padding-top:12px; border-top:2px solid #f0f0f0;
+  font-size:15px; font-weight:bold;
+}
+.day-total-row span:last-child { color:#28a745; }
+
+.empty-state { color:#999; text-align:center; padding:30px 0; font-size:14px; }
+.loading-state { color:#999; text-align:center; padding:30px 0; font-size:14px; }
+
+.bottom-nav { position:fixed; bottom:0; left:0; width:100%; background:white; display:flex; justify-content:center; padding:10px 0; border-top:1px solid #ccc; }
+</style>
+</head>
+<body>
+
+<div class="header">📅 Order History</div>
+
+<div class="info-note">
+  Orders are grouped by day. Anything older than 3 days is cleared automatically when this page opens, to keep your history tidy.
+</div>
+
+<div class="container">
+  <div class="card" id="historyCard">
+    <div class="loading-state">Loading order history...</div>
+  </div>
+</div>
+
+<div class="bottom-nav">
+  <div onclick="location.href='Dashboard.html'" style="cursor:pointer;font-size:14px;padding:0 16px;">🍴 Dashboard</div>
+  <div onclick="location.href='Profile.html'" style="cursor:pointer;font-size:14px;padding:0 16px;">👤 Profile</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, query, where, getDocs, deleteDoc, doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain:"food-delivery-app-97300.firebaseapp.com",
+  projectId:"food-delivery-app-97300"
+});
+const db   = getFirestore(app);
+const auth = getAuth(app);
+
+const historyCard = document.getElementById("historyCard");
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { location.href = "login.html"; return; }
+
+  const restaurantId = user.uid;
+
+  // ══════════════════════════════════════════════
+  // FETCH ALL ORDERS FOR THIS RESTAURANT
+  // ══════════════════════════════════════════════
+  const snap = await getDocs(
+    query(collection(db, "orders"), where("restaurantId", "==", restaurantId))
+  );
+
+  const now = Date.now();
+  const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+  const cutoff = now - threeDaysMs;
+
+  const allOrders = [];
+  const toDelete = [];
+
+  snap.forEach(docSnap => {
+    const o = docSnap.data();
+    const createdMs = o.createdAt?.toMillis ? o.createdAt.toMillis() : (o.createdAt ? new Date(o.createdAt).getTime() : null);
+
+    if (!createdMs) return; // skip orders with no valid timestamp
+
+    if (createdMs < cutoff) {
+      toDelete.push(docSnap.id);
+    } else {
+      allOrders.push({ id: docSnap.id, ...o, createdMs });
+    }
+  });
+
+  // ══════════════════════════════════════════════
+  // AUTO-CLEANUP — delete anything older than 3 days
+  // Runs client-side whenever this page loads
+  // ══════════════════════════════════════════════
+  if (toDelete.length > 0) {
+    Promise.all(toDelete.map(id => deleteDoc(doc(db, "orders", id)).catch(()=>{})));
+  }
+
+  if (allOrders.length === 0) {
+    historyCard.innerHTML = `<div class="empty-state">No orders in the last 3 days</div>`;
+    return;
+  }
+
+  // ══════════════════════════════════════════════
+  // GROUP ORDERS BY DATE
+  // ══════════════════════════════════════════════
+  const groups = {}; // dateKey -> { label, day, orders: [], total }
+
+  allOrders.forEach(o => {
+    const d = new Date(o.createdMs);
+    const dateKey = d.toDateString(); // e.g. "Thu Aug 20 2026" — stable grouping key
+
+    if (!groups[dateKey]) {
+      groups[dateKey] = {
+        label: d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }),
+        day:   d.toLocaleDateString('en-IN', { weekday:'long' }),
+        sortMs: d.setHours(0,0,0,0),
+        orders: [],
+        total: 0
+      };
+    }
+
+    const earn = o.subtotal ?? o.total ?? 0;
+    groups[dateKey].orders.push(o);
+    // Only completed orders count toward the day's earnings total
+    if (o.status === "Delivered") {
+      groups[dateKey].total += earn;
+    }
+  });
+
+  const sortedDateKeys = Object.keys(groups).sort((a,b) => groups[b].sortMs - groups[a].sortMs);
+
+  // ══════════════════════════════════════════════
+  // RENDER DATE TABLE
+  // ══════════════════════════════════════════════
+  let html = "";
+  sortedDateKeys.forEach((key, idx) => {
+    const g = groups[key];
+    const rowId = "day-" + idx;
+
+    html += `
+      <div class="date-row" onclick="window.toggleDay('${rowId}')">
+        <div class="date-left">
+          <div class="date-main">${g.label}</div>
+          <div class="date-day">${g.day}</div>
+        </div>
+        <div class="date-right">
+          <div style="text-align:right;">
+            <div class="date-earn">₹${g.total}</div>
+            <div class="date-count">${g.orders.length} order${g.orders.length !== 1 ? 's' : ''}</div>
+          </div>
+          <div class="chevron" id="chev-${rowId}">›</div>
+        </div>
+      </div>
+      <div class="day-orders" id="${rowId}">
+        ${g.orders.map(o => {
+          const sClass = {
+            "Pending":"s-pending","Accepted":"s-accepted","Ready":"s-ready",
+            "Out for Delivery":"s-out-for-delivery","Delivered":"s-delivered","Rejected":"s-rejected"
+          }[o.status] || "s-pending";
+          const items = (o.items||[]).map(i => `${i.name} ×${i.qty}`).join(", ");
+          const earn = o.subtotal ?? o.total ?? 0;
+          return `
+            <div class="order-box">
+              <div class="order-top">
+                <div>
+                  <b>${o.customerName || "—"}</b>
+                  <span class="sbadge ${sClass}">${o.status}</span>
+                </div>
+                <div class="order-earn">${o.status === "Delivered" ? "₹" + earn : "—"}</div>
+              </div>
+              <div style="font-size:12.5px;color:#666;margin-top:4px;">${items || "No items"}</div>
+            </div>
+          `;
+        }).join('')}
+        <div class="day-total-row">
+          <span>Total earned that day</span>
+          <span>₹${g.total}</span>
+        </div>
+      </div>
+    `;
+  });
+
+  historyCard.innerHTML = html;
+
+  window.toggleDay = (rowId) => {
+    const panel = document.getElementById(rowId);
+    const chev = document.getElementById("chev-" + rowId);
+    const isOpen = panel.classList.contains("show");
+
+    document.querySelectorAll(".day-orders.show").forEach(p => p.classList.remove("show"));
+    document.querySelectorAll(".chevron.open").forEach(c => c.classList.remove("open"));
+
+    if (!isOpen) {
+      panel.classList.add("show");
+      chev.classList.add("open");
+    }
+  };
+});
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/restaurant/sw.js",{scope:"/restaurant/"})
+    .catch(()=>{});
+}
+</script>
+
+</body>
+</html>
+

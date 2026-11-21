@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Admin Panel</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+button {
+  padding: 6px 10px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.accept { background: green; color: white; }
+.reject { background: red; color: white; }
+.done { background: orange; color: white; }
+</style>
+
+</head>
+
+<body>
+
+<div class="header">👨‍🍳 Admin Panel</div>
+
+<div class="container">
+
+<!-- ===================== -->
+<!-- ADD FOOD -->
+<!-- ===================== -->
+<div class="section">
+<div class="section-title">Add Food</div>
+
+<input id="name" class="input-box" placeholder="Food Name">
+<input id="price" class="input-box" placeholder="Price">
+<input id="image" class="input-box" placeholder="Image URL">
+
+<button onclick="addFood()">Add Food</button>
+</div>
+
+<!-- ===================== -->
+<!-- ORDERS -->
+<!-- ===================== -->
+<div class="section">
+<div class="section-title">Orders</div>
+
+<div id="ordersContainer">Loading...</div>
+
+</div>
+
+</div>
+
+<!-- ===================== -->
+<!-- FIREBASE -->
+<!-- ===================== -->
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  updateDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.addFood = async function(){
+
+  let name = document.getElementById("name").value;
+  let price = document.getElementById("price").value;
+  let image = document.getElementById("image").value;
+
+  if(!name || !price){
+    alert("Enter details");
+    return;
+  }
+
+  await addDoc(collection(db, "menu"), {
+    name,
+    price: Number(price),
+    image
+  });
+
+  alert("Food added ✅");
+}
+
+async function loadOrders(){
+
+  const snapshot = await getDocs(collection(db, "orders"));
+
+  let container = document.getElementById("ordersContainer");
+  container.innerHTML = "";
+
+  if(snapshot.empty){
+    container.innerHTML = "No orders";
+    return;
+  }
+
+  snapshot.forEach(docSnap => {
+
+    let order = docSnap.data();
+    let id = docSnap.id;
+
+    let itemsHTML = "";
+
+    order.items.forEach(item => {
+      itemsHTML += `<div>${item.name} × ${item.qty}</div>`;
+    });
+
+    container.innerHTML += `
+      <div class="food-card">
+        <div class="food-info">
+
+          <div>${itemsHTML}</div>
+
+          <div>₹${order.total}</div>
+
+          <div>Status: ${order.status}</div>
+
+          <button class="accept" onclick="updateStatus('${id}','Preparing')">Accept</button>
+
+          <button class="reject" onclick="updateStatus('${id}','Cancelled')">Reject</button>
+
+          <button class="done" onclick="updateStatus('${id}','Delivered')">Delivered</button>
+
+        </div>
+      </div>
+    `;
+
+  });
+
+}
+
+window.updateStatus = async function(id, status){
+
+  const ref = doc(db, "orders", id);
+
+  await updateDoc(ref, {
+    status: status
+  });
+
+  alert("Updated to " + status);
+
+  loadOrders();
+}
+
+// LOAD ORDERS
+loadOrders();
+
+</script>
+
+</body>
+</html>

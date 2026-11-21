@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout · Eluru Foods</title>
+<link rel="stylesheet" href="css/liquid-glass.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ffffff">
+
+<style>
+body { padding-bottom: 160px; }
+.header-title { font-size: 17px; font-weight: 800; color: var(--ink); }
+.sec-h { font-size: 11px; font-weight: 700; color: var(--ink-muted); letter-spacing: 0.14em; text-transform: uppercase; margin: 20px 0 10px; display: flex; align-items: center; gap: 10px; }
+.sec-h::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--ink-faint), transparent); }
+.address-icon-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; color: var(--ink); }
+</style>
+<link rel="stylesheet" href="/css/hero-drop.css">
+<script src="/js/hero-drop.js" defer></script>
+</head>
+
+<body>
+
+<div id="loader">
+  <div class="load-ring"></div>
+  <h2>Eluru Foods</h2>
+</div>
+
+<div class="page-header">
+  <a class="header-icon-btn" href="cart.html">
+    <svg class="icon" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+  </a>
+  <div class="header-title">Checkout</div>
+</div>
+
+<div class="checkout-box">
+
+  <div class="sec-h">Delivery Address</div>
+  <div class="glass-panel">
+    <div class="address-icon-row">
+      <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    </div>
+    <div id="userAddress">Loading…</div>
+  </div>
+
+  <div class="sec-h">Payment Method</div>
+  <div class="glass-panel">
+    <div class="payment-option">
+      <input type="radio" name="payment" value="COD" id="codRadio" checked>
+      <label for="codRadio">
+        <div class="payment-label">Cash on Delivery</div>
+        <div class="payment-sub">Pay when your order arrives</div>
+      </label>
+    </div>
+  </div>
+
+  <div class="sec-h">Order Items</div>
+  <div class="glass-panel" id="orderItemsList"></div>
+
+  <div class="sec-h">Bill Summary</div>
+  <div class="glass-panel">
+    <div class="summary-row"><span>Item Total</span><span id="subtotalDisplay">₹0</span></div>
+    <div class="summary-row"><span>Delivery Fee</span><span id="deliveryDisplay">₹0</span></div>
+    <div class="summary-row"><span>Platform Fee</span><span id="platformDisplay">₹0</span></div>
+    <div class="summary-row total-row"><span>Total</span><span>₹<span id="total">0</span></span></div>
+  </div>
+
+  <button class="place-btn" id="placeBtn" onclick="placeOrder()">
+    <span>Place Order</span>
+    <span class="place-btn-icon"><svg class="icon" style="width:16px;height:16px;stroke:#fff;" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+    <div class="btn-spinner"></div>
+  </button>
+
+</div>
+
+<div class="bottom-nav">
+  <a href="home.html" class="nav-item">
+    <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    Home
+  </a>
+  <a href="cart.html" class="nav-item">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2.5l2.5 12.5h10L20 7H6"/></svg>
+    Cart
+  </a>
+  <a href="profile.html" class="nav-item">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
+    Profile
+  </a>
+</div>
+
+<script type="module">
+import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, getDoc, collection, addDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey:    "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain:"food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+};
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { location.href = "login.html"; return; }
+
+  let deliveryFee = 30;
+  let platformFee = 3;
+
+  const settingsSnap = await getDoc(doc(db, "settings", "appConfig"));
+  if (settingsSnap.exists()) {
+    const s        = settingsSnap.data();
+    const distance = Number(localStorage.getItem("restaurantDistance")) || 0;
+    if      (distance <= 3)  deliveryFee = s.fee0to3   || 30;
+    else if (distance <= 7)  deliveryFee = s.fee3to7   || 50;
+    else if (distance <= 10) deliveryFee = s.fee7to10  || 70;
+    else                     deliveryFee = s.fee10plus || 100;
+    platformFee = s.platformFee || 3;
+  }
+
+  async function loadUser() {
+    const snap = await getDoc(doc(db, "users", auth.currentUser.uid));
+    if (snap.exists()) {
+      const data = snap.data();
+      document.getElementById("userAddress").innerText =
+        (data.name || "") + " | " + (data.phone || "") + "\n" + (data.address || "");
+    } else {
+      window.location.href = "details.html";
+    }
+  }
+
+  let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+
+  const listEl = document.getElementById("orderItemsList");
+  if (cartItems.length === 0) {
+    listEl.innerHTML = `<div style="color:var(--ink-muted);font-size:13px;">No items</div>`;
+  } else {
+    listEl.innerHTML = cartItems.map(i => `
+      <div class="order-item-row">
+        <span class="order-item-name">${i.name}</span>
+        <span class="order-item-qty">×${i.qty}</span>
+        <span class="order-item-price">₹${i.price * i.qty}</span>
+      </div>`).join('');
+  }
+
+  let subtotal         = cartItems.reduce((sum, item) => sum + ((item.restaurantPrice || item.price) * item.qty), 0);
+  let customerSubtotal = cartItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  let total            = customerSubtotal + deliveryFee + platformFee;
+
+  document.getElementById("subtotalDisplay").innerText = "₹" + customerSubtotal;
+  document.getElementById("deliveryDisplay").innerText = "₹" + deliveryFee;
+  document.getElementById("platformDisplay").innerText = "₹" + platformFee;
+  document.getElementById("total").innerText           = total;
+
+  let restaurantId = cartItems.length > 0 ? cartItems[0].restaurantId : null;
+
+  window.placeOrder = async function () {
+    if (cartItems.length === 0) { alert("Cart empty"); return; }
+    if (!restaurantId)          { alert("Restaurant missing"); return; }
+
+    const payment = document.querySelector('input[name="payment"]:checked').value;
+    const btn     = document.getElementById("placeBtn");
+    btn.classList.add("loading");
+
+    try {
+      const userSnap = await getDoc(doc(db, "users", user.uid));
+      let userData   = {};
+      if (userSnap.exists()) userData = userSnap.data();
+
+      if (!userData.address) {
+        alert("Please select a delivery address");
+        btn.classList.remove("loading");
+        return;
+      }
+
+      const restaurantSnap = await getDoc(doc(db, "restaurants", restaurantId));
+      let restaurantData   = {};
+      if (restaurantSnap.exists()) restaurantData = restaurantSnap.data();
+
+      const orderRef = await addDoc(collection(db, "orders"), {
+        customerLat:      userData.lat || null,
+        customerLng:      userData.lng || null,
+        userId:           user.uid,
+        customerName:     userData.name    || "",
+        customerPhone:    userData.phone   || "",
+        customerAddress:  userData.address || "",
+        restaurantId,
+        restaurantName:   restaurantData.name    || "",
+        restaurantToken:  restaurantData.fcmToken || "",
+        restaurantPhone:  restaurantData.phone   || "",
+        restaurantAddress:restaurantData.address || "",
+        restaurantLat:    restaurantData.lat || null,
+        restaurantLng:    restaurantData.lng || null,
+        items:            cartItems,
+        subtotal,
+        customerSubtotal,
+        deliveryFee,
+        platformFee,
+        total,
+        payment,
+        status:           "Pending",
+        deliveryBoyId:    "",
+        deliveryBoyName:  "",
+        deliveryBoyPhone: "",
+        createdAt:        serverTimestamp()
+      });
+
+      localStorage.removeItem("cart");
+
+fetch("https://www.elurufoods.shop/api/emailRestaurant", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ orderId: orderRef.id })
+}).catch(e => console.log("Email send failed (non-critical):", e));
+      alert("Order placed successfully");
+      window.location.href = "tracking.html";
+
+    } catch (err) {
+      console.error(err);
+      alert("Order failed: " + err.message);
+      btn.classList.remove("loading");
+    }
+  };
+
+  loadUser();
+});
+</script>
+
+<!-- ── SERVICE WORKER ── -->
+<script>
+if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js"); }
+</script>
+
+<!-- ── LOADER HIDE ── -->
+<script>
+window.addEventListener("load", () => {
+  setTimeout(() => { document.getElementById("loader").classList.add("hidden"); }, 500);
+});
+</script>
+
+</body>
+</html>
+
