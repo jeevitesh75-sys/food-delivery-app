@@ -1,8 +1,9 @@
 // Sends app push alerts (FCM) for order events. Same setup as emailRestaurant.js (uses the FIREBASE_* env vars).
 // The caller only sends { orderId, event }. The message text is built here from the real order,
 // and each event is sent only once per order, so nobody can spam or fake alerts.
-import admin from "firebase-admin";
-import { db } from "./_firebaseAdmin.js";
+const { getMessaging } = require("firebase-admin/messaging");
+const { FieldValue } = require("firebase-admin/firestore");
+const { db } = require("./_firebaseAdmin.js");
 
 const SITE = "https://www.elurufoods.shop";
 
@@ -22,7 +23,7 @@ async function tokensFor(uids, role) {
 async function send(list, data) {
   if (!list.length) return 0;
   const tokens = [...new Set(list.map(x => x.token))];
-  const res = await admin.messaging().sendEachForMulticast({
+  const res = await getMessaging().sendEachForMulticast({
     tokens,
     data,
     android: { priority: "high", ttl: 5 * 60 * 1000 }
@@ -35,12 +36,12 @@ async function send(list, data) {
   });
   if (dead.size) {
     await Promise.all(list.filter(x => dead.has(x.token)).map(x =>
-      db.collection("fcmTokens").doc(x.uid).update({ [x.field]: admin.firestore.FieldValue.arrayRemove(x.token) }).catch(() => {})));
+      db.collection("fcmTokens").doc(x.uid).update({ [x.field]: FieldValue.arrayRemove(x.token) }).catch(() => {})));
   }
   return res.successCount;
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
   const { orderId, event } = req.body || {};
   if (!orderId || !NEEDS[event]) return res.status(400).json({ error: "Bad request" });
