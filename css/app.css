@@ -438,6 +438,17 @@ input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(36,155,85,0
 .payment-option input[type="radio"] { accent-color: var(--green); width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
 .payment-label { font-size: 14.5px; font-weight: 700; color: var(--ink); cursor: pointer; }
 .payment-sub { font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+.payment-option.is-unavailable .payment-label { color: var(--ink-muted); }
+.payment-option.is-unavailable input[type="radio"] { cursor: not-allowed; }
+.payment-tag { display: inline-flex; align-items: center; margin-left: 8px; padding: 2px 8px; border-radius: 20px; background: #eef1ef; color: var(--ink-muted); font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; vertical-align: middle; }
+.payment-notice { display: flex; align-items: flex-start; gap: 12px; margin-top: 12px; padding: 14px; border: 1px solid #cfe8d8; border-radius: var(--radius-md); background: var(--green-light); }
+.payment-notice[hidden] { display: none; }
+.payment-notice-icon { width: 34px; height: 34px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; background: #d8f0e1; color: var(--green-dark); }
+.payment-notice-icon svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.payment-notice-copy { flex: 1; }
+.payment-notice-title { display: block; font-size: 13.5px; font-weight: 800; color: var(--green-dark); }
+.payment-notice-text { display: block; margin-top: 3px; font-size: 12.5px; line-height: 1.55; color: var(--ink-soft); }
+.payment-notice-close { border: 0; background: transparent; color: var(--ink-muted); font-size: 22px; line-height: 1; cursor: pointer; padding: 0 2px; }
 .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; font-size: 13px; color: var(--ink-muted); border-bottom: 1px solid #f0f2f1; }
 .summary-row:last-child { border-bottom: none; }
 .summary-row.total-row { font-size: 16px; font-weight: 800; color: var(--ink); padding-top: 12px; margin-top: 4px; }
@@ -589,3 +600,111 @@ button { font-family: inherit; }
   body { max-width: 640px; }
   .bottom-nav { max-width: 560px; }
 }
+
+/* ============================================================
+   THEME — explicit light values (original design)
+   ============================================================ */
+html.light {
+  color-scheme: light;
+  --green:        #249B55;
+  --green-dark:   #146B3A;
+  --green-soft:   #EAF6EE;
+  --green-light:  #F5FBF7;
+  --ink:          #202820;
+  --ink-soft:     #4b5563;
+  --ink-muted:    #777777;
+  --ink-faint:    #b8c0ba;
+  --paper:        #ffffff;
+  --paper-deep:   #f5f7f6;
+  --white:        #ffffff;
+  --glass:        #ffffff;
+  --glass-strong: #ffffff;
+  --glass-border: #e6ebe8;
+  --accent:       #249B55;
+  --danger:       #d92c2c;
+  --success:      #249B55;
+  --shadow-soft:  0 2px 8px rgba(16, 40, 24, 0.05);
+  --shadow-card:  0 4px 16px rgba(16, 40, 24, 0.06);
+  --shadow-float: 0 12px 40px rgba(16, 40, 24, 0.12);
+}
+html.light body,
+html.light .header,
+html.light .page-header,
+html.light .bottom-nav { background: #ffffff; }
+html.light .header-icon-btn { background: var(--green-soft); color: var(--green-dark); }
+
+/* ============================================================
+   DARK MODE
+   ============================================================ */
+html.dark {
+  color-scheme: dark;
+  --green:        #34c978;
+  --green-dark:   #7ee2a8;
+  --green-soft:   #1b3326;
+  --green-light:  #14261b;
+  --ink:          #eef4ef;
+  --ink-soft:     #c2d0c6;
+  --ink-muted:    #95a89b;
+  --ink-faint:    #6d8173;
+  --paper:        #111814;
+  --paper-deep:   #18211b;
+  --white:        #18211b;
+  --glass:        #18211b;
+  --glass-strong: #1e2921;
+  --glass-border: #2c3b31;
+  --accent:       #34c978;
+  --danger:       #ff7b7b;
+  --success:      #34c978;
+  --shadow-soft:  0 2px 8px rgba(0, 0, 0, 0.30);
+  --shadow-card:  0 4px 16px rgba(0, 0, 0, 0.36);
+  --shadow-float: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+html.dark body,
+html.dark .header,
+html.dark .page-header,
+html.dark .bottom-nav { background: var(--paper); }
+html.dark .header,
+html.dark .page-header,
+html.dark .bottom-nav { border-color: var(--glass-border); }
+html.dark input,
+html.dark textarea,
+html.dark select { color: var(--ink); background-color: var(--paper-deep); }
+html.dark input::placeholder,
+html.dark textarea::placeholder { color: var(--ink-muted); }
+html.dark input[type="radio"],
+html.dark input[type="checkbox"] { accent-color: var(--green); }
+html.dark .glass-panel,
+html.dark .card,
+html.dark .quick-card,
+html.dark .res-card,
+html.dark .search-shell,
+html.dark .search-action,
+html.dark .location-pin,
+html.dark .box { background: var(--white); border-color: var(--glass-border); }
+html.dark .summary-row,
+html.dark .order-item-row { border-bottom-color: var(--glass-border); }
+html.dark .location-bar { background: #193524; border-color: #2c5c3d; }
+html.dark .location-eyebrow,
+html.dark .location-chev,
+html.dark .location-pin { color: var(--green-dark); }
+html.dark .search-shell:focus-within { box-shadow: 0 0 0 3px rgba(52, 201, 120, 0.14); }
+html.dark .header-icon-btn { background: var(--green-soft); color: var(--green-dark); }
+html.dark .payment-notice { background: #16291d; border-color: #2c5c3d; }
+html.dark .payment-notice-icon { background: #21422d; color: var(--green-dark); }
+html.dark .payment-tag { background: #2a352d; color: var(--ink-muted); }
+html.dark .perm-modal-box { background: var(--white); }
+html.dark .banner-cta { background: #fff; color: #146B3A; }
+
+/* ── THEME SWITCHER (account section only) ── */
+.theme-select {
+  border: 1px solid var(--glass-border);
+  background: var(--green-soft);
+  color: var(--green-dark);
+  border-radius: 12px;
+  padding: 9px 10px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.theme-select:focus { outline: 2px solid var(--green); outline-offset: 2px; }

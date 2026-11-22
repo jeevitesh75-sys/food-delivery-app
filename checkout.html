@@ -7,6 +7,8 @@
 <link rel="stylesheet" href="css/app.css">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ffffff">
+<script src="/js/theme.js"></script>
+<script src="/js/image-fallback.js"></script>
 
 <style>
 body { padding-bottom: 160px; }
@@ -52,13 +54,24 @@ body { padding-bottom: 160px; }
         <div class="payment-sub">Pay when your order arrives</div>
       </label>
     </div>
-    <div class="payment-option">
+    <div class="payment-option is-unavailable">
       <input type="radio" name="payment" value="Online" id="onlineRadio">
       <label for="onlineRadio">
-        <div class="payment-label">Online Payment</div>
-        <div class="payment-sub">Pay now with UPI or card</div>
+        <div class="payment-label">Online Payment <span class="payment-tag">Unavailable</span></div>
+        <div class="payment-sub">UPI &amp; card payments are not available right now</div>
       </label>
     </div>
+  </div>
+
+  <div id="paymentNotice" class="payment-notice" role="status" hidden>
+    <span class="payment-notice-icon">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>
+    </span>
+    <span class="payment-notice-copy">
+      <span class="payment-notice-title">Online payments are currently unavailable</span>
+      <span class="payment-notice-text">We're working to bring UPI and card payments soon. For now, please choose <strong>Cash on Delivery</strong> — your order will be confirmed instantly.</span>
+    </span>
+    <button type="button" class="payment-notice-close" id="paymentNoticeClose" aria-label="Dismiss">&times;</button>
   </div>
 
   <div class="sec-h">Order Items</div>
@@ -101,12 +114,15 @@ body { padding-bottom: 160px; }
       });
     }
   });
-  document.querySelectorAll('input[name="payment"]').forEach(function (radio) {
-    radio.addEventListener("change", function () {
-      var online = document.getElementById("onlineRadio").checked;
-      document.getElementById("slide-pay-wrap").style.display = online ? "block" : "none";
-      document.getElementById("placeBtn").style.display = online ? "none" : "";
-    });
+  var paymentNotice = document.getElementById("paymentNotice");
+  document.getElementById("onlineRadio").addEventListener("change", function () {
+    document.getElementById("codRadio").checked = true;
+    paymentNotice.hidden = false;
+    document.getElementById("slide-pay-wrap").style.display = "none";
+    document.getElementById("placeBtn").style.display = "";
+  });
+  document.getElementById("paymentNoticeClose").addEventListener("click", function () {
+    paymentNotice.hidden = true;
   });
 </script>
 
@@ -186,6 +202,11 @@ onAuthStateChanged(auth, async (user) => {
 
     const payment = document.querySelector('input[name="payment"]:checked').value;
     const btn     = document.getElementById("placeBtn");
+    if (payment !== "COD") {
+      document.getElementById("codRadio").checked = true;
+      document.getElementById("paymentNotice").hidden = false;
+      return false;
+    }
     btn.classList.add("loading");
 
     try {
