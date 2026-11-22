@@ -54,7 +54,7 @@ button { padding:8px 12px; border:none; border-radius:6px; color:white; margin:4
 
 </head>
 <body>
-<div id="notif-banner" onclick="this.style.display='none'">🔔 <span id="notif-text"></span></div>
+
 
 
 <div class="header">
@@ -64,6 +64,10 @@ button { padding:8px 12px; border:none; border-radius:6px; color:white; margin:4
 
 <div class="container">
 
+  <div id="notif-prompt">
+    <span>🔔 Enable notifications to get new order alerts even when app is closed!</span>
+    <button class="green" style="white-space:nowrap" onclick="enableNotifications()">Enable</button>
+  </div>
 
   <div class="card">
     <h3>Add Food</h3>
@@ -93,8 +97,7 @@ button { padding:8px 12px; border:none; border-radius:6px; color:white; margin:4
 </div>
 
 <div class="bottom-nav">
-  <div onclick="location.href='history.html'" style="cursor:pointer;font-size:14px;padding:0 16px;">📅 History</div>
-  <div onclick="location.href='Profile.html'" style="cursor:pointer;font-size:14px;padding:0 16px;">👤 Profile</div>
+  <div onclick="location.href='Profile.html'" style="cursor:pointer;font-size:14px;">👤 Profile</div>
 </div>
 
 <div id="editModal">
@@ -123,6 +126,7 @@ const app = initializeApp({
 });
 const db   = getFirestore(app);
 const auth = getAuth(app);
+const pushOrder = (id, ev) => fetch("https://www.elurufoods.shop/api/pushOrder", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ orderId:id, event:ev }) }).catch(()=>{});
 
 
 
@@ -140,6 +144,10 @@ onAuthStateChanged(auth, async (user) => {
   });
 
   
+  if (typeof OneSignal !== "undefined" && Notification.permission === "granted") {
+    OneSignal.login(restaurantId);
+    document.getElementById("notif-prompt").style.display = "none";
+  }
 
   window.addFood = async () => {
     const name  = document.getElementById("fname").value.trim();
@@ -300,6 +308,7 @@ onAuthStateChanged(auth, async (user) => {
 
       // Push notification to ALL delivery boys via Webpushr segment
       await pushToAllDeliveryBoys(order, orderId);
+      pushOrder(orderId, "accepted");
       showBanner("✅ Accepted! All delivery boys notified.","green");
     } catch(e) {
       console.error(e);
@@ -318,19 +327,21 @@ async function pushToAllDeliveryBoys(order, orderId) {
           total: order.total
         })
       });
-         } catch(e) {
+    } catch(e) {
       console.warn("Email notify failed (non-critical):", e);
     }
 }
 
   window.markReady = async (orderId) => {
     await updateDoc(doc(db,"orders",orderId), { status:"Ready" });
+    pushOrder(orderId, "ready");
     showBanner("🍽️ Marked Ready! Customer can see food is ready.","blue");
   };
 
   window.rejectOrder = async (orderId) => {
     if (!confirm("Reject this order?")) return;
     await updateDoc(doc(db,"orders",orderId), { status:"Rejected" });
+    pushOrder(orderId, "rejected");
     setTimeout(async () => {
       try { await deleteDoc(doc(db,"orders",orderId)); } catch(e){}
     }, 3000);

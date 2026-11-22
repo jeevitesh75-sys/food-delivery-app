@@ -79,6 +79,7 @@ const app = initializeApp({
 });
 const db   = getFirestore(app);
 const auth = getAuth(app);
+const pushOrder = (id, ev) => fetch("https://www.elurufoods.shop/api/pushOrder", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ orderId:id, event:ev }) }).catch(()=>{});
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) { location.href = "login.html"; return; }
@@ -240,6 +241,7 @@ onAuthStateChanged(auth, async (user) => {
       pickedUp:         false
     });
 
+    pushOrder(id, "out");
     alert("✅ Order Accepted! Go pick it up from the restaurant.");
   };
 
@@ -255,6 +257,7 @@ onAuthStateChanged(auth, async (user) => {
     const order = orderSnap.data();
 
     await updateDoc(orderRef, { status:"Delivered", deliveredAt: Date.now() });
+    pushOrder(id, "delivered");
     await updateDoc(profileRef, {
       todayEarn:       increment(fee),
       totalEarn:       increment(fee),
