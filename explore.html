@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Explore · Eluru Foods</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/explore.css">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#249B55">
+</head>
+
+<body>
+
+<div id="loader">
+  <div class="load-ring"></div>
+  <h2>Eluru Foods</h2>
+</div>
+
+<div class="page-header">
+  <a class="header-icon-btn" href="home.html" aria-label="Back to home">
+    <svg class="icon" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+  </a>
+  <div class="header-title">Explore</div>
+</div>
+
+<div class="explore-hero">
+  <h1>Find your next meal</h1>
+  <p>Browse kitchens by cuisine, rating and delivery time.</p>
+</div>
+
+<div class="search-box">
+  <div class="search-shell">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" placeholder="Search restaurants or cuisines..." id="search" autocomplete="off">
+  </div>
+</div>
+
+<div class="cuisine-grid" id="cuisineGrid"></div>
+
+<div class="sort-row" id="sortRow">
+  <button type="button" class="sort-pill active" data-sort="recommended">Recommended</button>
+  <button type="button" class="sort-pill" data-sort="rating">Top rated</button>
+  <button type="button" class="sort-pill" data-sort="fastest">Fastest delivery</button>
+  <button type="button" class="sort-pill" data-sort="open">Open now</button>
+</div>
+
+<div class="sec-head">
+  <div class="sec-head-label" id="resultLabel">All restaurants</div>
+  <div class="sec-head-line"></div>
+  <div class="sec-head-label" id="resultCount"></div>
+</div>
+
+<div id="exploreList"></div>
+
+<div id="toast-container"></div>
+
+<div id="bottom-nav"></div>
+<script src="/js/bottom-nav.js"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, getDocs, doc, getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
+  authDomain: "food-delivery-app-97300.firebaseapp.com",
+  projectId: "food-delivery-app-97300"
+});
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const CUISINES = [
+  { id: "", label: "All", emoji: "🍽️" },
+  { id: "biryani", label: "Biryani", emoji: "🍛" },
+  { id: "pizza", label: "Pizza", emoji: "🍕" },
+  { id: "burger", label: "Burgers", emoji: "🍔" },
+  { id: "south indian", label: "South Indian", emoji: "🥘" },
+  { id: "north indian", label: "North Indian", emoji: "🍲" },
+  { id: "chinese", label: "Chinese", emoji: "🥡" },
+  { id: "dessert", label: "Desserts", emoji: "🍰" },
+  { id: "beverage", label: "Beverages", emoji: "🥤" },
+  { id: "healthy", label: "Healthy", emoji: "🥗" },
+  { id: "italian", label: "Italian", emoji: "🍝" },
+  { id: "fast food", label: "Fast food", emoji: "🍟" },
+];
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { location.href = "login.html"; return; }
+
+  const listEl = document.getElementById("exploreList");
+  const labelEl = document.getElementById("resultLabel");
+  const countEl = document.getElementById("resultCount");
+
+  let allRestaurants = [];
+  let menuMap = {};
+  let userLat = null;
+  let userLng = null;
+  let activeCuisine = "";
+  let activeSort = "recommended";
+  let activeQuery = "";
+
+  try {
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    if (userDoc.exists()) {
+      userLat = userDoc.data().lat || null;
+      userLng = userDoc.data().lng || null;
+    }
+  } catch {}
+
+  function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return (R * c).toFixed(1) + " km";
+  }
+
+  function minutes(res) {
+    if (userLat && res.lat && res.lng) {
+      const km = parseFloat(getDistance(userLat, userLng, res.lat, res.lng)) || 0;
+      return Math.max(15, Math.round(12 + km * 4));
+    }
+    return 25;
+  }
+
+  function matchesCuisine(res, id) {
+    if (!id) return true;
+    const foods = menuMap[res.id] || [];
+    const cuisine = String(res.cuisine || "").toLowerCase();
+    return foods.some((f) => f.includes(id)) || cuisine.includes(id);
+  }
+
+  function matchesQuery(res) {
+    if (!activeQuery) return true;
+    const name = String(res.name || "").toLowerCase();
+    const cuisine = String(res.cuisine || "").toLowerCase();
+    const foods = menuMap[res.id] || [];
+    return name.includes(activeQuery) || cuisine.includes(activeQuery) || foods.some((f) => f.includes(activeQuery));
+  }
+
+  function sortList(list) {
+    const copy = [...list];
+    if (activeSort === "rating") copy.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
+    else if (activeSort === "fastest") copy.sort((a, b) => minutes(a) - minutes(b));
+    else if (activeSort === "open") copy.sort((a, b) => (a.isOpen === false ? 1 : 0) - (b.isOpen === false ? 1 : 0));
+    return copy;
+  }
+
+  function render() {
+    let list = allRestaurants.filter((r) => matchesCuisine(r, activeCuisine) && matchesQuery(r));
+    if (activeSort === "open") list = list.filter((r) => r.isOpen !== false);
+    list = sortList(list);
+
+    listEl.innerHTML = "";
+    labelEl.innerText = activeCuisine
+      ? CUISINES.find((c) => c.id === activeCuisine)?.label || "Results"
+      : "All restaurants";
+    countEl.innerText = list.length ? list.length + " found" : "";
+
+    if (!list.length) {
+      listEl.innerHTML = `
+        <div class="empty-state">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <p>Nothing here yet</p>
+          <small>Try another cuisine or clear your search.</small>
+        </div>`;
+      return;
+    }
+
+    list.forEach((res) => {
+      const isOpen = res.isOpen !== false;
+      const dist = userLat && res.lat && res.lng ? getDistance(userLat, userLng, res.lat, res.lng) : "--";
+      const card = document.createElement("div");
+      card.className = "card" + (isOpen ? "" : " closed");
+      if (isOpen) card.addEventListener("click", () => openRes(res.id));
+
+      card.innerHTML = `
+        <img src="${res.image || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80"}" alt="${res.name}" loading="lazy">
+        <div class="card-content">
+          <div class="restaurant-name">${res.name}</div>
+          <div class="card-meta">
+            <span class="card-rating"><svg class="icon" style="width:13px;height:13px;" viewBox="0 0 24 24"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21.1 7 14.2l-5-4.9 6.9-1L12 2Z"/></svg>${res.rating || "4.2"}</span>
+            <span class="distance"><svg class="icon" style="width:13px;height:13px;" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>${dist}</span>
+            <span class="distance"><svg class="icon" style="width:13px;height:13px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${minutes(res)} min</span>
+            <span class="card-badge">${isOpen ? "Open" : "Closed"}</span>
+          </div>
+          ${res.cuisine ? `<div class="distance" style="margin-top:4px;">${res.cuisine}</div>` : ""}
+        </div>`;
+
+      listEl.appendChild(card);
+    });
+  }
+
+  function openRes(id) {
+    const res = allRestaurants.find((r) => r.id === id);
+    if (!res) return;
+    if (userLat && userLng && res.lat && res.lng) {
+      localStorage.setItem("restaurantDistance", parseFloat(getDistance(userLat, userLng, res.lat, res.lng)));
+    }
+    localStorage.setItem("selectedRestaurant", id);
+    window.location.href = "restaurant.html";
+  }
+
+  const grid = document.getElementById("cuisineGrid");
+  grid.innerHTML = CUISINES.map((c, i) => `
+    <button type="button" class="cuisine-tile${i === 0 ? " active" : ""}" data-cuisine="${c.id}">
+      <span class="cuisine-emoji">${c.emoji}</span>
+      <span class="cuisine-label">${c.label}</span>
+    </button>`).join("");
+
+  grid.addEventListener("click", (event) => {
+    const tile = event.target.closest(".cuisine-tile");
+    if (!tile) return;
+    activeCuisine = tile.dataset.cuisine || "";
+    grid.querySelectorAll(".cuisine-tile").forEach((el) => el.classList.toggle("active", el === tile));
+    render();
+  });
+
+  document.getElementById("sortRow").addEventListener("click", (event) => {
+    const pill = event.target.closest(".sort-pill");
+    if (!pill) return;
+    activeSort = pill.dataset.sort || "recommended";
+    document.querySelectorAll(".sort-pill").forEach((el) => el.classList.toggle("active", el === pill));
+    render();
+  });
+
+  document.getElementById("search").addEventListener("input", (event) => {
+    activeQuery = event.target.value.trim().toLowerCase();
+    render();
+  });
+
+  try {
+    const resSnap = await getDocs(collection(db, "restaurants"));
+    allRestaurants = resSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+    try {
+      const menuSnap = await getDocs(collection(db, "menu"));
+      menuSnap.forEach((docSnap) => {
+        const m = docSnap.data();
+        if (m.enabled === false) return;
+        if (!menuMap[m.restaurantId]) menuMap[m.restaurantId] = [];
+        menuMap[m.restaurantId].push(String(m.name || "").toLowerCase());
+      });
+    } catch (err) {
+      console.warn("Menu unavailable on explore", err);
+    }
+
+    render();
+  } catch (err) {
+    console.error(err);
+    listEl.innerHTML = `
+      <div class="empty-state">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+        <p>Couldn't load restaurants</p>
+        <small>Check your connection and refresh.</small>
+      </div>`;
+  }
+});
+</script>
+
+<script>
+if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js"); }
+</script>
+
+<script>
+window.addEventListener("load", () => {
+  setTimeout(() => document.getElementById("loader").classList.add("hidden"), 400);
+});
+</script>
+
+</body>
+</html>

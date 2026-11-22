@@ -1,0 +1,107 @@
+/* ============================================================
+   ELURU FOODS — Cart screen
+   ============================================================ */
+
+:root { --accent: #249B55; }
+body { padding-bottom: 210px; }
+
+#split-nav { display: none; }
+
+.cart-restaurant {
+  margin: 14px 16px 4px;
+  display: flex; align-items: center; gap: 12px;
+  background: var(--green-soft);
+  border: 1px solid #d7ecdf;
+  border-radius: 16px;
+  padding: 13px 14px;
+}
+.cart-restaurant-img {
+  width: 46px; height: 46px; border-radius: 12px; object-fit: cover; flex-shrink: 0;
+  background: var(--white);
+}
+.cart-restaurant-copy { flex: 1; min-width: 0; }
+.cart-restaurant-name { font-size: 14.5px; font-weight: 800; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cart-restaurant-sub { font-size: 11px; color: var(--green-dark); font-weight: 600; margin-top: 2px; }
+.cart-clear {
+  flex-shrink: 0;
+  background: var(--white); color: var(--danger);
+  border: 1px solid #f6d5d5; border-radius: 10px;
+  padding: 7px 11px; font-size: 11px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+}
+
+.cart-list { padding: 4px 0 0; }
+
+.cart-card {
+  display: flex; justify-content: space-between; align-items: center;
+  margin: 10px 16px; padding: 13px;
+  background: var(--white);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  gap: 12px;
+}
+.food-left { display: flex; gap: 13px; align-items: center; flex: 1; min-width: 0; }
+.food-line-total { font-size: 13.5px; font-weight: 800; color: var(--ink); white-space: nowrap; }
+.cart-item-image { width: 66px; height: 66px; border-radius: 12px; object-fit: cover; flex-shrink: 0; }
+.cart-remove {
+  background: none; border: none; color: var(--ink-faint);
+  cursor: pointer; font-size: 13px; padding: 2px; margin-left: 2px;
+  line-height: 1; font-family: inherit;
+}
+.cart-remove:hover { color: var(--danger); }
+
+/* ── Coupon / bill card ── */
+.bill-card {
+  margin: 14px 16px 0;
+  background: var(--white);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-soft);
+}
+.bill-title { font-size: 14.5px; font-weight: 800; color: var(--ink); margin-bottom: 12px; letter-spacing: -0.01em; }
+.coupon-box {
+  display: flex; gap: 8px; margin-bottom: 14px;
+}
+.coupon-box input {
+  flex: 1; min-width: 0; margin: 0 !important;
+  padding: 11px 13px !important;
+  border-radius: 11px !important;
+  font-size: 12.5px !important;
+  text-transform: uppercase;
+}
+.coupon-btn {
+  flex-shrink: 0;
+  background: var(--green); color: #fff;
+  border: none; border-radius: 11px;
+  padding: 0 16px;
+  font-size: 12.5px; font-weight: 700; font-family: inherit;
+  cursor: pointer;
+}
+.coupon-note { font-size: 11px; color: var(--ink-muted); margin:-6px 0 12px; line-height:1.4; }
+.coupon-note.ok { color: var(--green-dark); font-weight: 700; }
+.coupon-note.bad { color: var(--danger); font-weight: 600; }
+
+.summary-row { padding: 8px 0; }
+.summary-row.total-row { border-top: 1px dashed var(--glass-border); margin-top: 8px; }
+
+.empty-cart { text-align: center; padding: 70px 30px 30px; color: var(--ink-muted); }
+.empty-cart svg.icon { width: 52px; height: 52px; margin: 0 auto 16px; color: var(--green); stroke-width: 1.4; }
+.empty-cart h3 { font-size: 18px; font-weight: 800; color: var(--ink); margin-bottom: 8px; }
+.empty-cart p { font-size: 13px; color: var(--ink-faint); }
+.empty-cart .empty-cta {
+  display: inline-block; margin-top: 22px; padding: 13px 30px;
+  background: var(--green); color: #fff; border-radius: 30px;
+  font-weight: 700; font-size: 13px; text-decoration: none;
+  box-shadow: 0 8px 24px rgba(36,155,85,0.24);
+}
+
+.summary {
+  position: fixed; bottom: calc(var(--nav-h) + var(--safe-bottom) + 70px); left: 0; right: 0;
+  background: transparent;
+  padding: 0; z-index: 150;
+  display: none;
+}
+#cart-deck-section { display: none; }
+#cart-deck { display: none; }

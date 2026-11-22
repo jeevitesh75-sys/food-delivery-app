@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checkout · Eluru Foods</title>
-<link rel="stylesheet" href="css/liquid-glass.css">
+<link rel="stylesheet" href="css/app.css">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ffffff">
 
@@ -52,6 +52,13 @@ body { padding-bottom: 160px; }
         <div class="payment-sub">Pay when your order arrives</div>
       </label>
     </div>
+    <div class="payment-option">
+      <input type="radio" name="payment" value="Online" id="onlineRadio">
+      <label for="onlineRadio">
+        <div class="payment-label">Online Payment</div>
+        <div class="payment-sub">Pay now with UPI or card</div>
+      </label>
+    </div>
   </div>
 
   <div class="sec-h">Order Items</div>
@@ -71,22 +78,37 @@ body { padding-bottom: 160px; }
     <div class="btn-spinner"></div>
   </button>
 
+  <div id="slide-pay-wrap" style="display:none; margin-top:12px;">
+    <div id="slide-pay"></div>
+  </div>
+
 </div>
 
-<div class="bottom-nav">
-  <a href="home.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
-    Home
-  </a>
-  <a href="cart.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2.5l2.5 12.5h10L20 7H6"/></svg>
-    Cart
-  </a>
-  <a href="profile.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
-    Profile
-  </a>
-</div>
+<div id="bottom-nav"></div>
+<script src="/js/bottom-nav.js"></script>
+
+<!-- ══ SLIDE TO CONFIRM (React island, shadow-root isolated) ══ -->
+<script src="/js/slide-confirm.js"></script>
+<script>
+  window.SlideConfirm?.mount(document.getElementById("slide-pay"), {
+    label: "Slide to pay",
+    confirmingLabel: "Processing payment",
+    doneLabel: "Paid",
+    resetAfter: null,
+    onConfirm: function () {
+      return window.placeOrder().then(function (ok) {
+        if (ok === false) { throw new Error("Payment failed"); }
+      });
+    }
+  });
+  document.querySelectorAll('input[name="payment"]').forEach(function (radio) {
+    radio.addEventListener("change", function () {
+      var online = document.getElementById("onlineRadio").checked;
+      document.getElementById("slide-pay-wrap").style.display = online ? "block" : "none";
+      document.getElementById("placeBtn").style.display = online ? "none" : "";
+    });
+  });
+</script>
 
 <script type="module">
 import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -154,12 +176,13 @@ onAuthStateChanged(auth, async (user) => {
   document.getElementById("deliveryDisplay").innerText = "₹" + deliveryFee;
   document.getElementById("platformDisplay").innerText = "₹" + platformFee;
   document.getElementById("total").innerText           = total;
+  window.SlideConfirm?.setLabel("Slide to pay ₹" + total);
 
   let restaurantId = cartItems.length > 0 ? cartItems[0].restaurantId : null;
 
   window.placeOrder = async function () {
-    if (cartItems.length === 0) { alert("Cart empty"); return; }
-    if (!restaurantId)          { alert("Restaurant missing"); return; }
+    if (cartItems.length === 0) { alert("Cart empty"); return false; }
+    if (!restaurantId)          { alert("Restaurant missing"); return false; }
 
     const payment = document.querySelector('input[name="payment"]:checked').value;
     const btn     = document.getElementById("placeBtn");
@@ -173,7 +196,7 @@ onAuthStateChanged(auth, async (user) => {
       if (!userData.address) {
         alert("Please select a delivery address");
         btn.classList.remove("loading");
-        return;
+        return false;
       }
 
       const restaurantSnap = await getDoc(doc(db, "restaurants", restaurantId));
@@ -209,6 +232,8 @@ onAuthStateChanged(auth, async (user) => {
       });
 
       localStorage.removeItem("cart");
+      localStorage.removeItem("cartCoupon");
+      window.dispatchEvent(new CustomEvent("cartchange"));
 
 fetch("https://www.elurufoods.shop/api/emailRestaurant", {
   method: "POST",
@@ -217,11 +242,13 @@ fetch("https://www.elurufoods.shop/api/emailRestaurant", {
 }).catch(e => console.log("Email send failed (non-critical):", e));
       alert("Order placed successfully");
       window.location.href = "tracking.html";
+      return true;
 
     } catch (err) {
       console.error(err);
       alert("Order failed: " + err.message);
       btn.classList.remove("loading");
+      return false;
     }
   };
 

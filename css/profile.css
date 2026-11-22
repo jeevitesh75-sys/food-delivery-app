@@ -1,0 +1,91 @@
+/* ============================================================
+   ELURU FOODS — Profile screen
+   ============================================================ */
+
+:root { --accent: #249B55; }
+#split-nav { display: none; }
+
+.profile-head {
+  display: flex; align-items: center; gap: 14px;
+  margin: 14px 16px 4px;
+  padding: 18px;
+  border-radius: 20px;
+  background: var(--green-soft);
+  border: 1px solid #d7ecdf;
+  position: relative;
+  overflow: hidden;
+}
+.profile-head::after {
+  content: ""; position: absolute; right: -44px; top: -54px;
+  width: 160px; height: 160px; border-radius: 50%;
+  background: rgba(36,155,85,0.10);
+}
+.profile-avatar {
+  position: relative; z-index: 1;
+  width: 62px; height: 62px; border-radius: 50%;
+  background: var(--green); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 800;
+  flex-shrink: 0;
+}
+.profile-head-copy { position: relative; z-index: 1; min-width: 0; flex: 1; }
+.profile-name { font-size: 19px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.profile-email { font-size: 12px; color: var(--green-dark); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.profile-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 7px;
+  font-size: 9.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--green-dark); background: var(--white);
+  padding: 4px 9px; border-radius: 20px;
+}
+
+.profile-menu {
+  margin: 14px 16px 0;
+  background: var(--white);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+.menu-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 15px 16px;
+  border-bottom: 1px solid #f2f5f3;
+  text-decoration: none;
+  color: var(--ink);
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.16s var(--ease);
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-item:active { background: var(--green-light); }
+.menu-icon {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: var(--green-soft); color: var(--green-dark);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.menu-icon svg.icon { width: 19px; height: 19px; }
+.menu-copy { flex: 1; min-width: 0; }
+.menu-title { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+.menu-sub { font-size: 11px; color: var(--ink-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.menu-chevron { color: var(--ink-faint); flex-shrink: 0; }
+.menu-chevron svg.icon { width: 17px; height: 17px; }
+
+.profile-subhead {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--ink-muted);
+  padding: 18px 20px 6px;
+}
+
+.profile-orders .order-row { margin: 8px 16px; }
+.profile-orders { padding-bottom: 4px; }
+
+.profile-eyebrow {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--green);
+  margin-bottom: 6px;
+}

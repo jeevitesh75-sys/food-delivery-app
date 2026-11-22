@@ -2,30 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Eluru Foods</title>
+<title>Eluru Foods · Fresh food, delivered</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="css/liquid-glass.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/home.css">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ffffff">
-
-<style>
-.home-hero {
-  margin: 14px 16px 4px;
-  border-radius: var(--radius-lg);
-  background: var(--glass);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  padding: 24px 22px;
-  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.6);
-}
-.hero-greeting { font-size: 11px; font-weight: 700; color: var(--ink-muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 8px; }
-.hero-title { font-size: 25px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; line-height: 1.2; }
-.hero-sub { font-size: 13px; color: var(--ink-muted); margin-top: 6px; }
-.hero-line { width: 34px; height: 2px; background: var(--ink); margin-top: 12px; border-radius: 2px; }
-</style>
-<link rel="stylesheet" href="/css/hero-drop.css">
-<script src="/js/hero-drop.js" defer></script>
+<meta name="theme-color" content="#249B55">
 </head>
 
 <body>
@@ -47,61 +29,113 @@
   </a>
 </div>
 
-<!-- ── SEARCH ── -->
-<div class="search-box">
-  <div class="search-wrapper">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-    <input type="text" placeholder="Search food or restaurants..." id="search">
+<div id="home-content">
+
+  <!-- ── A. QUICK SHORTCUTS ── -->
+  <div class="quick-row">
+    <a class="quick-card" href="explore.html">
+      <div class="quick-icon amber">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7S11 2 8 2 5 4 5 5s1 2 7 2Z"/><path d="M12 7s1-5 4-5 3 2 3 3-1 2-7 2Z"/></svg>
+      </div>
+      <div class="quick-title">Offers</div>
+      <div class="quick-sub">Deals today</div>
+    </a>
+    <a class="quick-card" href="tracking.html">
+      <div class="quick-icon blue">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>
+      </div>
+      <div class="quick-title">Reorder</div>
+      <div class="quick-sub">Buy it again</div>
+    </a>
+    <a class="quick-card" href="profile.html">
+      <div class="quick-icon">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>
+      </div>
+      <div class="quick-title">Schedule</div>
+      <div class="quick-sub">Pick a slot</div>
+    </a>
   </div>
-</div>
 
-<!-- ── HERO BANNER ── -->
-<div class="home-hero">
-  <div class="hero-greeting">Welcome</div>
-  <div class="hero-title">What shall we<br>get for you today?</div>
-  <div class="hero-sub">Order from the finest kitchens near you</div>
-  <div class="hero-line"></div>
-</div>
+  <!-- ── B. LOCATION BAR ── -->
+  <div class="location-bar" id="locationBar" role="button" tabindex="0" aria-label="Change delivery address">
+    <div class="location-pin">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+    </div>
+    <div class="location-copy">
+      <div class="location-eyebrow" id="locationType">HOME</div>
+      <div class="location-address" id="locationAddress">Select delivery address</div>
+    </div>
+    <div class="location-chev">
+      <svg class="icon" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+  </div>
 
-<!-- ── CATEGORIES ── -->
-<div class="category-row">
-  <div class="chip active" onclick="filterChip(this,'all')">All</div>
-  <div class="chip" onclick="filterChip(this,'biryani')">Biryani</div>
-  <div class="chip" onclick="filterChip(this,'chinese')">Chinese</div>
-  <div class="chip" onclick="filterChip(this,'pizza')">Pizza</div>
-  <div class="chip" onclick="filterChip(this,'burger')">Burger</div>
-  <div class="chip" onclick="filterChip(this,'dessert')">Dessert</div>
-  <div class="chip" onclick="filterChip(this,'drinks')">Drinks</div>
-</div>
+  <!-- ── C. SEARCH ── -->
+  <div class="search-box">
+    <div class="search-shell">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search restaurants, dishes and cuisines..." id="search" autocomplete="off">
+      <button class="search-action" id="voiceBtn" type="button" aria-label="Voice search" title="Voice search">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 19v3"/></svg>
+      </button>
+      <button class="search-action" id="filterBtn" type="button" aria-label="Filters" title="Filters">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/></svg>
+      </button>
+    </div>
+  </div>
 
-<!-- ── SECTION HEADING ── -->
-<div class="sec-head">
-  <div class="sec-head-label">Nearby Restaurants</div>
-  <div class="sec-head-line"></div>
-</div>
+  <!-- ── D. CATEGORY NAV ── -->
+  <div class="cat-row" id="catRow"></div>
 
-<!-- ── RESTAURANT LIST ── -->
-<div id="restaurantList" class="restaurants"></div>
+  <!-- ── E. PROMOTIONAL CAROUSEL ── -->
+  <div class="banner-wrap" id="bannerWrap" style="display:none;">
+    <div class="banner-track" id="bannerTrack"></div>
+    <div class="banner-dots" id="bannerDots"></div>
+  </div>
 
-<!-- ── BOTTOM NAV ── -->
-<div class="bottom-nav">
-  <a href="home.html" class="nav-item active">
-    <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
-    Home
-  </a>
-  <a href="cart.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2.5l2.5 12.5h10L20 7H6"/></svg>
-    Cart
-  </a>
-  <a href="profile.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
-    Profile
-  </a>
+  <!-- ── F. RECOMMENDED ── -->
+  <div id="recommendedSection" style="display:none;">
+    <div class="section-head-row">
+      <h2>Recommended for you</h2>
+      <a href="explore.html">See all</a>
+    </div>
+    <div class="h-row" id="recommendedRow"></div>
+  </div>
+
+  <!-- ── G. POPULAR NEAR YOU ── -->
+  <div id="popularSection" style="display:none;">
+    <div class="section-head-row">
+      <h2>Popular near you</h2>
+      <a href="explore.html">See all</a>
+    </div>
+    <div class="h-row" id="popularRow"></div>
+  </div>
+
+  <!-- ── H. FOOD DISCOVERY GRID ── -->
+  <div class="section-head-row" id="discoverHead" style="display:none;">
+    <h2>Discover more</h2>
+  </div>
+  <div class="discover-grid" id="discoverGrid" style="display:none;"></div>
+
+  <!-- ── RESTAURANT LIST (search / category results) ── -->
+  <div id="restaurantList" class="restaurants"></div>
+
+  <!-- ── I. FLOATING OFFER (only shown when real promo data exists) ── -->
+  <div id="floating-promo" role="status" aria-live="polite">
+    <div class="promo-title" id="promoTitle"></div>
+    <div class="promo-sub" id="promoSub"></div>
+    <button type="button" id="promoClose" aria-label="Dismiss offer">✕</button>
+  </div>
+
 </div>
 
 <div id="toast-container"></div>
 
-<!-- ══ ALL ORIGINAL FIREBASE LOGIC (UNTOUCHED) ══ -->
+<!-- ── SHARED BOTTOM NAV ── -->
+<div id="bottom-nav"></div>
+<script src="/js/bottom-nav.js"></script>
+
+<!-- ══ ALL ORIGINAL FIREBASE LOGIC ══ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -120,6 +154,36 @@ const app = initializeApp({
 const db   = getFirestore(app);
 const auth = getAuth(app);
 let foodMarkup = 0;
+
+// ── Category definitions (visual only; filtering still uses the menu text) ──
+const CATEGORIES = [
+  { id: "all",           label: "For You",      emoji: "🍽️" },
+  { id: "biryani",       label: "Biryani",      emoji: "🍛" },
+  { id: "pizza",         label: "Pizza",        emoji: "🍕" },
+  { id: "burger",        label: "Burgers",      emoji: "🍔" },
+  { id: "south indian",  label: "South Indian", emoji: "🥘" },
+  { id: "north indian",  label: "North Indian", emoji: "🍲" },
+  { id: "chinese",       label: "Chinese",      emoji: "🥡" },
+  { id: "dessert",       label: "Desserts",     emoji: "🍰" },
+  { id: "drinks",        label: "Beverages",    emoji: "🥤" },
+  { id: "healthy",       label: "Healthy",      emoji: "🥗" },
+];
+
+// Discovery tiles use fixed photo ids — they are decorative, not fake restaurants.
+const DISCOVERY = [
+  { label: "Biryani specials", sub: "Slow-cooked", emojiId: "photo-1563379091339-03b21ab4a4f8", query: "biryani" },
+  { label: "Healthy meals",    sub: "Light & fresh", emojiId: "photo-1512621776951-a57141f2eefd", query: "healthy" },
+  { label: "Today's specials", sub: "Chef picks", emojiId: "photo-1504674900247-0877df9cc836", query: "" },
+  { label: "Desserts",         sub: "Something sweet", emojiId: "photo-1578985545062-69928b1d9587", query: "dessert" },
+  { label: "Family combos",    sub: "Share & enjoy", emojiId: "photo-1604908177225-ecf7b8fb6a6f", query: "" },
+  { label: "Budget meals",     sub: "Under ₹150", emojiId: "photo-1546069901-ba9599a7e63c", query: "" },
+];
+
+const PROMO_BANNERS = [
+  { title: "Weekend Feast", offer: "Up to 40% off selected kitchens", desc: "Delicious meals delivered to your doorstep.", image: "photo-1504674900247-0877df9cc836", href: "explore.html" },
+  { title: "Biryani Festival", offer: "Fresh from the dum", desc: "Handi-cooked biryanis from top-rated kitchens.", image: "photo-1563379091339-03b21ab4a4f8", href: "explore.html" },
+  { title: "Late Night Cravings", offer: "Open past midnight", desc: "Burgers, pizza and more until 2 AM.", image: "photo-1568901346375-23c9450c58cd", href: "explore.html" },
+];
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -140,13 +204,34 @@ onAuthStateChanged(auth, async (user) => {
   let allRestaurants = [];
   let menuMap        = {};
   let activeCategory = 'all';
+  let activeQuery    = '';
 
   let userLat = null, userLng = null;
   const userDoc = await getDoc(doc(db, "users", user.uid));
-  if (userDoc.exists()) {
-    userLat = userDoc.data().lat;
-    userLng = userDoc.data().lng;
+  let userData = userDoc.exists() ? userDoc.data() : {};
+  userLat = userData.lat || null;
+  userLng = userData.lng || null;
+
+  // ── B. Location bar ──
+  const savedAddress = (userData.addresses && userData.addresses[userData.defaultAddress || 0]) || null;
+  const primaryAddress = savedAddress ? savedAddress.address : (userData.address || "");
+
+  function paintLocation() {
+    const typeEl = document.getElementById("locationType");
+    const addrEl = document.getElementById("locationAddress");
+    if (!addrEl) return;
+    const label = primaryAddress ? "Home" : "Set delivery address";
+    if (typeEl) typeEl.innerText = label;
+    addrEl.innerText = primaryAddress || "Tap to select or add an address";
   }
+  paintLocation();
+
+  document.getElementById("locationBar")?.addEventListener("click", () => {
+    location.href = "profile.html#addressList";
+  });
+  document.getElementById("locationBar")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); location.href = "profile.html#addressList"; }
+  });
 
   function getDistance(lat1, lon1, lat2, lon2) {
     let R    = 6371;
@@ -159,34 +244,348 @@ onAuthStateChanged(auth, async (user) => {
     return (R * c).toFixed(1) + " km";
   }
 
-  async function init() {
-    const resSnap  = await getDocs(collection(db, "restaurants"));
-    allRestaurants = resSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  function deliveryMinutes(res) {
+    if (userLat && res.lat && res.lng) {
+      const km = parseFloat(getDistance(userLat, userLng, res.lat, res.lng)) || 0;
+      return Math.max(15, Math.round(12 + km * 4));
+    }
+    return 25;
+  }
 
-    const menuSnap = await getDocs(collection(db, "menu"));
-    menuSnap.forEach(doc => {
-      let m = doc.data();
-      if (m.enabled === false) return;
-      if (!menuMap[m.restaurantId]) menuMap[m.restaurantId] = [];
-      menuMap[m.restaurantId].push(m.name.toLowerCase());
+  // ── D. Categories ──
+  const catRow = document.getElementById("catRow");
+  if (catRow) {
+    catRow.innerHTML = CATEGORIES.map((c, i) => `
+      <button type="button" class="cat-item${i === 0 ? " active" : ""}" data-cat="${c.id}" aria-pressed="${i === 0}">
+        <span class="cat-emoji"><span class="emoji">${c.emoji}</span></span>
+        <span class="cat-name">${c.label}</span>
+      </button>`).join("");
+
+    catRow.addEventListener("click", (event) => {
+      const btn = event.target.closest(".cat-item");
+      if (!btn) return;
+      activeCategory = btn.dataset.cat || "all";
+      catRow.querySelectorAll(".cat-item").forEach((el) => {
+        const on = el === btn;
+        el.classList.toggle("active", on);
+        el.setAttribute("aria-pressed", String(on));
+      });
+      applyFilters();
     });
+  }
 
-    render(allRestaurants);
+  // ── E. Promo carousel ──
+  const bannerWrap = document.getElementById("bannerWrap");
+  const bannerTrack = document.getElementById("bannerTrack");
+  const bannerDots = document.getElementById("bannerDots");
+  let bannerTimer = null;
+
+  function paintBanners() {
+    if (!bannerTrack) return;
+    const hasRealPromo = allRestaurants.some((r) => r.promoTitle || r.offer);
+    const banners = hasRealPromo
+      ? allRestaurants.filter((r) => r.promoTitle || r.offer).map((r) => ({
+          title: r.promoTitle || "Offer",
+          offer: r.offer || "",
+          desc: r.cuisine || "",
+          image: r.image || "",
+          href: "restaurant.html",
+          restaurantId: r.id,
+        }))
+      : PROMO_BANNERS;
+
+    bannerTrack.innerHTML = banners.map((b) => {
+      const img = b.image
+        ? `<img src="${b.image}" alt="" loading="lazy">`
+        : `<img src="https://images.unsplash.com/${b.image}?auto=format&fit=crop&w=900&q=80" alt="" loading="lazy">`;
+      const data = b.restaurantId ? ` data-restaurant="${b.restaurantId}"` : ` data-href="${b.href}"`;
+      return `
+        <div class="banner"${data} role="button" tabindex="0">
+          ${img}
+          <div class="banner-content">
+            <span class="banner-eyebrow">${b.offer || "Featured"}</span>
+            <div class="banner-title">${b.title}</div>
+            <div class="banner-sub">${b.desc || ""}</div>
+            <span class="banner-cta">Order now <svg class="icon" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
+          </div>
+        </div>`;
+    }).join("");
+
+    bannerDots.innerHTML = banners.map((_, i) =>
+      `<span class="banner-dot${i === 0 ? " active" : ""}" data-dot="${i}"></span>`
+    ).join("");
+
+    bannerWrap.style.display = banners.length ? "block" : "none";
+    startBannerAuto();
+  }
+
+  function activeBannerIndex() {
+    if (!bannerTrack) return 0;
+    const children = [...bannerTrack.children];
+    const center = bannerTrack.scrollLeft + bannerTrack.clientWidth / 2;
+    let best = 0, bestDist = Infinity;
+    children.forEach((child, i) => {
+      const c = child.offsetLeft + child.offsetWidth / 2;
+      const d = Math.abs(c - center);
+      if (d < bestDist) { bestDist = d; best = i; }
+    });
+    return best;
+  }
+
+  function syncBannerDots() {
+    if (!bannerDots) return;
+    const index = activeBannerIndex();
+    bannerDots.querySelectorAll(".banner-dot").forEach((dot, i) =>
+      dot.classList.toggle("active", i === index));
+  }
+
+  function startBannerAuto() {
+    if (bannerTimer) clearInterval(bannerTimer);
+    if (!bannerTrack || bannerTrack.children.length < 2) return;
+    bannerTimer = setInterval(() => {
+      const children = [...bannerTrack.children];
+      const next = (activeBannerIndex() + 1) % children.length;
+      children[next].scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }, 5000);
+  }
+
+  bannerTrack?.addEventListener("scroll", () => {
+    window.clearTimeout(bannerTrack.__dotTimer);
+    bannerTrack.__dotTimer = setTimeout(syncBannerDots, 90);
+  }, { passive: true });
+
+  bannerTrack?.addEventListener("click", (event) => {
+    const banner = event.target.closest(".banner");
+    if (!banner) return;
+    if (banner.dataset.restaurant) {
+      openRes(banner.dataset.restaurant);
+    } else if (banner.dataset.href) {
+      location.href = banner.dataset.href;
+    }
+  });
+  bannerTrack?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    const banner = event.target.closest(".banner");
+    if (!banner) return;
+    event.preventDefault();
+    banner.click();
+  });
+
+  // ── C. Voice search + filter ──
+  const voiceBtn = document.getElementById("voiceBtn");
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRec) {
+    voiceBtn?.setAttribute("disabled", "");
+    voiceBtn?.setAttribute("aria-disabled", "true");
+    voiceBtn?.style.setProperty("display", "none");
+  } else {
+    voiceBtn?.addEventListener("click", () => {
+      const rec = new SpeechRec();
+      rec.lang = "en-IN";
+      rec.interimResults = false;
+      rec.onresult = (e) => {
+        const text = e.results[0][0].transcript;
+        const input = document.getElementById("search");
+        if (input) { input.value = text; input.dispatchEvent(new Event("input", { bubbles: true })); }
+      };
+      try { rec.start(); } catch {}
+    });
+  }
+
+  const filterBtn = document.getElementById("filterBtn");
+  let openOnly = false;
+  let minRating = 0;
+  filterBtn?.addEventListener("click", () => {
+    const useOpen = window.confirm("Show only open restaurants?\n\nOK = open only · Cancel = include closed");
+    openOnly = useOpen;
+    const useRating = window.confirm("Show only restaurants rated 4.5 and above?");
+    minRating = useRating ? 4.5 : 0;
+    applyFilters();
+  });
+
+  // ── F. Horizontal restaurant cards ──
+  function resCardMarkup(res, index) {
+    const isOpen = res.isOpen !== false;
+    const rating = res.rating || "4.2";
+    const dist = userLat && res.lat && res.lng ? getDistance(userLat, userLng, res.lat, res.lng) : null;
+    const mins = deliveryMinutes(res);
+    const offer = res.promoTitle || res.offer || "";
+    return `
+      <div class="res-card" data-index="${index}" role="button" tabindex="0">
+        <div class="res-card-img-wrap">
+          <img class="res-card-img" src="${res.image || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80"}" alt="${res.name}" loading="lazy">
+          <span class="res-card-time">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>${mins} min
+          </span>
+        </div>
+        <div class="res-card-body">
+          <div class="res-card-name">${res.name}</div>
+          <div class="res-card-meta">
+            <span class="res-rating"><svg class="icon" viewBox="0 0 24 24"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21.1 7 14.2l-5-4.9 6.9-1L12 2Z"/></svg>${rating}</span>
+            <span class="res-cuisine">${dist ? dist + " · " : ""}${res.cuisine || "Multi-cuisine"}</span>
+          </div>
+          ${offer ? `<div class="res-offer">${offer}</div>` : ""}
+        </div>
+      </div>`;
+  }
+
+  function wireCards(scope) {
+    scope.querySelectorAll(".res-card").forEach((card) => {
+      const index = Number(card.dataset.index);
+      const res = allRestaurants[index];
+      if (!res) return;
+      if (res.isOpen === false) return;
+      const open = () => openRes(res.id);
+      card.addEventListener("click", open);
+      card.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+      });
+    });
+  }
+
+  function paintRows() {
+    const openList = allRestaurants.filter((r) => r.isOpen !== false);
+    const rated = [...allRestaurants].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+
+    const recommendedRow = document.getElementById("recommendedRow");
+    const popularRow = document.getElementById("popularRow");
+    const recommendedSection = document.getElementById("recommendedSection");
+    const popularSection = document.getElementById("popularSection");
+
+    if (recommendedRow) {
+      const picks = rated.filter((r) => r.isOpen !== false).slice(0, 6);
+      recommendedRow.innerHTML = picks.map((r) => resCardMarkup(r, allRestaurants.indexOf(r))).join("");
+      wireCards(recommendedRow);
+      recommendedSection.style.display = picks.length ? "block" : "none";
+    }
+
+    if (popularRow) {
+      const popular = [...openList]
+        .sort((a, b) => deliveryMinutes(a) - deliveryMinutes(b))
+        .slice(0, 6);
+      popularRow.innerHTML = popular.map((r) => resCardMarkup(r, allRestaurants.indexOf(r))).join("");
+      wireCards(popularRow);
+      popularSection.style.display = popular.length ? "block" : "none";
+    }
+  }
+
+  // ── H. Discovery grid ──
+  const discoverGrid = document.getElementById("discoverGrid");
+  const discoverHead = document.getElementById("discoverHead");
+  if (discoverGrid) {
+    discoverGrid.innerHTML = DISCOVERY.map((d) => `
+      <div class="discover-card" data-query="${d.query}" role="button" tabindex="0">
+        <img src="https://images.unsplash.com/${d.emojiId}?auto=format&fit=crop&w=500&q=80" alt="${d.label}" loading="lazy">
+        <div class="discover-sub">${d.sub}</div>
+        <div class="discover-label">${d.label}</div>
+      </div>`).join("");
+
+    discoverGrid.addEventListener("click", (event) => {
+      const card = event.target.closest(".discover-card");
+      if (!card) return;
+      const query = card.dataset.query || "";
+      const input = document.getElementById("search");
+      if (input) { input.value = query; input.dispatchEvent(new Event("input", { bubbles: true })); }
+      document.getElementById("restaurantList")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    discoverGrid.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const card = event.target.closest(".discover-card");
+      if (!card) return;
+      event.preventDefault();
+      card.click();
+    });
+    discoverGrid.style.display = "grid";
+    discoverHead.style.display = "flex";
+  }
+
+  // ── I. Floating promo — only when the backend actually has one ──
+  const promo = allRestaurants.find((r) => r.promoTitle || r.offer);
+  const promoEl = document.getElementById("floating-promo");
+  if (promo && promoEl) {
+    document.getElementById("promoTitle").innerText = promo.promoTitle || "Today's offer";
+    document.getElementById("promoSub").innerText = promo.offer || "";
+    if (sessionStorage.getItem("promoDismissed") !== "1") {
+      promoEl.classList.add("show");
+    }
+    document.getElementById("promoClose")?.addEventListener("click", () => {
+      promoEl.classList.remove("show");
+      sessionStorage.setItem("promoDismissed", "1");
+    });
+  }
+
+  async function init() {
+    try {
+      const resSnap  = await getDocs(collection(db, "restaurants"));
+      allRestaurants = resSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      try {
+        const menuSnap = await getDocs(collection(db, "menu"));
+        menuSnap.forEach(doc => {
+          let m = doc.data();
+          if (m.enabled === false) return;
+          if (!menuMap[m.restaurantId]) menuMap[m.restaurantId] = [];
+          menuMap[m.restaurantId].push(String(m.name || "").toLowerCase());
+        });
+      } catch (menuErr) {
+        console.warn("Menu index unavailable, falling back to restaurant names", menuErr);
+      }
+
+      paintBanners();
+      paintRows();
+      applyFilters();
+    } catch (err) {
+      console.error("Failed to load restaurants", err);
+      container.innerHTML = `
+        <div class="empty-state">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+          <p>Couldn't load restaurants</p>
+          <small>Check your connection and refresh the page.</small>
+        </div>`;
+    }
+  }
+
+  function matchesQuery(res, value) {
+    if (!value) return true;
+    const nameMatch = String(res.name || "").toLowerCase().includes(value);
+    const cuisineMatch = String(res.cuisine || "").toLowerCase().includes(value);
+    const foods = menuMap[res.id] || [];
+    const foodMatch = foods.some(f => f.includes(value));
+    return nameMatch || cuisineMatch || foodMatch;
+  }
+
+  function applyFilters() {
+    const searchInput = document.getElementById("search");
+    activeQuery = String(searchInput?.value || "").trim().toLowerCase();
+    let filtered = allRestaurants.filter((res) => matchesQuery(res, activeQuery));
+
+    if (activeCategory && activeCategory !== "all") {
+      filtered = filtered.filter((res) => {
+        const foods = menuMap[res.id] || [];
+        const cat = activeCategory;
+        const cuisine = String(res.cuisine || "").toLowerCase();
+        return foods.some(f => f.includes(cat)) || cuisine.includes(cat);
+      });
+    }
+    if (openOnly) filtered = filtered.filter((r) => r.isOpen !== false);
+    if (minRating) filtered = filtered.filter((r) => Number(r.rating || 0) >= minRating);
+
+    render(filtered);
   }
 
   function render(list) {
     container.innerHTML = "";
-
-    if (list.length === 0) {
+    if (!list || list.length === 0) {
       container.innerHTML = `
         <div class="empty-state" style="grid-column:1/-1;">
           <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
           <p>No restaurants found</p>
+          <small>Try a different search or category.</small>
         </div>`;
       return;
     }
 
-    list.forEach((res, i) => {
+    list.forEach((res) => {
       let isOpen = res.isOpen !== false;
       let dist   = "--";
       if (userLat && res.lat && res.lng) {
@@ -217,19 +616,13 @@ onAuthStateChanged(auth, async (user) => {
     });
   }
 
-  document.getElementById("search").addEventListener("input", function () {
-    let value    = this.value.toLowerCase();
-    let filtered = allRestaurants.filter(res => {
-      let nameMatch = res.name.toLowerCase().includes(value);
-      let foods     = menuMap[res.id] || [];
-      let foodMatch = foods.some(f => f.includes(value));
-      return nameMatch || foodMatch;
-    });
-    render(filtered);
+  document.getElementById("search")?.addEventListener("input", function () {
+    applyFilters();
   });
 
   window.openRes = function (id) {
     const res = allRestaurants.find(r => r.id === id);
+    if (!res) return;
 
     if (userLat && userLng && res.lat && res.lng) {
       const distance = parseFloat(getDistance(userLat, userLng, res.lat, res.lng));
@@ -243,16 +636,7 @@ onAuthStateChanged(auth, async (user) => {
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     activeCategory = cat;
-
-    if (cat === 'all') {
-      render(allRestaurants);
-    } else {
-      const filtered = allRestaurants.filter(res => {
-        const foods = menuMap[res.id] || [];
-        return foods.some(f => f.includes(cat));
-      });
-      render(filtered);
-    }
+    applyFilters();
   };
 
   init();
@@ -271,10 +655,9 @@ if ("serviceWorker" in navigator) {
 window.addEventListener("load", () => {
   setTimeout(() => {
     document.getElementById("loader").classList.add("hidden");
-  }, 500);
+  }, 400);
 });
 </script>
 
 </body>
 </html>
-

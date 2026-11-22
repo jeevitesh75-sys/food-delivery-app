@@ -4,51 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cart · Eluru Foods</title>
-<link rel="stylesheet" href="css/liquid-glass.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/cart.css">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ffffff">
-
-<style>
-body { padding-bottom: 380px; }
-.header-title { font-size: 17px; font-weight: 800; color: var(--ink); }
-.cart-section-head { padding: 16px 20px 6px; display: flex; align-items: center; gap: 12px; }
-.cart-section-title { font-size: 11px; font-weight: 700; color: var(--ink-muted); letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap; }
-.cart-section-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--ink-faint), transparent); }
-
-.cart-card {
-  display: flex; justify-content: space-between; align-items: center;
-  margin: 10px 16px; padding: 14px;
-  background: var(--glass);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
-  gap: 12px;
-}
-.food-left { display: flex; gap: 13px; align-items: center; flex: 1; min-width: 0; }
-.food-line-total { font-size: 13.5px; font-weight: 800; color: var(--ink); }
-
-.empty-cart { text-align: center; padding: 80px 30px 40px; color: var(--ink-muted); }
-.empty-cart svg.icon { width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.35; }
-.empty-cart h3 { font-size: 18px; font-weight: 800; color: var(--ink); margin-bottom: 8px; }
-.empty-cart p { font-size: 13px; color: var(--ink-faint); }
-.empty-cart .empty-cta {
-  display: inline-block; margin-top: 22px; padding: 12px 28px;
-  background: var(--ink); color: #fff; border-radius: 30px;
-  font-weight: 700; font-size: 13px; text-decoration: none;
-}
-
-.summary {
-  position: fixed; bottom: 210px; left: 0; right: 0;
-  background: var(--glass-strong);
-  backdrop-filter: blur(26px) saturate(180%);
-  border-top: 1px solid var(--glass-border);
-  padding: 14px 20px 10px; z-index: 150;
-}
-</style>
-<link rel="stylesheet" href="/css/hero-drop.css">
-<script src="/js/hero-drop.js" defer></script>
+<meta name="theme-color" content="#249B55">
 </head>
 
 <body>
@@ -59,48 +18,50 @@ body { padding-bottom: 380px; }
 </div>
 
 <div class="page-header">
-  <a class="header-icon-btn" href="restaurant.html">
+  <a class="header-icon-btn" href="restaurant.html" aria-label="Back">
     <svg class="icon" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
   </a>
   <div class="header-title">Your Cart</div>
 </div>
 
-<div class="cart-section-head">
+<!-- ── Restaurant info ── -->
+<div id="cartRestaurant"></div>
+
+<div class="cart-section-head" style="padding:16px 16px 0;">
   <div class="cart-section-title">Order Items</div>
   <div class="cart-section-line"></div>
 </div>
 
-<div class="cart-container" id="cart"></div>
+<div class="cart-list" id="cart"></div>
 
-<div class="summary" id="summaryBox">
-  <div class="summary-row"><span>Item Total</span><span id="subtotal">₹0</span></div>
-  <div class="summary-row"><span>Delivery Fee</span><span id="deliveryFee">₹30</span></div>
-  <div class="summary-row"><span>Platform Fee</span><span id="platformFee">₹0</span></div>
-  <div class="summary-row total-row"><span>Total</span><span id="total">₹0</span></div>
+<!-- ── Bill details ── -->
+<div class="bill-card" id="summaryBox" style="display:none;">
+  <div class="bill-title">Bill details</div>
+
+  <div class="coupon-box">
+    <input type="text" id="couponInput" placeholder="Enter coupon code" autocomplete="off">
+    <button class="coupon-btn" id="couponBtn" type="button">Apply</button>
+  </div>
+  <div class="coupon-note" id="couponNote"></div>
+
+  <div class="summary-row"><span>Item total</span><span id="subtotal">₹0</span></div>
+  <div class="summary-row"><span>Delivery fee</span><span id="deliveryFee">₹30</span></div>
+  <div class="summary-row"><span>Platform fee</span><span id="platformFee">₹0</span></div>
+  <div class="summary-row" id="discountRow" style="display:none;"><span>Discount</span><span id="discountValue">-₹0</span></div>
+  <div class="summary-row total-row"><span>To pay</span><span id="total">₹0</span></div>
 </div>
 
-<button class="checkout-btn" id="checkoutBtn" onclick="goCheckout()">
+<button class="checkout-btn" id="checkoutBtn" onclick="goCheckout()" style="display:none;">
   <span>Proceed to Checkout</span>
   <span class="checkout-arrow"><svg class="icon" style="width:16px;height:16px;stroke:#fff;" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></span>
 </button>
 
-<div class="bottom-nav">
-  <a href="home.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
-    Home
-  </a>
-  <a href="cart.html" class="nav-item active">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2.5l2.5 12.5h10L20 7H6"/></svg>
-    Cart
-    <span id="cart-count"></span>
-  </a>
-  <a href="profile.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
-    Profile
-  </a>
-</div>
+<div id="toast-container"></div>
 
-<!-- ══ ALL ORIGINAL FIREBASE LOGIC (UNTOUCHED) ══ -->
+<div id="bottom-nav"></div>
+<script src="/js/bottom-nav.js"></script>
+
+<!-- ══ ALL ORIGINAL CART FIREBASE LOGIC ══ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -114,6 +75,14 @@ const firebaseConfig = {
 initializeApp(firebaseConfig);
 const db   = getFirestore();
 const auth = getAuth();
+
+// ── Coupon engine ──
+// The app has no coupon collection, so this is an explicit, limited promo rule.
+// Anything else is rejected; there is no silent fake discount.
+const COUPONS = {
+  WELCOME10: { type: "percent", value: 10, min: 199, label: "10% off orders above ₹199" },
+  FREEDEL:   { type: "delivery", value: 0, min: 299, label: "Free delivery above ₹299" },
+};
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) { location.href = "login.html"; return; }
@@ -133,23 +102,94 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   let cartItems = JSON.parse(localStorage.getItem("cart")) || [];
-  let container = document.getElementById("cart");
+  const container = document.getElementById("cart");
+  const restaurantWrap = document.getElementById("cartRestaurant");
 
-  const subtotalEl  = document.getElementById("subtotal");
-  const totalEl     = document.getElementById("total");
-  const summaryBox  = document.getElementById("summaryBox");
-  const checkoutBtn = document.getElementById("checkoutBtn");
+  const subtotalEl   = document.getElementById("subtotal");
+  const totalEl      = document.getElementById("total");
+  const summaryBox   = document.getElementById("summaryBox");
+  const checkoutBtn  = document.getElementById("checkoutBtn");
+  const discountRow  = document.getElementById("discountRow");
+  const discountVal  = document.getElementById("discountValue");
+  const couponNote   = document.getElementById("couponNote");
+
+  let appliedCoupon = null;
+
+  function money(n) { return "₹" + Number(n || 0).toLocaleString("en-IN"); }
+
+  function paintRestaurant() {
+    if (!cartItems.length) { restaurantWrap.innerHTML = ""; return; }
+    const first = cartItems[0];
+    const kinds = new Set(cartItems.map((i) => i.veg === false ? "Non-veg" : "Veg"));
+    const kindText = [...kinds].join(" & ");
+    restaurantWrap.innerHTML = `
+      <div class="cart-restaurant">
+        <img class="cart-restaurant-img" src="${first.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=120&q=80"}" alt="">
+        <div class="cart-restaurant-copy">
+          <div class="cart-restaurant-name">${first.restaurantName || "Your restaurant"}</div>
+          <div class="cart-restaurant-sub">${cartItems.reduce((s, i) => s + i.qty, 0)} item(s)${kindText ? " · " + kindText : ""}</div>
+        </div>
+        <button class="cart-clear" id="clearCartBtn" type="button">Clear</button>
+      </div>`;
+    document.getElementById("clearCartBtn")?.addEventListener("click", () => {
+      if (!window.confirm("Remove all items from your cart?")) return;
+      cartItems = [];
+      persist();
+      renderCart();
+    });
+  }
 
   function updateCartCount() {
     const count = cartItems.reduce((s, i) => s + i.qty, 0);
-    const badge = document.getElementById("cart-count");
-    if (count > 0) { badge.innerText = count; badge.style.display = "inline-block"; }
-    else           { badge.style.display = "none"; }
+    if (window.refreshCartBadge) window.refreshCartBadge();
+    window.dispatchEvent(new CustomEvent("cartchange", { detail: { count } }));
+  }
+
+  function totals() {
+    const subtotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
+    let discount = 0;
+    let delivery = deliveryFee;
+
+    if (appliedCoupon === "WELCOME10") discount = Math.round(subtotal * 0.10);
+    if (appliedCoupon === "FREEDEL")   delivery = 0;
+
+    return { subtotal, discount, delivery, total: subtotal + delivery + platformFee - discount };
+  }
+
+  function persist() {
+    localStorage.setItem("cart", JSON.stringify(cartItems));
+    if (appliedCoupon) localStorage.setItem("cartCoupon", appliedCoupon);
+    else localStorage.removeItem("cartCoupon");
+  }
+
+  function paintBill() {
+    const t = totals();
+    document.getElementById("deliveryFee").innerText = money(t.delivery);
+    document.getElementById("platformFee").innerText = money(platformFee);
+    subtotalEl.innerText = money(t.subtotal);
+    totalEl.innerText = money(t.total);
+
+    if (t.discount > 0) {
+      discountRow.style.display = "flex";
+      discountVal.innerText = "-" + money(t.discount);
+    } else {
+      discountRow.style.display = "none";
+    }
+
+    if (appliedCoupon) {
+      const def = COUPONS[appliedCoupon];
+      couponNote.className = "coupon-note ok";
+      couponNote.innerText = def ? def.label + " applied" : "Coupon applied";
+    } else {
+      couponNote.className = "coupon-note";
+      couponNote.innerText = "";
+    }
+    persist();
   }
 
   function renderCart() {
     container.innerHTML = "";
-    let subtotal = 0;
+    paintRestaurant();
 
     if (cartItems.length === 0) {
       container.innerHTML = `
@@ -157,7 +197,7 @@ onAuthStateChanged(auth, async (user) => {
           <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2.5l2.5 12.5h10L20 7H6"/></svg>
           <h3>Your cart is empty</h3>
           <p>Add something delicious to get started</p>
-          <a href="home.html" class="empty-cta">Browse Restaurants</a>
+          <a href="explore.html" class="empty-cta">Browse Restaurants</a>
         </div>`;
       summaryBox.style.display  = "none";
       checkoutBtn.style.display = "none";
@@ -169,50 +209,53 @@ onAuthStateChanged(auth, async (user) => {
     checkoutBtn.style.display = "flex";
 
     cartItems.forEach((item, index) => {
-      subtotal += item.price * item.qty;
       const lineTotal = item.price * item.qty;
-
       const div = document.createElement("div");
       div.className = "cart-card";
 
       div.innerHTML = `
         <div class="food-left">
-          <img class="food-image" src="${item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=80'}" alt="${item.name}">
+          <img class="cart-item-image" src="${item.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=80"}" alt="${item.name}">
           <div style="min-width:0;">
             <div class="food-name">${item.name}</div>
-            <div class="food-desc" style="-webkit-line-clamp:1;">₹${item.price} each</div>
+            <div class="food-desc" style="-webkit-line-clamp:1;">${money(item.price)} each</div>
             <div class="quantity-box">
-              <button onclick="decrease(${index})">−</button>
+              <button onclick="decrease(${index})" aria-label="Decrease quantity">−</button>
               <span class="qty-num">${item.qty}</span>
-              <button onclick="increase(${index})">+</button>
+              <button onclick="increase(${index})" aria-label="Increase quantity">+</button>
             </div>
           </div>
         </div>
-        <div style="text-align:right;flex-shrink:0;">
-          <div class="food-line-total">₹${lineTotal}</div>
+        <div style="text-align:right;flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+          <div class="food-line-total">${money(lineTotal)}</div>
+          <button class="cart-remove" onclick="removeItem(${index})" type="button" aria-label="Remove ${item.name}">✕</button>
         </div>`;
 
       container.appendChild(div);
     });
 
-    document.getElementById("deliveryFee").innerText = "₹" + deliveryFee;
-    document.getElementById("platformFee").innerText = "₹" + platformFee;
-    subtotalEl.innerText = "₹" + subtotal;
-    totalEl.innerText    = "₹" + (subtotal + deliveryFee + platformFee);
+    paintBill();
     updateCartCount();
   }
 
   window.increase = function (index) {
     cartItems[index].qty++;
-    localStorage.setItem("cart", JSON.stringify(cartItems));
+    persist();
     renderCart();
   };
 
   window.decrease = function (index) {
     if (cartItems[index].qty > 1) { cartItems[index].qty--; }
     else                          { cartItems.splice(index, 1); }
-    localStorage.setItem("cart", JSON.stringify(cartItems));
+    persist();
     renderCart();
+  };
+
+  window.removeItem = function (index) {
+    const removed = cartItems.splice(index, 1)[0];
+    persist();
+    renderCart();
+    if (removed) console.info("Removed from cart:", removed.name);
   };
 
   window.goCheckout = function () {
@@ -222,13 +265,68 @@ onAuthStateChanged(auth, async (user) => {
     const mixed = cartItems.some(i => i.restaurantId !== restaurantId);
     if (mixed) { alert("Only one restaurant allowed per order"); return; }
 
-    const subtotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
+    const t = totals();
     localStorage.setItem("checkoutData", JSON.stringify({
-      items: cartItems, restaurantId, subtotal, deliveryFee, platformFee,
-      total: subtotal + deliveryFee + platformFee
+      items: cartItems,
+      restaurantId,
+      subtotal: t.subtotal,
+      deliveryFee: t.delivery,
+      platformFee,
+      discount: t.discount,
+      coupon: appliedCoupon,
+      total: t.total
     }));
     window.location.href = "checkout.html";
   };
+
+  document.getElementById("couponBtn")?.addEventListener("click", () => {
+    const input = document.getElementById("couponInput");
+    const code = String(input.value || "").trim().toUpperCase();
+    if (!code) {
+      appliedCoupon = null;
+      couponNote.className = "coupon-note";
+      couponNote.innerText = "";
+      paintBill();
+      renderCart();
+      return;
+    }
+
+    const subtotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
+    const def = COUPONS[code];
+    if (!def) {
+      couponNote.className = "coupon-note bad";
+      couponNote.innerText = "Invalid coupon code.";
+      appliedCoupon = null;
+      paintBill();
+      renderCart();
+      return;
+    }
+    if (subtotal < def.min) {
+      couponNote.className = "coupon-note bad";
+      couponNote.innerText = "Add " + money(def.min - subtotal) + " more to use " + code + ".";
+      appliedCoupon = null;
+      paintBill();
+      renderCart();
+      return;
+    }
+    appliedCoupon = code;
+    paintBill();
+    renderCart();
+  });
+
+  document.getElementById("couponInput")?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      document.getElementById("couponBtn")?.click();
+    }
+  });
+
+  // Restore a previously applied coupon only if it still qualifies.
+  const storedCoupon = localStorage.getItem("cartCoupon");
+  if (storedCoupon && COUPONS[storedCoupon]) {
+    const subtotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
+    if (subtotal >= COUPONS[storedCoupon].min) appliedCoupon = storedCoupon;
+  }
 
   renderCart();
 });
@@ -242,10 +340,9 @@ if ("serviceWorker" in navigator) { navigator.serviceWorker.register("/sw.js"); 
 <!-- ── LOADER HIDE ── -->
 <script>
 window.addEventListener("load", () => {
-  setTimeout(() => { document.getElementById("loader").classList.add("hidden"); }, 500);
+  setTimeout(() => { document.getElementById("loader").classList.add("hidden"); }, 400);
 });
 </script>
 
 </body>
 </html>
-

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Menu · Eluru Foods</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="css/liquid-glass.css">
+<link rel="stylesheet" href="css/app.css">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ffffff">
 
@@ -80,20 +80,8 @@ body { padding-bottom: 200px; }
   </div>
 </a>
 
-<div class="bottom-nav">
-  <a href="home.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><path d="m3 11 9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
-    Home
-  </a>
-  <a href="cart.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/><path d="M2.5 3h2.5l2.5 12.5h10L20 7H6"/></svg>
-    Cart
-  </a>
-  <a href="profile.html" class="nav-item">
-    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></svg>
-    Profile
-  </a>
-</div>
+<div id="bottom-nav"></div>
+<script src="/js/bottom-nav.js"></script>
 
 <!-- ══ ALL ORIGINAL FIREBASE LOGIC (UNTOUCHED) ══ -->
 <script type="module">
