@@ -2,33 +2,44 @@
 //   POST { title, body }  -> sends and records it
 //   GET                   -> last 15 offers sent
 // The caller must send the admin's Firebase login token (Authorization: Bearer <token>).
-// Only email/password logins are accepted (customers log in with Google, so they can never use this).
+// Only email/password accounts are accepted (customers log in with Google, so they can never use this).
 // Optional: set ADMIN_EMAILS in Vercel (comma separated) to allow only those emails.
-const { getAuth } = require("firebase-admin/auth");
 const { getMessaging } = require("firebase-admin/messaging");
 const { FieldValue } = require("firebase-admin/firestore");
 const { db } = require("./_firebaseAdmin.js");
 
 const SITE = "https://www.elurufoods.shop";
 
+// Checks the admin's Firebase login token with Google (no extra packages needed).
+const WEB_API_KEY = "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8";
+
 async function requireAdmin(req) {
-  const h = req.headers.authorization || "";
-  const m = h.match(/^Bearer (.+)$/);
+  const m = (req.headers.authorization || "").match(/^Bearer (.+)$/);
   if (!m) return null;
-  let t;
-  try { t = await getAuth().verifyIdToken(m[1]); } catch (e) { return null; }
-  if (!t.firebase || t.firebase.sign_in_provider !== "password") return null;
-  const allowed = (process.env.ADMIN_EMAILS || "").split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
-  if (allowed.length && !allowed.includes(String(t.email || "").toLowerCase())) return null;
-  return t;
+  let user;
+  try {
+    const r = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=" + WEB_API_KEY, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken: m[1] })
+    });
+    if (!r.ok) return null;
+    user = ((await r.json()).users || [])[0];
+  } catch (e) { return null; }
+  if (!user) return null;
+  // must be an email + password account (customers, restaurants and riders use Google)
+  if (!(user.providerUserInfo || []).some(p => p.providerId === "password")) return null;
+  const allowed = (process.env.ADMIN_EMAILS || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
+  if (allowed.length && !allowed.includes(String(user.email || "").toLowerCase())) return null;
+  return { email: user.email || "" };
 }
 
 module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
-  const admin = await requireAdmin(req);
-  if (!admin) return res.status(401).json({ error: "Admin login required" });
-
   try {
+    const admin = await requireAdmin(req);
+    if (!admin) return res.status(401).json({ error: "Admin login required" });
+
     if (req.method === "GET") {
       const snap = await db.collection("offers").orderBy("sentAt", "desc").limit(15).get();
       const offers = snap.docs.map(d => {
