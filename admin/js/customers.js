@@ -1,3 +1,4 @@
+import { app } from "./fb.js";
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -14,11 +15,7 @@ onAuthStateChanged
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const app = initializeApp({
-apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-authDomain:"food-delivery-app-97300.firebaseapp.com",
-projectId:"food-delivery-app-97300"
-});
+
 
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -81,7 +78,7 @@ document.getElementById("todayCustomers")
 .innerText = todayCount;
 
 document.getElementById("customerTable")
-.innerHTML = table;
+.innerHTML = table || '<tr><td colspan="4" class="empty">No customers yet</td></tr>';
 
 let growthHtml = "";
 
@@ -90,10 +87,7 @@ Object.keys(growth)
 .forEach(date=>{
 
 growthHtml += `
-<p>
-${date} :
-<b>${growth[date]}</b> users
-</p>
+<div class="growth-row"><span>${date}</span><b>${growth[date]} users</b></div>
 `;
 
 });

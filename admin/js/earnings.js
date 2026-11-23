@@ -1,3 +1,4 @@
+import { app } from "./fb.js";
 alert("NEW EARNINGS.JS LOADED");
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -16,11 +17,7 @@ getAuth,
 onAuthStateChanged
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-const app = initializeApp({
-apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-authDomain:"food-delivery-app-97300.firebaseapp.com",
-projectId:"food-delivery-app-97300"
-});
+
 
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -89,40 +86,18 @@ if(
 }
 
 html += `
-<div class="card">
-
-<b>Customer:</b>
-${o.customerName || "-"}
-
-<br><br>
-
-<b>Restaurant:</b>
-${o.restaurantName || "-"}
-
-<br><br>
-
-<b>Restaurant Amount:</b>
-₹${restaurantAmount}
-
-<br><br>
-
-<b>Markup Profit:</b>
-₹${markup}
-
-<br><br>
-
-<b>Platform Fee:</b>
-₹${platform}
-
-<br><br>
-
-<b>Your Profit:</b>
-₹${adminProfit}
-<br><br>
-
-<b>Platform Fee:</b>
-₹${platform}
-
+<div class="item">
+  <div class="item-top">
+    <div>
+      <div class="item-title">${o.customerName || "-"}</div>
+      <div class="item-sub">${o.restaurantName || "-"}</div>
+    </div>
+    <span class="pill green">Delivered</span>
+  </div>
+  <div class="kv"><span>Restaurant amount</span><b>₹${restaurantAmount}</b></div>
+  <div class="kv"><span>Markup profit</span><b>₹${markup}</b></div>
+  <div class="kv"><span>Platform fee</span><b>₹${platform}</b></div>
+  <div class="kv total"><span>Your profit</span><b>₹${adminProfit}</b></div>
 </div>
 `;
 });
@@ -140,13 +115,11 @@ document.getElementById("deliveredOrders")
 .innerText = delivered;
 
 document.getElementById("earningsList")
-.innerHTML = html;
+.innerHTML = html || '<div class="empty">No delivered orders yet</div>';
 }
 
 document.getElementById("resetBtn")
 .onclick = async()=>{
-
-alert("RESET CLICKED");
 
 await updateDoc(
   doc(db,"settings","appConfig"),
@@ -155,7 +128,7 @@ await updateDoc(
   }
 );
 
-alert("FIRESTORE UPDATED");
+alert("Today's earnings reset ✅");
 
 loadEarnings();
 };

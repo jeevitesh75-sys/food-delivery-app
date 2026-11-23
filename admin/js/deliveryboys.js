@@ -1,3 +1,4 @@
+import { app } from "./fb.js";
 alert("deliveryboys.js loaded");
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -24,7 +25,7 @@ const firebaseConfig = {
   appId: "1:12744604798:web:4417d6d7f97b9b7218ec2f"
 };
 
-const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 const auth = getAuth(app);
 
@@ -63,7 +64,7 @@ let todayCollection = 0;
   <tr>
     <td>${d.name || "-"}</td>
     <td>${d.phone || "-"}</td>
-    <td>${d.online ? "🟢" : "🔴"}</td>
+    <td>${d.online ? '<span class="pill green">Online</span>' : '<span class="pill red">Offline</span>'}</td>
     <td>₹${d.todayEarn || 0}</td>
     <td>₹${d.totalEarn || 0}</td>
     <td>₹${d.todayCollection || 0}</td>
@@ -85,7 +86,7 @@ let todayCollection = 0;
   document.getElementById("todayCollection").innerText =
 todayCollection;
   document.getElementById("deliveryTable").innerHTML =
-  html;
+  html || '<tr><td colspan="6" class="empty">No delivery boys yet</td></tr>';
 }
 
 document.getElementById("resetBtn")

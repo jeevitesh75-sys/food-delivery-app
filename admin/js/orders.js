@@ -1,3 +1,4 @@
+import { app } from "./fb.js";
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -14,84 +15,57 @@ onAuthStateChanged
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const app = initializeApp({
-apiKey:"AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-authDomain:"food-delivery-app-97300.firebaseapp.com",
-projectId:"food-delivery-app-97300"
-});
+
 
 const db = getFirestore(app);
 const auth = getAuth(app);
 async function loadOrders(){
 
-const snap =
-await getDocs(collection(db,"orders"));
+  const snap = await getDocs(collection(db,"orders"));
 
-let total = 0;
-let today = 0;
-let delivered = 0;
+  let total = 0, today = 0, delivered = 0;
+  const rows = [];
+  const todayDate = new Date().toDateString();
 
-let html = "";
+  const pill = (st)=>{
+    const c = st==="Delivered" ? "green" : (st==="Rejected" ? "red" : (st==="Pending" ? "orange" : "blue"));
+    return `<span class="pill ${c}">${st || "-"}</span>`;
+  };
 
-const todayDate =
-new Date().toDateString();
+  snap.forEach(d=>{
+    const o = d.data();
+    total++;
+    if(o.status === "Delivered") delivered++;
 
-snap.forEach(doc=>{
+    let t = 0;
+    if(o.createdAt?.toDate){
+      const dt = o.createdAt.toDate();
+      t = dt.getTime();
+      if(dt.toDateString() === todayDate) today++;
+    }
 
-const o = doc.data();
+    rows.push({ t, html: `
+      <div class="item">
+        <div class="item-top">
+          <div>
+            <div class="item-title">${o.customerName || "-"}</div>
+            <div class="item-sub">${o.restaurantName || "-"}</div>
+          </div>
+          ${pill(o.status)}
+        </div>
+        <div class="kv total"><span>Total</span><b>₹${o.total || 0}</b></div>
+      </div>` });
+  });
 
-total++;
+  rows.sort((a,b)=>b.t-a.t);
 
-if(o.status === "Delivered"){
-delivered++;
+  document.getElementById("totalOrders").innerText = total;
+  document.getElementById("todayOrders").innerText = today;
+  document.getElementById("deliveredOrders").innerText = delivered;
+
+  document.getElementById("ordersList").innerHTML =
+    rows.length ? rows.map(r=>r.html).join("") : '<div class="empty">No orders yet</div>';
 }
-
-if(o.createdAt?.toDate){
-
-const orderDate =
-o.createdAt.toDate().toDateString();
-
-if(orderDate === todayDate){
-today++;
-}
-}
-
-html += `
-
-<div class="card">
-
-<b>Customer:</b>
-${o.customerName || "-"}
-
-<br><br>
-
-<b>Restaurant:</b>
-${o.restaurantName || "-"}
-
-<br><br>
-
-<b>Total:</b>
-₹${o.total || 0}
-
-<br><br>
-
-<b>Status:</b>
-${o.status || "-"}
-
-</div>
-
-`;
-
-});
-
-document.getElementById("totalOrders").innerText = total;
-document.getElementById("todayOrders").innerText = today;
-document.getElementById("deliveredOrders").innerText = delivered;
-
-
-document.getElementById("ordersList").innerHTML = html;
-
-} // <-- close loadOrders()
 
 window.resetTodayOrders = ()=>{
 

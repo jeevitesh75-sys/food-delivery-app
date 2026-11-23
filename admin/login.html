@@ -1,136 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  font-family:Arial,sans-serif;
-  background:#f5f5f5;
-}
-
-.box{
-  background:white;
-  padding:25px;
-  border-radius:10px;
-  width:320px;
-  box-shadow:0 2px 10px rgba(0,0,0,0.1);
-}
-
-h2{
-  text-align:center;
-  margin-bottom:20px;
-}
-
-input{
-  width:100%;
-  padding:12px;
-  margin:8px 0;
-  box-sizing:border-box;
-}
-
-button{
-  width:100%;
-  padding:12px;
-  border:none;
-  background:#222;
-  color:white;
-  cursor:pointer;
-  margin-top:10px;
-}
-</style>
+<title>Admin Login - Eluru Foods</title>
+<meta name="theme-color" content="#249B55">
+<link rel="stylesheet" href="css/admin.css">
 </head>
-
 <body>
-
-<div class="box">
-
-<h2>Admin Login</h2>
-
-<input
-id="email"
-type="email"
-placeholder="Email">
-
-<input
-id="password"
-type="password"
-placeholder="Password">
-
-<button onclick="login()">
-Login
-</button>
-
-</div>
-
+<div class="login-wrap"><form class="login-box" id="loginForm">
+  <div class="brand"><div class="brand-mark">E</div><div><h2>Eluru Foods</h2><div class="brand-sub">Admin panel - sign in to continue</div></div></div>
+  <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="username" placeholder="admin@example.com" required></div>
+  <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Your password" required></div>
+  <div id="loginErr" class="notice err"></div>
+  <button type="submit" id="loginBtn">Sign in</button>
+</form></div>
 <script type="module">
+import { auth } from "./js/fb.js";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+onAuthStateChanged(auth, (user) => { if (user) window.location.href = "index.html"; });
 
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-  authDomain: "food-delivery-app-97300.firebaseapp.com",
-  projectId: "food-delivery-app-97300",
-  storageBucket: "food-delivery-app-97300.firebasestorage.app",
-  messagingSenderId: "12744604798",
-  appId: "1:12744604798:web:4417d6d7f97b9b7218ec2f"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-// Auto Login
-onAuthStateChanged(auth,(user)=>{
-
-  if(user){
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById("loginBtn"), err = document.getElementById("loginErr");
+  err.classList.remove("show"); btn.disabled = true; btn.textContent = "Signing in...";
+  try {
+    await signInWithEmailAndPassword(auth, document.getElementById("email").value.trim(), document.getElementById("password").value);
     window.location.href = "index.html";
+  } catch (ex) {
+    err.textContent = "Login failed. Check your email and password.";
+    err.classList.add("show"); btn.disabled = false; btn.textContent = "Sign in";
+    console.log(ex);
   }
-
 });
-
-window.login = async function(){
-
-  const email =
-  document.getElementById("email").value;
-
-  const password =
-  document.getElementById("password").value;
-
-  try{
-
-    await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-
-    window.location.href = "index.html";
-
-  }
-  catch(err){
-
-    alert(err.message);
-    console.log(err);
-
-  }
-
-};
-
 </script>
-
 </body>
 </html>

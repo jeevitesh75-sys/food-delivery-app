@@ -1,3 +1,4 @@
+import { app } from "./fb.js";
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -23,7 +24,7 @@ const firebaseConfig = {
   appId: "1:12744604798:web:4417d6d7f97b9b7218ec2f"
 };
 
-const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 const auth = getAuth(app);
 

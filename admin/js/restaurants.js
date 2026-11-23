@@ -1,3 +1,4 @@
+import { app } from "./fb.js";
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
@@ -26,7 +27,7 @@ const firebaseConfig = {
   appId: "1:12744604798:web:4417d6d7f97b9b7218ec2f"
 };
 
-const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 const auth = getAuth(app);
 
@@ -48,10 +49,7 @@ function render(data){
     html += `
     <tr>
       <td>
-        <img
-          src="${r.image || ''}"
-          width="50"
-          height="50">
+        <img src="${r.image || ''}" onerror="this.style.visibility='hidden'">
       </td>
 
       <td>${r.name || "-"}</td>
@@ -59,7 +57,7 @@ function render(data){
       <td>${r.phone || "-"}</td>
 
       <td>
-        ${r.isOpen ? "🟢 Open" : "🔴 Closed"}
+        ${r.isOpen ? '<span class="pill green">Open</span>' : '<span class="pill red">Closed</span>'}
       </td>
 
       <td>₹${r.todayEarn || 0}</td>
@@ -67,12 +65,12 @@ function render(data){
 
       <td>
 
-        <button
+        <button class="btn-warn"
           onclick="toggleRestaurant('${r.id}',${r.isOpen})">
           ${r.isOpen ? "Close" : "Open"}
         </button>
 
-        <button
+        <button class="btn-danger"
           onclick="deleteRestaurant('${r.id}')">
           Delete
         </button>
@@ -84,7 +82,7 @@ function render(data){
 
   });
 
-  table.innerHTML = html;
+  table.innerHTML = html || '<tr><td colspan="8" class="empty">No restaurants found</td></tr>';
 
 }
 

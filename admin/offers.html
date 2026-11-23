@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offers - Eluru Foods Admin</title>
+<meta name="theme-color" content="#249B55">
+<link rel="stylesheet" href="css/admin.css">
+
+<script src="js/shell.js" defer></script>
+</head>
+<body>
+<main class="main"><div class="content">
+<div class="page-head"><h1>Offers</h1><p>Tell all your customers about a new offer.</p></div>
+<div id="offerNotice" class="notice"></div>
+<div class="offer-grid">
+ <div>
+  <div class="panel">
+   <h3>New offer notification</h3>
+   <p class="panel-sub">Sent as a push notification to every customer who has the Eluru Foods app.</p>
+   <div class="chips" id="chips">
+     <button class="chip" type="button" data-t="🍔 Flat 20% OFF today!" data-b="Order your favourites now and save big. Offer valid today only.">20% OFF</button>
+     <button class="chip" type="button" data-t="🛵 Free delivery!" data-b="Free delivery on all orders today. Order now!">Free delivery</button>
+     <button class="chip" type="button" data-t="🍕 Weekend special" data-b="Special weekend deals from your favourite restaurants.">Weekend</button>
+   </div>
+   <div class="field"><label for="offerTitle">Title</label><input id="offerTitle" maxlength="50" placeholder="e.g. 🍔 Flat 20% OFF today!">
+     <div class="hint"><span>Short and catchy</span><span id="titleCount">0/50</span></div></div>
+   <div class="field"><label for="offerBody">Message</label><textarea id="offerBody" maxlength="150" placeholder="e.g. Order any biryani and get 20% off. Valid till 10 PM."></textarea>
+     <div class="hint"><span>What the offer is and when it ends</span><span id="bodyCount">0/150</span></div></div>
+   <button class="btn-lg" id="sendBtn">Send to all customers</button>
+  </div>
+ </div>
+ <div>
+  <div class="phone-preview"><div class="pv-label">Preview on customer phone</div>
+   <div class="pv-notif"><div class="pv-ic">E</div><div style="min-width:0"><div class="pv-app"><span>Eluru Foods</span><span>now</span></div>
+   <div class="pv-title" id="pvTitle">Your offer title</div><div class="pv-body" id="pvBody">Your message appears here.</div></div></div>
+  </div>
+ </div>
+</div>
+<div class="panel" style="margin-top:6px"><h3>Recently sent</h3><div id="history"><div class="empty">Loading...</div></div></div>
+</div></main>
+<script type="module" src="js/offers.js"></script>
+</body>
+</html>

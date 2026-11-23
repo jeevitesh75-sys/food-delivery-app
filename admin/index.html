@@ -1,143 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#ff4d4d">
-  <script type="module">
-
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-  getAuth,
-  onAuthStateChanged,
-  signOut
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8",
-  authDomain: "food-delivery-app-97300.firebaseapp.com",
-  projectId: "food-delivery-app-97300",
-  storageBucket: "food-delivery-app-97300.firebasestorage.app",
-  messagingSenderId: "12744604798",
-  appId: "1:12744604798:web:4417d6d7f97b9b7218ec2f"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-onAuthStateChanged(auth,(user)=>{
-
-  if(!user){
-    location.href = "login.html";
-  }
-
-});
-
-window.logout = async function(){
-
-  await signOut(auth);
-  location.href = "login.html";
-
-};
-
-</script>
 <meta charset="UTF-8">
-<title>Admin Dashboard</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<title>Dashboard - Eluru Foods Admin</title>
+<meta name="theme-color" content="#249B55">
 <link rel="stylesheet" href="css/admin.css">
 
+<script src="js/shell.js" defer></script>
 </head>
 <body>
-<div class="sidebar">
-
-<h2>Admin</h2>
-
-<a href="index.html">🏠 Dashboard</a>
-<a href="orders.html">📦 Orders</a>
-<a href="customers.html">👥 Customers</a>
-<a href="deliveryboys.html">🚴 Delivery Boys</a>
-<a href="restaurants.html">🏪 Restaurants</a>
-<a href="menu.html">🍽 Menu</a>
-<a href="menu.html">🍽 Menu</a>
-<a href="earnings.html">💰 Earnings</a>
-<a href="settings.html">⚙ Settings</a>
-<a href="#" onclick="logout()">
-🚪 Logout
-</a>
-</div>
-
-<div class="main">
-
-<!-- existing page content here -->
-
-
-<div class="header">
-👑 Admin Dashboard
-</div>
-
+<main class="main"><div class="content">
+<div class="page-head"><h1>Dashboard</h1><p>Welcome back. Here is how Eluru Foods is doing.</p></div>
 <div class="stats">
-
-<div class="card">
-<h3>Total Orders</h3>
-<h1 id="totalOrders">0</h1>
+<div class="stat "><div class="stat-label">Total orders</div><div class="stat-value" id="totalOrders">0</div></div>
+<div class="stat blue"><div class="stat-label">Customers</div><div class="stat-value" id="totalCustomers">0</div></div>
+<div class="stat warn"><div class="stat-label">Restaurants</div><div class="stat-value" id="totalRestaurants">0</div></div>
+<div class="stat dark"><div class="stat-label">Delivery boys</div><div class="stat-value" id="totalDelivery">0</div></div>
 </div>
-
-<div class="card">
-<h3>Total Customers</h3>
-<h1 id="totalCustomers">0</h1>
-</div>
-
-<div class="card">
-<h3>Total Restaurants</h3>
-<h1 id="totalRestaurants">0</h1>
-</div>
-
-<div class="card">
-<h3>Total Delivery Boys</h3>
-<h1 id="totalDelivery">0</h1>
-</div>
-
-</div>
-
-<div class="menu">
-
-<a href="orders.html" class="btn blue">
-📦 Orders
-</a>
-
-<a href="customers.html" class="btn purple">
-👥 Customers
-</a>
-
-<a href="deliveryboys.html" class="btn orange">
-🚴 Delivery Boys
-</a>
-
-<a href="restaurants.html" class="btn green">
-🏪 Restaurants
-</a>
-
-<a href="menu.html" class="btn teal">
-🍽 Menu
-</a>
-<a href="earnings.html" class="btn pink">
-💰 Earnings
-</a>
-
-<a href="settings.html" class="btn gray">
-⚙ Settings
-</a>
-
-</div>
-
+<div class="section-title">Manage</div>
+<div class="tiles"><a class="tile" href="orders.html"><div class="tile-ic" data-ic="orders"></div><div><b>Orders</b><span>View and track all orders</span></div></a><a class="tile" href="customers.html"><div class="tile-ic" data-ic="users"></div><div><b>Customers</b><span>Customer list and growth</span></div></a><a class="tile" href="deliveryboys.html"><div class="tile-ic" data-ic="bike"></div><div><b>Delivery Boys</b><span>Riders, status and earnings</span></div></a><a class="tile" href="restaurants.html"><div class="tile-ic" data-ic="store"></div><div><b>Restaurants</b><span>Open, close and manage</span></div></a><a class="tile" href="menu.html"><div class="tile-ic" data-ic="menu"></div><div><b>Menu</b><span>Edit foods and prices</span></div></a><a class="tile" href="offers.html"><div class="tile-ic" data-ic="offer"></div><div><b>Offers</b><span>Send a notification to all customers</span></div></a><a class="tile" href="earnings.html"><div class="tile-ic" data-ic="money"></div><div><b>Earnings</b><span>Your profit and platform fees</span></div></a><a class="tile" href="settings.html"><div class="tile-ic" data-ic="cog"></div><div><b>Settings</b><span>Pricing and delivery fees</span></div></a></div>
+<script>document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('[data-ic]').forEach(function(e){e.innerHTML=window.__adminIcon(e.dataset.ic);});});</script>
+</div></main>
 <script type="module" src="js/index.js"></script>
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js");
-}
-</script>
 </body>
 </html>
