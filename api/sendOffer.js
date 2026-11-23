@@ -15,22 +15,29 @@ const WEB_API_KEY = "AIzaSyD_AhACSdb6ddlmNWU3UNKxUSBj-0pSIA8";
 
 async function requireAdmin(req) {
   const m = (req.headers.authorization || "").match(/^Bearer (.+)$/);
-  if (!m) return null;
+  if (!m) return { error: "Please log in again." };
   let user;
   try {
     const r = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=" + WEB_API_KEY, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      // the key is restricted to the website, so tell Google the call is for the website
+      headers: { "Content-Type": "application/json", Referer: SITE + "/", Origin: SITE },
       body: JSON.stringify({ idToken: m[1] })
     });
-    if (!r.ok) return null;
+    if (!r.ok) {
+      let msg = "";
+      try { msg = ((await r.json()).error || {}).message || ""; } catch (e) {}
+      return { error: "Login could not be verified (" + r.status + (msg ? ": " + msg : "") + "). Log out and log in again." };
+    }
     user = ((await r.json()).users || [])[0];
-  } catch (e) { return null; }
-  if (!user) return null;
+  } catch (e) { return { error: "Login check failed: " + e.message }; }
+  if (!user) return { error: "Login not found. Log out and log in again." };
   // must be an email + password account (customers, restaurants and riders use Google)
-  if (!(user.providerUserInfo || []).some(p => p.providerId === "password")) return null;
+  if (!(user.providerUserInfo || []).some(p => p.providerId === "password"))
+    return { error: "You are signed in with Google (" + (user.email || "") + "). Tap Logout in the menu, then log in with the admin email and password." };
   const allowed = (process.env.ADMIN_EMAILS || "").split(",").map(x => x.trim().toLowerCase()).filter(Boolean);
-  if (allowed.length && !allowed.includes(String(user.email || "").toLowerCase())) return null;
+  if (allowed.length && !allowed.includes(String(user.email || "").toLowerCase()))
+    return { error: (user.email || "This account") + " is not allowed to send offers." };
   return { email: user.email || "" };
 }
 
@@ -38,7 +45,7 @@ module.exports = async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   try {
     const admin = await requireAdmin(req);
-    if (!admin) return res.status(401).json({ error: "Admin login required" });
+    if (admin.error) return res.status(401).json({ error: admin.error });
 
     if (req.method === "GET") {
       const snap = await db.collection("offers").orderBy("sentAt", "desc").limit(15).get();
